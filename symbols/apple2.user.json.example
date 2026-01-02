@@ -1,0 +1,26 @@
+{
+  "platform": "apple2",
+  "description": "User-defined Apple II symbols (example)",
+  "version": "1.0",
+  "comment": "Rename this file to apple2.user.json to activate",
+  "symbols": [
+    {
+      "address": "0x0300",
+      "name": "MY_BUFFER",
+      "description": "My application buffer",
+      "type": "data"
+    },
+    {
+      "address": "0x6000",
+      "name": "MY_ROUTINE",
+      "description": "My custom routine",
+      "type": "routine"
+    },
+    {
+      "address": "0x0020",
+      "name": "MY_ZP_VAR",
+      "description": "My zero page variable",
+      "type": "data"
+    }
+  ]
+}

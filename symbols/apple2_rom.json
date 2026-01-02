@@ -1,0 +1,31 @@
+{
+  "platform": "Apple II",
+  "description": "Apple II ROM and I/O symbols",
+  "symbols": [
+    {"address": "0xFC58", "name": "HOME", "description": "Clear screen", "type": "routine"},
+    {"address": "0xFC9C", "name": "CLREOL", "description": "Clear to end of line", "type": "routine"},
+    {"address": "0xFC9E", "name": "CLEOP", "description": "Clear to end of page", "type": "routine"},
+    {"address": "0xFCA8", "name": "VTAB", "description": "Set vertical position", "type": "routine"},
+    {"address": "0xFD0C", "name": "RDKEY", "description": "Read keyboard", "type": "routine"},
+    {"address": "0xFD8E", "name": "CROUT", "description": "Output carriage return", "type": "routine"},
+    {"address": "0xFDED", "name": "COUT", "description": "Output character", "type": "routine"},
+    {"address": "0xFDF0", "name": "COUT1", "description": "Output character (alternate)", "type": "routine"},
+    {"address": "0xFB1E", "name": "PREAD", "description": "Read paddle", "type": "routine"},
+    {"address": "0xFB2F", "name": "WAIT", "description": "Wait routine", "type": "routine"},
+    {"address": "0xFBB3", "name": "BELL", "description": "Beep speaker", "type": "routine"},
+    {"address": "0xFBE4", "name": "MOVE", "description": "Memory move", "type": "routine"},
+    {"address": "0xFBFD", "name": "BASCALC", "description": "Calculate screen address", "type": "routine"},
+    {"address": "0xFC22", "name": "CLREOP2", "description": "Clear to end of page", "type": "routine"},
+    {"address": "0xC000", "name": "KBD", "description": "Keyboard data", "type": "io_port"},
+    {"address": "0xC010", "name": "KBDSTRB", "description": "Keyboard strobe", "type": "io_port"},
+    {"address": "0xC030", "name": "SPKR", "description": "Speaker", "type": "io_port"},
+    {"address": "0xC050", "name": "TXTCLR", "description": "Graphics mode", "type": "io_port"},
+    {"address": "0xC051", "name": "TXTSET", "description": "Text mode", "type": "io_port"},
+    {"address": "0xC052", "name": "MIXCLR", "description": "Full screen", "type": "io_port"},
+    {"address": "0xC053", "name": "MIXSET", "description": "Mixed mode", "type": "io_port"},
+    {"address": "0xC054", "name": "TXTPAGE1", "description": "Text page 1", "type": "io_port"},
+    {"address": "0xC055", "name": "TXTPAGE2", "description": "Text page 2", "type": "io_port"},
+    {"address": "0xC056", "name": "LORES", "description": "Lo-res graphics", "type": "io_port"},
+    {"address": "0xC057", "name": "HIRES", "description": "Hi-res graphics", "type": "io_port"}
+  ]
+}

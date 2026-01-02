@@ -1,0 +1,62 @@
+{
+  "platform": "dos33",
+  "description": "DOS 3.3 Memory Map and Page 3 Vectors",
+  "version": "1.0",
+  "source": "Inside the Apple IIe by Gary B. Little (1985)",
+  "symbols": [
+    {
+      "address": "0x03D0",
+      "name": "DOS_WARM",
+      "type": "system_variable",
+      "description": "JMP to DOS 3.3 warm start (reconnect DOS)"
+    },
+    {
+      "address": "0x03D3",
+      "name": "DOS_COLD",
+      "type": "system_variable",
+      "description": "JMP to DOS 3.3 cold start (initialize DOS)"
+    },
+    {
+      "address": "0x03D6",
+      "name": "DOS_FM",
+      "type": "system_variable",
+      "description": "JMP to DOS 3.3 file manager"
+    },
+    {
+      "address": "0x03D9",
+      "name": "DOS_RWTS",
+      "type": "system_variable",
+      "description": "JMP to DOS 3.3 RWTS (Read/Write Track/Sector)"
+    },
+    {
+      "address": "0x9600",
+      "name": "DOS_BUF1",
+      "type": "system_variable",
+      "description": "DOS 3.3 file buffer 1 (default, 595 bytes)"
+    },
+    {
+      "address": "0x9853",
+      "name": "DOS_BUF2",
+      "type": "system_variable",
+      "description": "DOS 3.3 file buffer 2 (595 bytes)"
+    },
+    {
+      "address": "0x9AA6",
+      "name": "DOS_BUF3",
+      "type": "system_variable",
+      "description": "DOS 3.3 file buffer 3 (595 bytes)"
+    },
+    {
+      "address": "0x9D00",
+      "name": "DOS_START",
+      "type": "system_variable",
+      "description": "DOS 3.3 code start address"
+    },
+    {
+      "address": "0xBFFF",
+      "name": "DOS_END",
+      "type": "system_variable",
+      "description": "DOS 3.3 code end address"
+    }
+  ]
+}

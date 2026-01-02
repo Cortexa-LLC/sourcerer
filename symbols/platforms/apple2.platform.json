@@ -1,0 +1,62 @@
+{
+  "platform": "apple2",
+  "name": "Apple II",
+  "description": "Apple II 6502-based computer",
+  "cpu": "6502",
+  "version": "1.0",
+  
+  "symbol_files": [
+    "symbols/apple2_rom.json",
+    "symbols/apple2_zeropage.json"
+  ],
+  
+  "hint_files": [],
+  
+  "inline_data_routines": [],
+  
+  "entry_points": {
+    "default": "0x8000",
+    "description": "Default load address for Apple II binaries"
+  },
+  
+  "memory_map": {
+    "zero_page": {"start": "0x0000", "end": "0x00FF"},
+    "text_page_1": {"start": "0x0400", "end": "0x07FF"},
+    "user_ram": {"start": "0x0800", "end": "0xBFFF"},
+    "io_page": {"start": "0xC000", "end": "0xCFFF"},
+    "rom": {"start": "0xD000", "end": "0xFFFF"}
+  },
+  
+  "extensions": {
+    "prodos": {
+      "description": "ProDOS operating system support",
+      "symbol_files": ["symbols/prodos8.json"],
+      "hint_files": ["symbols/prodos_hints.json"],
+      "inline_data_routines": [
+        {
+          "address": "0xBF00",
+          "name": "MLI",
+          "bytes_after_call": 3,
+          "description": "ProDOS MLI call with inline command byte and parameter pointer"
+        }
+      ],
+      "entry_points": {
+        "sys_file": "0x2000"
+      }
+    },
+    "dos33": {
+      "description": "DOS 3.3 operating system support",
+      "symbol_files": ["symbols/dos33.json"],
+      "hint_files": []
+    }
+  },
+  
+  "user_overrides": {
+    "description": "User can create apple2.user.json to add custom symbols",
+    "symbol_files": ["symbols/apple2.user.json"],
+    "search_paths": [
+      "~/.sourcerer/symbols/",
+      "./symbols/"
+    ]
+  }
+}

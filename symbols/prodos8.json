@@ -1,0 +1,85 @@
+{
+  "platform": "prodos8",
+  "description": "ProDOS 8 Machine Language Interface (MLI) and System Globals",
+  "version": "1.0",
+  "symbols": [
+    {
+      "address": "0xBF00",
+      "name": "MLI",
+      "type": "mli_call",
+      "description": "ProDOS MLI entry point (JSR $BF00)"
+    },
+    {
+      "address": "0xBE00",
+      "name": "DEVNUM",
+      "type": "system_variable",
+      "description": "Most recent device accessed"
+    },
+    {
+      "address": "0xBE30",
+      "name": "DEVCNT",
+      "type": "system_variable",
+      "description": "Number of on-line devices"
+    },
+    {
+      "address": "0xBE31",
+      "name": "DEVLST",
+      "type": "system_variable",
+      "description": "Device list (8 bytes)"
+    },
+    {
+      "address": "0xBE50",
+      "name": "PFIXPTR",
+      "type": "system_variable",
+      "description": "Prefix buffer pointer"
+    },
+    {
+      "address": "0xBE52",
+      "name": "TSLOT",
+      "type": "system_variable",
+      "description": "Slot number of startup device"
+    },
+    {
+      "address": "0xBE53",
+      "name": "TDRIVE",
+      "type": "system_variable",
+      "description": "Drive number of startup device"
+    },
+    {
+      "address": "0xBE90",
+      "name": "DATELO",
+      "type": "system_variable",
+      "description": "Current date (2 bytes)"
+    },
+    {
+      "address": "0xBE92",
+      "name": "TIMELO",
+      "type": "system_variable",
+      "description": "Current time (2 bytes)"
+    },
+    {
+      "address": "0xBE94",
+      "name": "LEVEL",
+      "type": "system_variable",
+      "description": "Current file level"
+    },
+    {
+      "address": "0xBE95",
+      "name": "BUBIT",
+      "type": "system_variable",
+      "description": "Backup bit disable flag"
+    },
+    {
+      "address": "0xBF94",
+      "name": "VERSION",
+      "type": "system_variable",
+      "description": "ProDOS version number"
+    },
+    {
+      "address": "0xBFFF",
+      "name": "KVERSION",
+      "type": "system_variable",
+      "description": "ProDOS kernel version"
+    }
+  ]
+}

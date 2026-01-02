@@ -1,0 +1,686 @@
+{
+  "platform": "apple2e",
+  "description": "Apple IIe Memory Map and I/O Locations (Comprehensive)",
+  "version": "2.0",
+  "source": "Inside the Apple IIe by Gary B. Little (1985)",
+  "symbols": [
+    {
+      "address": "0x0000",
+      "name": "WNDLFT",
+      "type": "zero_page",
+      "description": "Text window left edge"
+    },
+    {
+      "address": "0x0001",
+      "name": "WNDWDTH",
+      "type": "zero_page",
+      "description": "Text window width"
+    },
+    {
+      "address": "0x0002",
+      "name": "WNDTOP",
+      "type": "zero_page",
+      "description": "Text window top edge"
+    },
+    {
+      "address": "0x0003",
+      "name": "WNDBTM",
+      "type": "zero_page",
+      "description": "Text window bottom edge"
+    },
+    {
+      "address": "0x0004",
+      "name": "CH",
+      "type": "zero_page",
+      "description": "Cursor horizontal position"
+    },
+    {
+      "address": "0x0005",
+      "name": "CV",
+      "type": "zero_page",
+      "description": "Cursor vertical position"
+    },
+    {
+      "address": "0x0006",
+      "name": "GBASL",
+      "type": "zero_page",
+      "description": "Graphics base address low"
+    },
+    {
+      "address": "0x0007",
+      "name": "GBASH",
+      "type": "zero_page",
+      "description": "Graphics base address high"
+    },
+    {
+      "address": "0x0020",
+      "name": "HIMEM",
+      "type": "zero_page",
+      "description": "High memory pointer (2 bytes)"
+    },
+    {
+      "address": "0x0028",
+      "name": "BASL",
+      "type": "zero_page",
+      "description": "Text base address low"
+    },
+    {
+      "address": "0x0029",
+      "name": "BASH",
+      "type": "zero_page",
+      "description": "Text base address high"
+    },
+    {
+      "address": "0x0032",
+      "name": "INVFLG",
+      "type": "zero_page",
+      "description": "Video attribute mask for inverse/flash"
+    },
+    {
+      "address": "0x0033",
+      "name": "PROMPT",
+      "type": "zero_page",
+      "description": "Monitor prompt character"
+    },
+    {
+      "address": "0x0036",
+      "name": "CSWL",
+      "type": "zero_page",
+      "description": "Character output vector low"
+    },
+    {
+      "address": "0x0037",
+      "name": "CSWH",
+      "type": "zero_page",
+      "description": "Character output vector high"
+    },
+    {
+      "address": "0x0038",
+      "name": "KSWL",
+      "type": "zero_page",
+      "description": "Character input vector low"
+    },
+    {
+      "address": "0x0039",
+      "name": "KSWH",
+      "type": "zero_page",
+      "description": "Character input vector high"
+    },
+    {
+      "address": "0x003E",
+      "name": "HMASK",
+      "type": "zero_page",
+      "description": "Hi-res graphics mask (2 bytes)"
+    },
+    {
+      "address": "0x0067",
+      "name": "TXTTAB",
+      "type": "zero_page",
+      "description": "Applesoft program start (2 bytes)"
+    },
+    {
+      "address": "0x0069",
+      "name": "VARTAB",
+      "type": "zero_page",
+      "description": "Applesoft variable start (2 bytes)"
+    },
+    {
+      "address": "0x006B",
+      "name": "ARYTAB",
+      "type": "zero_page",
+      "description": "Applesoft array start (2 bytes)"
+    },
+    {
+      "address": "0x006D",
+      "name": "STREND",
+      "type": "zero_page",
+      "description": "Applesoft string end (2 bytes)"
+    },
+    {
+      "address": "0x006F",
+      "name": "FRETOP",
+      "type": "zero_page",
+      "description": "Applesoft string free space (2 bytes)"
+    },
+    {
+      "address": "0x00AF",
+      "name": "PRGEND",
+      "type": "zero_page",
+      "description": "Applesoft program end (2 bytes)"
+    },
+    {
+      "address": "0xC000",
+      "name": "KBD",
+      "type": "io_port",
+      "description": "Keyboard data (bits 0-6), strobe on bit 7"
+    },
+    {
+      "address": "0xC001",
+      "name": "80STOREON",
+      "type": "soft_switch",
+      "description": "Allow PAGE2 to switch main/aux video memory"
+    },
+    {
+      "address": "0xC002",
+      "name": "RAMRDOFF",
+      "type": "soft_switch",
+      "description": "Read-enable main memory $200-$BFFF"
+    },
+    {
+      "address": "0xC003",
+      "name": "RAMRDON",
+      "type": "soft_switch",
+      "description": "Read-enable auxiliary memory $200-$BFFF"
+    },
+    {
+      "address": "0xC004",
+      "name": "RAMWRTOFF",
+      "type": "soft_switch",
+      "description": "Write-enable main memory $200-$BFFF"
+    },
+    {
+      "address": "0xC005",
+      "name": "RAMWRTON",
+      "type": "soft_switch",
+      "description": "Write-enable auxiliary memory $200-$BFFF"
+    },
+    {
+      "address": "0xC006",
+      "name": "INTCXROMOFF",
+      "type": "soft_switch",
+      "description": "Enable slot ROM $C100-$CFFF"
+    },
+    {
+      "address": "0xC007",
+      "name": "INTCXROMON",
+      "type": "soft_switch",
+      "description": "Enable main ROM $C100-$CFFF"
+    },
+    {
+      "address": "0xC008",
+      "name": "ALTZPOFF",
+      "type": "soft_switch",
+      "description": "Enable main zero page/stack and main BSR"
+    },
+    {
+      "address": "0xC009",
+      "name": "ALTZPON",
+      "type": "soft_switch",
+      "description": "Enable aux zero page/stack and aux BSR"
+    },
+    {
+      "address": "0xC00A",
+      "name": "SLOTC3ROMOFF",
+      "type": "soft_switch",
+      "description": "Enable main ROM $C300-$C3FF"
+    },
+    {
+      "address": "0xC00B",
+      "name": "SLOTC3ROMON",
+      "type": "soft_switch",
+      "description": "Enable slot 3 ROM $C300-$C3FF"
+    },
+    {
+      "address": "0xC00C",
+      "name": "80COLOFF",
+      "type": "soft_switch",
+      "description": "Turn off 80-column display"
+    },
+    {
+      "address": "0xC00D",
+      "name": "80COLON",
+      "type": "soft_switch",
+      "description": "Turn on 80-column display"
+    },
+    {
+      "address": "0xC00E",
+      "name": "ALTCHARSETOFF",
+      "type": "soft_switch",
+      "description": "Turn off alternate character set"
+    },
+    {
+      "address": "0xC00F",
+      "name": "ALTCHARSETON",
+      "type": "soft_switch",
+      "description": "Turn on alternate character set"
+    },
+    {
+      "address": "0xC010",
+      "name": "KBDSTRB",
+      "type": "io_port",
+      "description": "Clear keyboard strobe (also read AKD status)"
+    },
+    {
+      "address": "0xC011",
+      "name": "BSRBANK2",
+      "type": "hardware",
+      "description": "Status: 1=bank2 BSR available, 0=bank1"
+    },
+    {
+      "address": "0xC012",
+      "name": "BSRREADRAM",
+      "type": "hardware",
+      "description": "Status: 1=BSR active for reads, 0=ROM active"
+    },
+    {
+      "address": "0xC013",
+      "name": "RAMRD",
+      "type": "hardware",
+      "description": "Status: 0=main $200-$BFFF, 1=aux active for reads"
+    },
+    {
+      "address": "0xC014",
+      "name": "RAMWRT",
+      "type": "hardware",
+      "description": "Status: 0=main $200-$BFFF, 1=aux active for writes"
+    },
+    {
+      "address": "0xC015",
+      "name": "INTCXROM",
+      "type": "hardware",
+      "description": "Status: 1=main ROM $C100-$CFFF, 0=slot ROM"
+    },
+    {
+      "address": "0xC016",
+      "name": "ALTZP",
+      "type": "hardware",
+      "description": "Status: 1=aux ZP/stack/BSR, 0=main"
+    },
+    {
+      "address": "0xC017",
+      "name": "SLOTC3ROM",
+      "type": "hardware",
+      "description": "Status: 1=slot 3 ROM active, 0=main ROM"
+    },
+    {
+      "address": "0xC018",
+      "name": "80STORE",
+      "type": "hardware",
+      "description": "Status: 1=PAGE2 switches main/aux, 0=switches pages"
+    },
+    {
+      "address": "0xC019",
+      "name": "VERTBLANK",
+      "type": "hardware",
+      "description": "Status: 1=vertical retrace on, 0=off"
+    },
+    {
+      "address": "0xC01A",
+      "name": "TEXT",
+      "type": "hardware",
+      "description": "Status: 1=text mode active, 0=graphics mode"
+    },
+    {
+      "address": "0xC01B",
+      "name": "MIXED",
+      "type": "hardware",
+      "description": "Status: 1=mixed graphics/text, 0=full screen"
+    },
+    {
+      "address": "0xC01C",
+      "name": "PAGE2",
+      "type": "hardware",
+      "description": "Status: 1=page2 or aux video selected"
+    },
+    {
+      "address": "0xC01D",
+      "name": "HIRES",
+      "type": "hardware",
+      "description": "Status: 1=hi-res graphics, 0=lo-res graphics"
+    },
+    {
+      "address": "0xC01E",
+      "name": "ALTCHARSET",
+      "type": "hardware",
+      "description": "Status: 1=alternate charset on, 0=primary"
+    },
+    {
+      "address": "0xC01F",
+      "name": "80COL",
+      "type": "hardware",
+      "description": "Status: 1=80-column display, 0=40-column"
+    },
+    {
+      "address": "0xC020",
+      "name": "TAPEOUT",
+      "type": "io_port",
+      "description": "Toggle cassette output"
+    },
+    {
+      "address": "0xC030",
+      "name": "SPKR",
+      "type": "io_port",
+      "description": "Toggle speaker"
+    },
+    {
+      "address": "0xC040",
+      "name": "STROBE",
+      "type": "io_port",
+      "description": "Game connector strobe"
+    },
+    {
+      "address": "0xC050",
+      "name": "TXTCLR",
+      "type": "soft_switch",
+      "description": "Select graphics mode"
+    },
+    {
+      "address": "0xC051",
+      "name": "TXTSET",
+      "type": "soft_switch",
+      "description": "Select text mode"
+    },
+    {
+      "address": "0xC052",
+      "name": "MIXCLR",
+      "type": "soft_switch",
+      "description": "Display full screen graphics"
+    },
+    {
+      "address": "0xC053",
+      "name": "MIXSET",
+      "type": "soft_switch",
+      "description": "Display mixed text/graphics"
+    },
+    {
+      "address": "0xC054",
+      "name": "LOWSCR",
+      "type": "soft_switch",
+      "description": "Select page 1 display (or main video)"
+    },
+    {
+      "address": "0xC055",
+      "name": "HISCR",
+      "type": "soft_switch",
+      "description": "Select page 2 display (or aux video)"
+    },
+    {
+      "address": "0xC056",
+      "name": "LORES",
+      "type": "soft_switch",
+      "description": "Select lo-res graphics"
+    },
+    {
+      "address": "0xC057",
+      "name": "HIRES",
+      "type": "soft_switch",
+      "description": "Select hi-res graphics"
+    },
+    {
+      "address": "0xC058",
+      "name": "CLRAN0",
+      "type": "soft_switch",
+      "description": "Turn off annunciator 0"
+    },
+    {
+      "address": "0xC059",
+      "name": "SETAN0",
+      "type": "soft_switch",
+      "description": "Turn on annunciator 0"
+    },
+    {
+      "address": "0xC05A",
+      "name": "CLRAN1",
+      "type": "soft_switch",
+      "description": "Turn off annunciator 1"
+    },
+    {
+      "address": "0xC05B",
+      "name": "SETAN1",
+      "type": "soft_switch",
+      "description": "Turn on annunciator 1"
+    },
+    {
+      "address": "0xC05C",
+      "name": "CLRAN2",
+      "type": "soft_switch",
+      "description": "Turn off annunciator 2"
+    },
+    {
+      "address": "0xC05D",
+      "name": "SETAN2",
+      "type": "soft_switch",
+      "description": "Turn on annunciator 2"
+    },
+    {
+      "address": "0xC05E",
+      "name": "CLRAN3",
+      "type": "soft_switch",
+      "description": "Turn off annunciator 3"
+    },
+    {
+      "address": "0xC05F",
+      "name": "SETAN3",
+      "type": "soft_switch",
+      "description": "Turn on annunciator 3"
+    },
+    {
+      "address": "0xC060",
+      "name": "CASSIN",
+      "type": "io_port",
+      "description": "Cassette input (bit 7)"
+    },
+    {
+      "address": "0xC061",
+      "name": "PB0",
+      "type": "io_port",
+      "description": "Push button 0 / button 0 (bit 7)"
+    },
+    {
+      "address": "0xC062",
+      "name": "PB1",
+      "type": "io_port",
+      "description": "Push button 1 / button 1 (bit 7)"
+    },
+    {
+      "address": "0xC063",
+      "name": "PB2",
+      "type": "io_port",
+      "description": "Push button 2 / button 2 (bit 7)"
+    },
+    {
+      "address": "0xC064",
+      "name": "PADDL0",
+      "type": "io_port",
+      "description": "Game controller 0 / paddle 0 (bit 7)"
+    },
+    {
+      "address": "0xC065",
+      "name": "PADDL1",
+      "type": "io_port",
+      "description": "Game controller 1 / paddle 1 (bit 7)"
+    },
+    {
+      "address": "0xC066",
+      "name": "PADDL2",
+      "type": "io_port",
+      "description": "Game controller 2 / paddle 2 (bit 7)"
+    },
+    {
+      "address": "0xC067",
+      "name": "PADDL3",
+      "type": "io_port",
+      "description": "Game controller 3 / paddle 3 (bit 7)"
+    },
+    {
+      "address": "0xC070",
+      "name": "PTRIG",
+      "type": "io_port",
+      "description": "Reset game controllers / trigger paddles"
+    },
+    {
+      "address": "0xC080",
+      "name": "READBSR2",
+      "type": "soft_switch",
+      "description": "Select bank2, read BSR, write-protect"
+    },
+    {
+      "address": "0xC081",
+      "name": "WRITEBSR2",
+      "type": "soft_switch",
+      "description": "Select bank2, read ROM, write-enable BSR"
+    },
+    {
+      "address": "0xC082",
+      "name": "OFFBSR2",
+      "type": "soft_switch",
+      "description": "Select bank2, read ROM, write-protect"
+    },
+    {
+      "address": "0xC083",
+      "name": "RDWRBSR2",
+      "type": "soft_switch",
+      "description": "Select bank2, read BSR, write-enable BSR"
+    },
+    {
+      "address": "0xC088",
+      "name": "READBSR1",
+      "type": "soft_switch",
+      "description": "Select bank1, read BSR, write-protect"
+    },
+    {
+      "address": "0xC089",
+      "name": "WRITEBSR1",
+      "type": "soft_switch",
+      "description": "Select bank1, read ROM, write-enable BSR"
+    },
+    {
+      "address": "0xC08A",
+      "name": "OFFBSR1",
+      "type": "soft_switch",
+      "description": "Select bank1, read ROM, write-protect"
+    },
+    {
+      "address": "0xC08B",
+      "name": "RDWRBSR1",
+      "type": "soft_switch",
+      "description": "Select bank1, read BSR, write-enable BSR"
+    },
+    {
+      "address": "0xF940",
+      "name": "PRINTYX",
+      "type": "rom_routine",
+      "description": "Print Y(hi):X(lo) as 4 hex digits"
+    },
+    {
+      "address": "0xFB1E",
+      "name": "PREAD",
+      "type": "rom_routine",
+      "description": "Read game paddle (X=paddle#, returns Y=value)"
+    },
+    {
+      "address": "0xFBBF",
+      "name": "BELL",
+      "type": "rom_routine",
+      "description": "Sound bell"
+    },
+    {
+      "address": "0xFBC1",
+      "name": "BASCALC",
+      "type": "rom_routine",
+      "description": "Calculate video line base address (A=line#)"
+    },
+    {
+      "address": "0xFC22",
+      "name": "VTAB",
+      "type": "rom_routine",
+      "description": "Move cursor to line in CV ($25)"
+    },
+    {
+      "address": "0xFC42",
+      "name": "CLREOP",
+      "type": "rom_routine",
+      "description": "Clear from cursor to end of page"
+    },
+    {
+      "address": "0xFC58",
+      "name": "HOME",
+      "type": "rom_routine",
+      "description": "Clear screen and home cursor"
+    },
+    {
+      "address": "0xFC62",
+      "name": "CR",
+      "type": "rom_routine",
+      "description": "Carriage return (move to next line)"
+    },
+    {
+      "address": "0xFC9C",
+      "name": "CLREOL",
+      "type": "rom_routine",
+      "description": "Clear from cursor to end of line"
+    },
+    {
+      "address": "0xFCA8",
+      "name": "WAIT",
+      "type": "rom_routine",
+      "description": "Delay 0.5*(26+27*A+5*A*A) microseconds"
+    },
+    {
+      "address": "0xFD0C",
+      "name": "RDKEY",
+      "type": "rom_routine",
+      "description": "Read character from input device (via KSW)"
+    },
+    {
+      "address": "0xFD1B",
+      "name": "KEYIN",
+      "type": "rom_routine",
+      "description": "Read character from keyboard"
+    },
+    {
+      "address": "0xFD35",
+      "name": "RDCHAR",
+      "type": "rom_routine",
+      "description": "Read character with escape sequence handling"
+    },
+    {
+      "address": "0xFD6A",
+      "name": "GETLN",
+      "type": "rom_routine",
+      "description": "Read line from input to buffer at $200"
+    },
+    {
+      "address": "0xFDDA",
+      "name": "PRHEX",
+      "type": "rom_routine",
+      "description": "Print hex digit (A=value 0-15)"
+    },
+    {
+      "address": "0xFDED",
+      "name": "COUT",
+      "type": "rom_routine",
+      "description": "Character output to device (via CSW)"
+    },
+    {
+      "address": "0xFDF0",
+      "name": "COUT1",
+      "type": "rom_routine",
+      "description": "Character output to video screen"
+    },
+    {
+      "address": "0xFE89",
+      "name": "CROUT",
+      "type": "rom_routine",
+      "description": "Output carriage return"
+    },
+    {
+      "address": "0xFE93",
+      "name": "PRBYTE",
+      "type": "rom_routine",
+      "description": "Print byte in A as 2 hex digits"
+    },
+    {
+      "address": "0xFF3A",
+      "name": "MONITOR",
+      "type": "rom_routine",
+      "description": "Enter system monitor"
+    },
+    {
+      "address": "0xFF69",
+      "name": "MONZ",
+      "type": "rom_routine",
+      "description": "Enter system monitor (alternate entry)"
+    }
+  ]
+}

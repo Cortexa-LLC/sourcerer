@@ -1,0 +1,30 @@
+{
+  "platform": "Apple II",
+  "description": "Apple II zero page addresses",
+  "symbols": [
+    {"address": "0x20", "name": "WNDLFT", "description": "Text window left edge", "type": "data"},
+    {"address": "0x21", "name": "WNDWDTH", "description": "Text window width", "type": "data"},
+    {"address": "0x22", "name": "WNDTOP", "description": "Text window top edge", "type": "data"},
+    {"address": "0x23", "name": "WNDBTM", "description": "Text window bottom edge", "type": "data"},
+    {"address": "0x24", "name": "CH", "description": "Cursor horizontal position", "type": "data"},
+    {"address": "0x25", "name": "CV", "description": "Cursor vertical position", "type": "data"},
+    {"address": "0x26", "name": "GBASL", "description": "Base address low", "type": "data"},
+    {"address": "0x27", "name": "GBASH", "description": "Base address high", "type": "data"},
+    {"address": "0x28", "name": "BASL", "description": "Text base address low", "type": "data"},
+    {"address": "0x29", "name": "BASH", "description": "Text base address high", "type": "data"},
+    {"address": "0x30", "name": "MASK", "description": "AND mask for character", "type": "data"},
+    {"address": "0x32", "name": "INVFLG", "description": "Inverse flag", "type": "data"},
+    {"address": "0x33", "name": "PROMPT", "description": "Prompt character", "type": "data"},
+    {"address": "0x36", "name": "CSWL", "description": "Character output hook low", "type": "data"},
+    {"address": "0x37", "name": "CSWH", "description": "Character output hook high", "type": "data"},
+    {"address": "0x38", "name": "KSWL", "description": "Character input hook low", "type": "data"},
+    {"address": "0x39", "name": "KSWH", "description": "Character input hook high", "type": "data"},
+    {"address": "0x4E", "name": "RNDL", "description": "Random number low", "type": "data"},
+    {"address": "0x4F", "name": "RNDH", "description": "Random number high", "type": "data"},
+    {"address": "0xE0", "name": "HIMEM_L", "description": "High memory pointer low", "type": "data"},
+    {"address": "0xE1", "name": "HIMEM_H", "description": "High memory pointer high", "type": "data"},
+    {"address": "0xE2", "name": "LOMEM_L", "description": "Low memory pointer low", "type": "data"},
+    {"address": "0xE3", "name": "LOMEM_H", "description": "Low memory pointer high", "type": "data"},
+    {"address": "0xF8", "name": "ERR_CODE", "description": "Error code", "type": "data"}
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "entry_points": [
+    "0x8000",
+    "0x9000"
+  ],
+  "code_regions": [
+    {
+      "start": "0x8000",
+      "end": "0x8FFF",
+      "comment": "Main program code"
+    }
+  ],
+  "data_regions": [
+    {
+      "start": "0x9000",
+      "end": "0x9100",
+      "comment": "Data tables"
+    }
+  ],
+  "labels": {
+    "0x8000": "MAIN",
+    "0x8010": "INIT_SCREEN",
+    "0x8050": "GAME_LOOP",
+    "0x8100": "HANDLE_INPUT",
+    "0x9000": "SPRITE_DATA",
+    "0x9080": "COLOR_TABLE"
+  },
+  "comments": {
+    "0x8000": "Program entry point - initialize system",
+    "0x8010": "Clear screen and set up video mode",
+    "0x8050": "Main game loop - runs continuously",
+    "0x8100": "Read keyboard input and update game state",
+    "0x9000": "Sprite graphics data (8x8 pixels each)",
+    "0x9080": "Color palette for sprites"
+  }
+}

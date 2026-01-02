@@ -1,0 +1,61 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# Claude Code
+.claude/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled files
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+
+# Test outputs
+*.log
+*.tmp
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_deps/
+Testing/
+
+# Test executables and generated files
+tests/test_core
+tests/test_6502
+tests/test_analysis
+tests/test_formatters
+tests/test_integration
+tests/Makefile
+tests/*.cmake
+tests/*.json
+
+# Generated files
+compile_commands.json
+
+# Coverage
+*.gcov
+*.gcda
+*.gcno
+coverage/
+
+# Temp files
+/examples/SOURCEROR/
+*.bak

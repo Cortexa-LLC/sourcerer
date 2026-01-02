@@ -1,0 +1,73 @@
+// Copyright (c) 2025 Cortexa LLC
+// SPDX-License-Identifier: MIT
+
+#ifndef SOURCERER_CORE_ADDRESS_MAP_H_
+#define SOURCERER_CORE_ADDRESS_MAP_H_
+
+#include <cstdint>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
+namespace sourcerer {
+namespace core {
+
+// Type of data at an address
+enum class AddressType {
+  UNKNOWN,      // Not yet analyzed
+  CODE,         // Executable code
+  DATA,         // Data bytes
+  INLINE_DATA,  // Data embedded after JSR (strings, tables read by subroutine)
+  HINT_CODE,    // User hinted as code
+  HINT_DATA,    // User hinted as data
+};
+
+// Tracks information about addresses in the binary
+class AddressMap {
+ public:
+  AddressMap();
+
+  // Type tracking
+  void SetType(uint32_t address, AddressType type);
+  AddressType GetType(uint32_t address) const;
+  bool IsCode(uint32_t address) const;
+  bool IsData(uint32_t address) const;
+
+  // Label management
+  void SetLabel(uint32_t address, const std::string& label);
+  bool HasLabel(uint32_t address) const;
+  std::string GetLabel(uint32_t address) const;
+  const std::map<uint32_t, std::string>& GetAllLabels() const { return labels_; }
+
+  // Comment management
+  void SetComment(uint32_t address, const std::string& comment);
+  void AppendComment(uint32_t address, const std::string& comment);
+  bool HasComment(uint32_t address) const;
+  std::string GetComment(uint32_t address) const;
+
+  // Cross-reference tracking
+  void AddXref(uint32_t target, uint32_t source);
+  std::vector<uint32_t> GetXrefs(uint32_t target) const;
+  bool HasXrefs(uint32_t target) const;
+  const std::multimap<uint32_t, uint32_t>& GetAllXrefs() const { return xrefs_; }
+
+  // Entry points
+  void AddEntryPoint(uint32_t address);
+  const std::set<uint32_t>& GetEntryPoints() const { return entry_points_; }
+
+  // Clear all data
+  void Clear();
+
+ private:
+  std::map<uint32_t, AddressType> address_types_;
+  std::map<uint32_t, std::string> labels_;
+  std::map<uint32_t, std::string> comments_;
+  std::multimap<uint32_t, uint32_t> xrefs_;  // target -> source(s)
+  std::set<uint32_t> entry_points_;
+};
+
+}  // namespace core
+}  // namespace sourcerer
+
+#endif  // SOURCERER_CORE_ADDRESS_MAP_H_

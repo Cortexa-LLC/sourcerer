@@ -1,0 +1,103 @@
+{
+  "platform": "Apple II + ProDOS",
+  "description": "Platform hints for Apple II ProDOS programs",
+  "version": "1.0",
+  "inline_data_routines": [
+    {
+      "address": "0xBF00",
+      "name": "MLI",
+      "description": "ProDOS Machine Language Interface",
+      "pattern": "JSR_BYTE_WORD",
+      "bytes_after_call": 3,
+      "explanation": "ProDOS MLI calls use inline data: JSR $BF00, command_byte, parameter_pointer_word"
+    }
+  ],
+  "entry_point_hints": [
+    {
+      "description": "ProDOS SYS files typically start at $2000",
+      "suggested_addresses": ["0x2000"]
+    }
+  ],
+  "mli_parameter_structures": {
+    "0xC4": {
+      "name": "GET_FILE_INFO",
+      "description": "Get file information",
+      "parameters": [
+        {"offset": 0, "size": 1, "name": "param_count", "description": "Parameter count (10)"},
+        {"offset": 1, "size": 2, "name": "pathname", "description": "Pointer to pathname"},
+        {"offset": 3, "size": 1, "name": "access", "description": "File access"},
+        {"offset": 4, "size": 1, "name": "file_type", "description": "File type"},
+        {"offset": 5, "size": 2, "name": "aux_type", "description": "Auxiliary type"},
+        {"offset": 7, "size": 1, "name": "storage_type", "description": "Storage type"},
+        {"offset": 8, "size": 2, "name": "blocks_used", "description": "Blocks used"},
+        {"offset": 10, "size": 2, "name": "mod_date", "description": "Modification date"},
+        {"offset": 12, "size": 2, "name": "mod_time", "description": "Modification time"},
+        {"offset": 14, "size": 2, "name": "create_date", "description": "Creation date"},
+        {"offset": 16, "size": 2, "name": "create_time", "description": "Creation time"}
+      ]
+    },
+    "0x65": {
+      "name": "QUIT",
+      "description": "Quit to ProDOS dispatcher",
+      "parameters": [
+        {"offset": 0, "size": 1, "name": "param_count", "description": "Parameter count (4)"},
+        {"offset": 1, "size": 1, "name": "quit_code", "description": "Quit code"},
+        {"offset": 2, "size": 2, "name": "reserved1", "description": "Reserved"},
+        {"offset": 4, "size": 2, "name": "reserved2", "description": "Reserved"}
+      ]
+    },
+    "0xC8": {
+      "name": "OPEN",
+      "description": "Open a file",
+      "parameters": [
+        {"offset": 0, "size": 1, "name": "param_count", "description": "Parameter count (3)"},
+        {"offset": 1, "size": 2, "name": "pathname", "description": "Pointer to pathname"},
+        {"offset": 3, "size": 2, "name": "io_buffer", "description": "I/O buffer pointer"},
+        {"offset": 5, "size": 1, "name": "ref_num", "description": "Reference number (returned)"}
+      ]
+    },
+    "0xCA": {
+      "name": "READ",
+      "description": "Read from an open file",
+      "parameters": [
+        {"offset": 0, "size": 1, "name": "param_count", "description": "Parameter count (4)"},
+        {"offset": 1, "size": 1, "name": "ref_num", "description": "Reference number"},
+        {"offset": 2, "size": 2, "name": "data_buffer", "description": "Data buffer pointer"},
+        {"offset": 4, "size": 2, "name": "request_count", "description": "Requested byte count"},
+        {"offset": 6, "size": 2, "name": "transfer_count", "description": "Actual bytes transferred (returned)"}
+      ]
+    },
+    "0xCC": {
+      "name": "CLOSE",
+      "description": "Close an open file",
+      "parameters": [
+        {"offset": 0, "size": 1, "name": "param_count", "description": "Parameter count (1)"},
+        {"offset": 1, "size": 1, "name": "ref_num", "description": "Reference number"}
+      ]
+    },
+    "0xC0": {
+      "name": "CREATE",
+      "description": "Create a new file",
+      "parameters": [
+        {"offset": 0, "size": 1, "name": "param_count", "description": "Parameter count (7)"},
+        {"offset": 1, "size": 2, "name": "pathname", "description": "Pointer to pathname"},
+        {"offset": 3, "size": 1, "name": "access", "description": "File access"},
+        {"offset": 4, "size": 1, "name": "file_type", "description": "File type"},
+        {"offset": 5, "size": 2, "name": "aux_type", "description": "Auxiliary type"},
+        {"offset": 7, "size": 1, "name": "storage_type", "description": "Storage type"},
+        {"offset": 8, "size": 2, "name": "create_date", "description": "Creation date"},
+        {"offset": 10, "size": 2, "name": "create_time", "description": "Creation time"}
+      ]
+    }
+  },
+  "common_patterns": [
+    {
+      "name": "MLI_CALL_PATTERN",
+      "sequence": [
+        {"mnemonic": "JSR", "operand": "$BF00"},
+        {"type": "DATA", "size": 1, "description": "MLI command code"},
+        {"type": "DATA", "size": 2, "description": "Parameter list pointer"}
+      ]
+    }
+  ]
+}
