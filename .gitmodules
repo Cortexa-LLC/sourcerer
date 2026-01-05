@@ -1,0 +1,3 @@
+[submodule ".clinerules"]
+	path = .clinerules
+	url = git@github.com:Cortexa-LLC/clean-code.git
