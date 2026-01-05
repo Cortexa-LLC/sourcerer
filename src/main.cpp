@@ -11,6 +11,7 @@
 #include "analysis/equate_generator.h"
 #include "analysis/hints_parser.h"
 #include "analysis/label_generator.h"
+#include "analysis/pattern_detector.h"
 #include "analysis/xref_builder.h"
 #include "core/address_map.h"
 #include "core/binary.h"
@@ -29,17 +30,81 @@ using namespace sourcerer;
 std::vector<core::Instruction> DisassembleWithAnalysis(
     cpu::CpuPlugin* cpu,
     const core::Binary& binary,
-    core::AddressMap* address_map) {
-  
+    core::AddressMap* address_map,
+    uint32_t entry_point = 0,
+    const core::SymbolTable* symbol_table = nullptr) {
+
   std::vector<core::Instruction> instructions;
-  
+
   // Run code flow analysis
   LOG_INFO("Running code flow analysis...");
   analysis::CodeAnalyzer analyzer(cpu, &binary);
-  
-  // Add entry point (load address by default)
-  analyzer.AddEntryPoint(binary.load_address());
-  
+
+  // Add primary entry point (use specified or default to load address)
+  uint32_t ep;
+  if (entry_point != 0) {
+    // User specified explicit entry point
+    ep = entry_point;
+    analyzer.AddEntryPoint(ep);
+    LOG_INFO("Entry point: $" + std::to_string(ep));
+  } else {
+    // Auto-detect entry point (skips ROM headers if needed)
+    ep = analyzer.FindFirstValidInstruction(binary.load_address());
+    analyzer.AddEntryPoint(ep);
+    if (ep != binary.load_address()) {
+      LOG_INFO("Skipped " + std::to_string(ep - binary.load_address()) +
+               " byte(s) of non-code data at start of binary");
+    }
+    LOG_INFO("Entry point: $" + std::to_string(ep));
+  }
+
+  // Add ROM_ROUTINE symbols as additional entry points (with validation)
+  if (symbol_table) {
+    int symbol_entry_points = 0;
+    int rejected_symbols = 0;
+    const auto& symbols = symbol_table->GetAllSymbols();
+    for (const auto& pair : symbols) {
+      const auto& symbol = pair.second;
+      // Only add ROM_ROUTINE symbols within the binary range as entry points
+      if (symbol.type == core::SymbolType::ROM_ROUTINE &&
+          symbol.address >= binary.load_address() &&
+          symbol.address < binary.load_address() + binary.size()) {
+
+        // Validate: check if address contains a valid (non-illegal) instruction
+        const uint8_t* data = binary.GetPointer(symbol.address);
+        size_t remaining = binary.size() - (symbol.address - binary.load_address());
+        if (data && remaining > 0) {
+          try {
+            core::Instruction test_inst = cpu->Disassemble(data, remaining, symbol.address);
+            // Only add if it's a valid, non-illegal instruction
+            if (!test_inst.is_illegal && !test_inst.bytes.empty()) {
+              analyzer.AddEntryPoint(symbol.address);
+              symbol_entry_points++;
+              LOG_DEBUG("Added symbol entry point: " + symbol.name + " at $" +
+                        std::to_string(symbol.address));
+            } else {
+              rejected_symbols++;
+              LOG_DEBUG("Rejected symbol (illegal opcode): " + symbol.name + " at $" +
+                        std::to_string(symbol.address));
+            }
+          } catch (...) {
+            rejected_symbols++;
+            LOG_DEBUG("Rejected symbol (disassembly failed): " + symbol.name + " at $" +
+                      std::to_string(symbol.address));
+          }
+        }
+      }
+    }
+    if (symbol_entry_points > 0) {
+      LOG_INFO("Added " + std::to_string(symbol_entry_points) +
+               " ROM routine symbols as entry points");
+    }
+    if (rejected_symbols > 0) {
+      LOG_INFO("Rejected " + std::to_string(rejected_symbols) +
+               " ROM symbols (illegal opcodes or data)");
+    }
+  }
+
   // Analyze
   analyzer.Analyze(address_map);
   
@@ -49,37 +114,80 @@ std::vector<core::Instruction> DisassembleWithAnalysis(
   
   LOG_INFO("Disassembling code regions...");
   
-  while (address < end_address) {
-    // Skip data regions
-    if (address_map->IsData(address)) {
-      address++;
+  // Build a set of all instruction start addresses from the analyzer's instruction cache
+  // This helps us identify instruction boundaries vs mid-instruction bytes
+  std::set<uint32_t> instruction_boundaries;
+
+  // Scan CODE regions to find instruction boundaries
+  for (uint32_t addr = binary.load_address(); addr < end_address; ) {
+    if (!address_map->IsCode(addr)) {
+      addr++;
       continue;
     }
-    
-    // Skip if not code
-    if (!address_map->IsCode(address)) {
-      address++;
-      continue;
-    }
-    
-    const uint8_t* data = binary.GetPointer(address);
-    size_t remaining = end_address - address;
-    
+
+    // This is a CODE address - try to disassemble to find instruction start
+    const uint8_t* data = binary.GetPointer(addr);
+    size_t remaining = end_address - addr;
+
     if (!data || remaining == 0) {
-      break;
+      addr++;
+      continue;
     }
-    
+
     try {
-      core::Instruction inst = cpu->Disassemble(data, remaining, address);
-      instructions.push_back(inst);
-      
-      // Move to next instruction
-      address += inst.bytes.size();
-      
+      core::Instruction inst = cpu->Disassemble(data, remaining, addr);
+
+      if (!inst.is_illegal && !inst.bytes.empty()) {
+        // Check if all bytes of this instruction are marked as CODE
+        bool all_bytes_are_code = true;
+        for (size_t i = 0; i < inst.bytes.size(); ++i) {
+          if (!address_map->IsCode(addr + i)) {
+            all_bytes_are_code = false;
+            break;
+          }
+        }
+
+        if (all_bytes_are_code) {
+          // This is a valid instruction boundary
+          instruction_boundaries.insert(addr);
+
+          // CRITICAL: Increment by 1, not inst.bytes.size()!
+          // This ensures we check EVERY CODE address, including those in the middle
+          // of overlapping instructions (resolved misalignments)
+          addr++;
+        } else {
+          // Partial CODE marking - skip this address
+          addr++;
+        }
+      } else {
+        addr++;
+      }
+    } catch (...) {
+      addr++;
+    }
+  }
+
+  LOG_DEBUG("Found " + std::to_string(instruction_boundaries.size()) +
+            " instruction boundaries");
+
+  // Now disassemble all instructions at boundaries
+  for (uint32_t addr : instruction_boundaries) {
+    const uint8_t* data = binary.GetPointer(addr);
+    size_t remaining = end_address - addr;
+
+    if (!data || remaining == 0) {
+      continue;
+    }
+
+    try {
+      core::Instruction inst = cpu->Disassemble(data, remaining, addr);
+
+      if (!inst.is_illegal && !inst.bytes.empty()) {
+        instructions.push_back(inst);
+      }
     } catch (const std::exception& e) {
-      LOG_ERROR("Disassembly failed at $" + std::to_string(address) + 
+      LOG_ERROR("Disassembly failed at $" + std::to_string(addr) +
                 ": " + e.what());
-      address++;
     }
   }
   
@@ -366,6 +474,14 @@ int main(int argc, char** argv) {
     core::AddressMap address_map;
     core::AddressMap* address_map_ptr = nullptr;
 
+    // Mark bytes before entry point as DATA
+    if (options.has_entry_point && options.entry_point > binary.load_address()) {
+      LOG_INFO("Marking bytes before entry point as DATA");
+      for (uint32_t addr = binary.load_address(); addr < options.entry_point; ++addr) {
+        address_map.SetType(addr, core::AddressType::DATA);
+      }
+    }
+
     // Apply hints to address map before analysis
     if (!options.hints_file.empty()) {
       LOG_INFO("Applying hints to address map...");
@@ -378,7 +494,8 @@ int main(int argc, char** argv) {
 
     if (options.enable_analysis) {
       LOG_INFO("Code flow analysis enabled");
-      instructions = DisassembleWithAnalysis(cpu.get(), binary, &address_map);
+      uint32_t entry_pt = options.has_entry_point ? options.entry_point : 0;
+      instructions = DisassembleWithAnalysis(cpu.get(), binary, &address_map, entry_pt, symbol_table_ptr);
       address_map_ptr = &address_map;
 
       // Always build cross-references (needed for label generation)
@@ -400,6 +517,14 @@ int main(int argc, char** argv) {
         analysis::LabelGenerator label_gen(&address_map, &binary, symbol_table_ptr);
         label_gen.GenerateLabels(&instructions);
         LOG_INFO("Labels generated");
+      }
+
+      // Run platform-specific pattern detection
+      if (!options.platform.empty()) {
+        auto pattern_detector = analysis::CreatePatternDetector(options.platform);
+        if (pattern_detector) {
+          pattern_detector->AnalyzePatterns(instructions, &address_map, symbol_table_ptr);
+        }
       }
     } else {
       LOG_INFO("Linear disassembly mode (analysis disabled)");
