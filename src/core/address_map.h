@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -34,20 +35,26 @@ class AddressMap {
   bool IsCode(uint32_t address) const;
   bool IsData(uint32_t address) const;
 
-  // Label management
+  // Label management (C++ Core Guidelines F.20: prefer return values)
   void SetLabel(uint32_t address, const std::string& label);
+  [[nodiscard]] std::optional<std::string> GetLabel(uint32_t address) const;
+
+  // Legacy API for backwards compatibility (deprecated)
   bool HasLabel(uint32_t address) const;
-  std::string GetLabel(uint32_t address) const;
+
   const std::map<uint32_t, std::string>& GetAllLabels() const { return labels_; }
 
-  // Comment management
+  // Comment management (C++ Core Guidelines F.20: prefer return values)
   void SetComment(uint32_t address, const std::string& comment);
   void AppendComment(uint32_t address, const std::string& comment);
+  [[nodiscard]] std::optional<std::string> GetComment(uint32_t address) const;
+
+  // Legacy API for backwards compatibility (deprecated)
   bool HasComment(uint32_t address) const;
-  std::string GetComment(uint32_t address) const;
 
   // Cross-reference tracking
   void AddXref(uint32_t target, uint32_t source);
+  void RemoveXrefsFrom(uint32_t source);  // Remove all xrefs originating from source
   std::vector<uint32_t> GetXrefs(uint32_t target) const;
   bool HasXrefs(uint32_t target) const;
   const std::multimap<uint32_t, uint32_t>& GetAllXrefs() const { return xrefs_; }

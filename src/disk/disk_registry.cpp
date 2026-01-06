@@ -4,6 +4,7 @@
 #include "disk/disk_registry.h"
 
 #include "disk/acx_extractor.h"
+#include "disk/coco_extractor.h"
 #include "disk/raw_file.h"
 #include "utils/logger.h"
 
@@ -20,6 +21,9 @@ DiskRegistry::DiskRegistry() {
 }
 
 void DiskRegistry::RegisterBuiltinExtractors() {
+  // Register CoCo extractor first (it has specific size detection)
+  Register("coco", &CreateCocoExtractor);
+
   // Register ACX.jar extractor for Apple disk images
   Register("acx", &CreateAcxExtractor);
 
@@ -31,15 +35,16 @@ void DiskRegistry::RegisterBuiltinExtractors() {
 
 void DiskRegistry::Register(const std::string& name,
                             DiskExtractorFactory factory) {
-  factories_[name] = factory;
+  factories_.push_back({name, factory});
   LOG_DEBUG("Registered disk extractor: " + name);
 }
 
 std::unique_ptr<DiskExtractor> DiskRegistry::Create(
     const std::string& name) const {
-  auto it = factories_.find(name);
-  if (it != factories_.end()) {
-    return it->second();
+  for (const auto& pair : factories_) {
+    if (pair.first == name) {
+      return pair.second();
+    }
   }
   LOG_ERROR("Disk extractor not found: " + name);
   return nullptr;
@@ -61,7 +66,12 @@ std::unique_ptr<DiskExtractor> DiskRegistry::FindExtractor(
 }
 
 bool DiskRegistry::IsRegistered(const std::string& name) const {
-  return factories_.find(name) != factories_.end();
+  for (const auto& pair : factories_) {
+    if (pair.first == name) {
+      return true;
+    }
+  }
+  return false;
 }
 
 std::vector<std::string> DiskRegistry::GetRegisteredNames() const {

@@ -1,0 +1,380 @@
+{
+  "platform": "apple2",
+  "description": "ProDOS Machine Language Interface (MLI) Call Numbers and Parameter Blocks",
+  "version": "2.0",
+  "source": "ProDOS 8 Technical Reference Manual",
+  "symbols": [
+    {
+      "name": "MLI",
+      "address": "0xBF00",
+      "description": "ProDOS MLI entry point - JSR MLI; DB call_num; DW param_list",
+      "type": "rom_routine"
+    },
+    {
+      "name": "CREATE",
+      "address": "0xC0",
+      "description": "Creates either a standard file or a directory file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 7,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 7"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to filename string (low, high)"},
+          {"offset": 3, "name": "access", "size": 1, "description": "File access permissions ($E3 typical)"},
+          {"offset": 4, "name": "file_type", "size": 1, "description": "File category ($04=text, $06=binary)"},
+          {"offset": 5, "name": "aux_type", "size": 2, "description": "Auxiliary data (load address, record size)"},
+          {"offset": 7, "name": "storage_type", "size": 1, "description": "File organization ($01=standard, $0D=directory)"},
+          {"offset": 8, "name": "create_date", "size": 2, "description": "Creation date in ProDOS format"},
+          {"offset": 10, "name": "create_time", "size": 2, "description": "Creation time in ProDOS format"}
+        ]
+      }
+    },
+    {
+      "name": "DESTROY",
+      "address": "0xC1",
+      "description": "Removes a standard file or directory file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 1,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 1"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to file to delete"}
+        ]
+      }
+    },
+    {
+      "name": "RENAME",
+      "address": "0xC2",
+      "description": "Changes the name of a file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to original pathname"},
+          {"offset": 3, "name": "new_pathname", "size": 2, "description": "Pointer to new pathname"}
+        ]
+      }
+    },
+    {
+      "name": "SET_FILE_INFO",
+      "address": "0xC3",
+      "description": "Modifies information in the specified file's entry field",
+      "type": "mli_call",
+      "parameters": {
+        "count": 7,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 7"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to target file"},
+          {"offset": 3, "name": "access", "size": 1, "description": "New access permissions"},
+          {"offset": 4, "name": "file_type", "size": 1, "description": "New file type"},
+          {"offset": 5, "name": "aux_type", "size": 2, "description": "New auxiliary value"},
+          {"offset": 7, "name": "null_field", "size": 3, "description": "Reserved (set to 0)"},
+          {"offset": 10, "name": "mod_date", "size": 2, "description": "Modification date to set"},
+          {"offset": 12, "name": "mod_time", "size": 2, "description": "Modification time to set"}
+        ]
+      }
+    },
+    {
+      "name": "GET_FILE_INFO",
+      "address": "0xC4",
+      "description": "Returns the information stored in the specified file's entry field",
+      "type": "mli_call",
+      "parameters": {
+        "count": 10,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always $A (10)"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to file to query"},
+          {"offset": 3, "name": "access", "size": 1, "description": "Result: access permissions"},
+          {"offset": 4, "name": "file_type", "size": 1, "description": "Result: file type byte"},
+          {"offset": 5, "name": "aux_type", "size": 2, "description": "Result: auxiliary data"},
+          {"offset": 7, "name": "storage_type", "size": 1, "description": "Result: file organization type"},
+          {"offset": 8, "name": "blocks_used", "size": 2, "description": "Result: block count"},
+          {"offset": 10, "name": "mod_date", "size": 2, "description": "Result: last modification date"},
+          {"offset": 12, "name": "mod_time", "size": 2, "description": "Result: last modification time"},
+          {"offset": 14, "name": "create_date", "size": 2, "description": "Result: creation date"},
+          {"offset": 16, "name": "create_time", "size": 2, "description": "Result: creation time"}
+        ]
+      }
+    },
+    {
+      "name": "ON_LINE",
+      "address": "0xC5",
+      "description": "Determine the names of all ProDOS volumes currently mounted",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "unit_num", "size": 1, "description": "Device specification (0=all drives)"},
+          {"offset": 2, "name": "data_buffer", "size": 2, "description": "Pointer to result buffer (16 or 256 bytes)"}
+        ]
+      }
+    },
+    {
+      "name": "SET_PREFIX",
+      "address": "0xC6",
+      "description": "Sets the system prefix to the indicated directory",
+      "type": "mli_call",
+      "parameters": {
+        "count": 1,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 1"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to new prefix directory"}
+        ]
+      }
+    },
+    {
+      "name": "GET_PREFIX",
+      "address": "0xC7",
+      "description": "Returns the value of the current system prefix",
+      "type": "mli_call",
+      "parameters": {
+        "count": 1,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 1"},
+          {"offset": 1, "name": "data_buffer", "size": 2, "description": "Pointer to result buffer (64 bytes)"}
+        ]
+      }
+    },
+    {
+      "name": "OPEN",
+      "address": "0xC8",
+      "description": "Prepares a file to be accessed",
+      "type": "mli_call",
+      "parameters": {
+        "count": 3,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 3"},
+          {"offset": 1, "name": "pathname", "size": 2, "description": "Pointer to file pathname"},
+          {"offset": 3, "name": "io_buffer", "size": 2, "description": "Pointer to 1024-byte I/O buffer"},
+          {"offset": 5, "name": "ref_num", "size": 1, "description": "Result: file reference number (0-7)"}
+        ]
+      }
+    },
+    {
+      "name": "NEWLINE",
+      "address": "0xC9",
+      "description": "Sets conditions for reading from the file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 3,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 3"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "enable_mask", "size": 1, "description": "Mask for newline character matching"},
+          {"offset": 3, "name": "newline_char", "size": 1, "description": "Character that terminates reads"}
+        ]
+      }
+    },
+    {
+      "name": "READ",
+      "address": "0xCA",
+      "description": "Causes the transfer of a requested number of characters from a file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 4,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 4"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "data_buffer", "size": 2, "description": "Pointer to input buffer"},
+          {"offset": 4, "name": "request_count", "size": 2, "description": "Number of bytes requested"},
+          {"offset": 6, "name": "trans_count", "size": 2, "description": "Result: bytes actually transferred"}
+        ]
+      }
+    },
+    {
+      "name": "WRITE",
+      "address": "0xCB",
+      "description": "Causes the transfer of a requested number of characters to a file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 4,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 4"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "data_buffer", "size": 2, "description": "Pointer to output buffer"},
+          {"offset": 4, "name": "request_count", "size": 2, "description": "Number of bytes to write"},
+          {"offset": 6, "name": "trans_count", "size": 2, "description": "Result: bytes written"}
+        ]
+      }
+    },
+    {
+      "name": "CLOSE",
+      "address": "0xCC",
+      "description": "Release all resources used by an open file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 1,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 1"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "File reference (0=close all at level)"}
+        ]
+      }
+    },
+    {
+      "name": "FLUSH",
+      "address": "0xCD",
+      "description": "Empties the file's write buffer to the file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 1,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 1"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "File reference (0=flush all at level)"}
+        ]
+      }
+    },
+    {
+      "name": "SET_MARK",
+      "address": "0xCE",
+      "description": "Changes the current position in the file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "position", "size": 3, "description": "New file position (low to high bytes)"}
+        ]
+      }
+    },
+    {
+      "name": "GET_MARK",
+      "address": "0xCF",
+      "description": "Returns the current position in the file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "position", "size": 3, "description": "Result: current file position"}
+        ]
+      }
+    },
+    {
+      "name": "SET_EOF",
+      "address": "0xD0",
+      "description": "Sets the logical size of the file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "EOF", "size": 3, "description": "New logical file size"}
+        ]
+      }
+    },
+    {
+      "name": "GET_EOF",
+      "address": "0xD1",
+      "description": "Returns the number of bytes that can be read from the open file",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "EOF", "size": 3, "description": "Result: logical file size"}
+        ]
+      }
+    },
+    {
+      "name": "SET_BUF",
+      "address": "0xD2",
+      "description": "Reassign the address of the input/output buffer",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "io_buffer", "size": 2, "description": "Pointer to new 1024-byte buffer"}
+        ]
+      }
+    },
+    {
+      "name": "GET_BUF",
+      "address": "0xD3",
+      "description": "Returns the address of the input/output buffer",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "ref_num", "size": 1, "description": "Open file reference number"},
+          {"offset": 2, "name": "io_buffer", "size": 2, "description": "Result: current buffer address"}
+        ]
+      }
+    },
+    {
+      "name": "ALLOC_INTERRUPT",
+      "address": "0x40",
+      "description": "Places a pointer to an interrupt-handling routine into the system interrupt vector table",
+      "type": "mli_call",
+      "parameters": {
+        "count": 2,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 2"},
+          {"offset": 1, "name": "int_num", "size": 1, "description": "Result: interrupt vector number (1-4)"},
+          {"offset": 2, "name": "int_code", "size": 2, "description": "Pointer to interrupt handler routine"}
+        ]
+      }
+    },
+    {
+      "name": "DEALLOC_INTERRUPT",
+      "address": "0x41",
+      "description": "Removes a pointer to an interrupt handling routine from the system interrupt vector table",
+      "type": "mli_call",
+      "parameters": {
+        "count": 1,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 1"},
+          {"offset": 1, "name": "int_num", "size": 1, "description": "Interrupt vector number to remove"}
+        ]
+      }
+    },
+    {
+      "name": "READ_BLOCK",
+      "address": "0x80",
+      "description": "Reads one specific block (512 bytes) of information from a disk",
+      "type": "mli_call",
+      "parameters": {
+        "count": 3,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 3"},
+          {"offset": 1, "name": "unit_num", "size": 1, "description": "Device slot and drive number"},
+          {"offset": 2, "name": "data_buffer", "size": 2, "description": "Pointer to 512-byte read buffer"},
+          {"offset": 4, "name": "block_num", "size": 2, "description": "Logical block address to read"}
+        ]
+      }
+    },
+    {
+      "name": "WRITE_BLOCK",
+      "address": "0x81",
+      "description": "Writes a block of information to a specific block of a disk",
+      "type": "mli_call",
+      "parameters": {
+        "count": 3,
+        "structure": [
+          {"offset": 0, "name": "param_count", "size": 1, "description": "Always 3"},
+          {"offset": 1, "name": "unit_num", "size": 1, "description": "Device slot and drive number"},
+          {"offset": 2, "name": "data_buffer", "size": 2, "description": "Pointer to 512-byte buffer with data"},
+          {"offset": 4, "name": "block_num", "size": 2, "description": "Logical block address to write"}
+        ]
+      }
+    },
+    {
+      "name": "GET_TIME",
+      "address": "0x82",
+      "description": "Calls a clock/calendar routine, if there is one. Returns date/time to $BF90-$BF93",
+      "type": "mli_call",
+      "parameters": {
+        "count": 0,
+        "structure": []
+      }
+    }
+  ]
+}

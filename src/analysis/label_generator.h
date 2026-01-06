@@ -72,6 +72,10 @@ class LabelGenerator {
   // Format address as hex string
   std::string FormatAddressHex(uint32_t address, bool use_dollar_sign = false);
 
+  // Check if address is at a valid instruction or data boundary
+  // Returns false if address is in the middle of an instruction
+  bool IsValidLabelAddress(uint32_t address, const std::vector<core::Instruction>* instructions) const;
+
   // Map of address -> parent subroutine start address
   std::map<uint32_t, uint32_t> subroutine_map_;
 

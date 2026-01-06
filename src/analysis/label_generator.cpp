@@ -41,23 +41,30 @@ void LabelGenerator::GenerateLabels(const std::vector<core::Instruction>* instru
   // Second pass: generate labels for each address
   for (uint32_t address : addresses_needing_labels) {
     // Skip if address already has a label
-    if (address_map_->HasLabel(address)) {
+    if (auto label = address_map_->GetLabel(address)) {
       // Add existing label to used_labels_ to avoid collisions
-      used_labels_.insert(address_map_->GetLabel(address));
+      used_labels_.insert(*label);
       continue;
     }
 
     // Check symbol table first (symbols are always valid, even if external)
-    if (symbol_table_ && symbol_table_->HasSymbol(address)) {
-      std::string symbol_name = symbol_table_->GetSymbolName(address);
-      address_map_->SetLabel(address, symbol_name);
-      used_labels_.insert(symbol_name);
-      continue;
+    if (symbol_table_) {
+      if (auto symbol_name = symbol_table_->GetSymbolName(address)) {
+        address_map_->SetLabel(address, *symbol_name);
+        used_labels_.insert(*symbol_name);
+        continue;
+      }
     }
 
     // Only generate labels for addresses within the binary range
     // External addresses without symbols should remain as hex addresses
     if (binary_ && !binary_->IsValidAddress(address)) {
+      continue;
+    }
+
+    // CRITICAL: Only generate labels for valid instruction/data boundaries
+    // Skip addresses in the middle of instructions or data structures
+    if (!IsValidLabelAddress(address, instructions)) {
       continue;
     }
 
@@ -81,8 +88,10 @@ void LabelGenerator::GenerateLabels(const std::vector<core::Instruction>* instru
 
 std::string LabelGenerator::GenerateLabelForAddress(uint32_t address) {
   // Check symbol table first
-  if (symbol_table_ && symbol_table_->HasSymbol(address)) {
-    return symbol_table_->GetSymbolName(address);
+  if (symbol_table_) {
+    if (auto symbol_name = symbol_table_->GetSymbolName(address)) {
+      return *symbol_name;
+    }
   }
 
   // Entry point gets special name
@@ -252,13 +261,12 @@ void LabelGenerator::BuildSubroutineMap(const std::vector<core::Instruction>* in
     // 2. It's the target of a JSR instruction
     bool is_subroutine_start = false;
 
-    if (address_map_->HasLabel(inst.address)) {
-      std::string label = address_map_->GetLabel(inst.address);
+    if (auto label = address_map_->GetLabel(inst.address)) {
       // Check if label indicates a subroutine (not a local label)
-      if (label.find("SUB_") == 0 ||
-          label.find("MAIN") == 0 ||
-          label.find("START") == 0 ||
-          label.find("L_") != 0) {  // Not a branch label
+      if (label->find("SUB_") == 0 ||
+          label->find("MAIN") == 0 ||
+          label->find("START") == 0 ||
+          label->find("L_") != 0) {  // Not a branch label
         is_subroutine_start = true;
       }
     }
@@ -329,12 +337,55 @@ std::string LabelGenerator::GenerateLocalLabel(uint32_t address, uint32_t subrou
   int& counter = local_label_counters_[subroutine_start];
   counter++;
 
-  // Generate local label in SCMASM style: .1, .2, .3, etc.
-  // TODO: Could make this formatter-specific (Merlin uses :LABEL style)
+  // Generate unique local label using address
+  // Format: LOC_XXXX where XXXX is the hex address
+  // Using LOC_ instead of @ for vasm compatibility
   std::ostringstream oss;
-  oss << "." << counter;
+  oss << "LOC_" << std::hex << std::uppercase << std::setw(4)
+      << std::setfill('0') << address;
 
   return oss.str();
+}
+
+bool LabelGenerator::IsValidLabelAddress(uint32_t address, const std::vector<core::Instruction>* instructions) const {
+  // Check address type
+  core::AddressType type = address_map_->GetType(address);
+
+  // DATA addresses are always valid label targets
+  if (type == core::AddressType::DATA) {
+    return true;
+  }
+
+  // CODE addresses must have an instruction starting at that exact address
+  if (type == core::AddressType::CODE) {
+    if (!instructions) {
+      // No instructions provided - assume valid (conservative)
+      return true;
+    }
+
+    // Check if there's an instruction starting at this address
+    for (const auto& inst : *instructions) {
+      if (inst.address == address) {
+        return true;  // Valid instruction boundary
+      }
+      // If this address is in the middle of an instruction, it's invalid
+      if (inst.address < address && address < inst.address + inst.bytes.size()) {
+        return false;  // Address is in middle of instruction
+      }
+    }
+
+    // No instruction found at this address - could be orphaned CODE byte
+    // Check if it's at least marked as CODE
+    return address_map_->IsCode(address);
+  }
+
+  // UNKNOWN or other types - allow if zero page or ROM (external symbols)
+  if (address < 0x100 || address >= 0xC000) {
+    return true;
+  }
+
+  // Default: reject UNKNOWN addresses within binary range
+  return false;
 }
 
 }  // namespace analysis

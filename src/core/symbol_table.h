@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -27,7 +28,8 @@ enum class SymbolType {
 // Symbol definition
 struct Symbol {
   uint32_t address;
-  std::string name;
+  std::string name;       // Historical/official name
+  std::string symbol;     // Assembler-safe name (optional, defaults to name)
   SymbolType type;
   std::string description;
   std::string platform;  // e.g., "apple2e", "prodos8", "c64"
@@ -51,10 +53,12 @@ class SymbolTable {
                  const std::string& description = "",
                  const std::string& platform = "");
 
-  // Query symbols
+  // Query symbols (C++ Core Guidelines F.20: prefer return values)
+  [[nodiscard]] std::optional<Symbol> GetSymbol(uint32_t address) const;
+  [[nodiscard]] std::optional<std::string> GetSymbolName(uint32_t address) const;
+
+  // Legacy API for backwards compatibility (deprecated)
   bool HasSymbol(uint32_t address) const;
-  Symbol GetSymbol(uint32_t address) const;
-  std::string GetSymbolName(uint32_t address) const;
 
   // Get all symbols for a platform
   std::vector<Symbol> GetSymbolsByPlatform(const std::string& platform) const;

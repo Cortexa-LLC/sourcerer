@@ -1,30 +1,152 @@
 {
-  "platform": "Apple II",
-  "description": "Apple II zero page addresses",
+  "platform": "apple2e",
+  "description": "Apple II Zero Page Memory ($00-$FF)",
+  "version": "1.0",
+  "source": "Inside the Apple IIe by Gary B. Little",
   "symbols": [
-    {"address": "0x20", "name": "WNDLFT", "description": "Text window left edge", "type": "data"},
-    {"address": "0x21", "name": "WNDWDTH", "description": "Text window width", "type": "data"},
-    {"address": "0x22", "name": "WNDTOP", "description": "Text window top edge", "type": "data"},
-    {"address": "0x23", "name": "WNDBTM", "description": "Text window bottom edge", "type": "data"},
-    {"address": "0x24", "name": "CH", "description": "Cursor horizontal position", "type": "data"},
-    {"address": "0x25", "name": "CV", "description": "Cursor vertical position", "type": "data"},
-    {"address": "0x26", "name": "GBASL", "description": "Base address low", "type": "data"},
-    {"address": "0x27", "name": "GBASH", "description": "Base address high", "type": "data"},
-    {"address": "0x28", "name": "BASL", "description": "Text base address low", "type": "data"},
-    {"address": "0x29", "name": "BASH", "description": "Text base address high", "type": "data"},
-    {"address": "0x30", "name": "MASK", "description": "AND mask for character", "type": "data"},
-    {"address": "0x32", "name": "INVFLG", "description": "Inverse flag", "type": "data"},
-    {"address": "0x33", "name": "PROMPT", "description": "Prompt character", "type": "data"},
-    {"address": "0x36", "name": "CSWL", "description": "Character output hook low", "type": "data"},
-    {"address": "0x37", "name": "CSWH", "description": "Character output hook high", "type": "data"},
-    {"address": "0x38", "name": "KSWL", "description": "Character input hook low", "type": "data"},
-    {"address": "0x39", "name": "KSWH", "description": "Character input hook high", "type": "data"},
-    {"address": "0x4E", "name": "RNDL", "description": "Random number low", "type": "data"},
-    {"address": "0x4F", "name": "RNDH", "description": "Random number high", "type": "data"},
-    {"address": "0xE0", "name": "HIMEM_L", "description": "High memory pointer low", "type": "data"},
-    {"address": "0xE1", "name": "HIMEM_H", "description": "High memory pointer high", "type": "data"},
-    {"address": "0xE2", "name": "LOMEM_L", "description": "Low memory pointer low", "type": "data"},
-    {"address": "0xE3", "name": "LOMEM_H", "description": "Low memory pointer high", "type": "data"},
-    {"address": "0xF8", "name": "ERR_CODE", "description": "Error code", "type": "data"}
+    {
+      "address": "0x0000",
+      "name": "WNDLFT",
+      "type": "zero_page",
+      "description": "Text window left edge"
+    },
+    {
+      "address": "0x0001",
+      "name": "WNDWDTH",
+      "type": "zero_page",
+      "description": "Text window width"
+    },
+    {
+      "address": "0x0002",
+      "name": "WNDTOP",
+      "type": "zero_page",
+      "description": "Text window top edge"
+    },
+    {
+      "address": "0x0003",
+      "name": "WNDBTM",
+      "type": "zero_page",
+      "description": "Text window bottom edge"
+    },
+    {
+      "address": "0x0004",
+      "name": "CH",
+      "type": "zero_page",
+      "description": "Cursor horizontal position"
+    },
+    {
+      "address": "0x0005",
+      "name": "CV",
+      "type": "zero_page",
+      "description": "Cursor vertical position"
+    },
+    {
+      "address": "0x0006",
+      "name": "GBASL",
+      "type": "zero_page",
+      "description": "Graphics base address low"
+    },
+    {
+      "address": "0x0007",
+      "name": "GBASH",
+      "type": "zero_page",
+      "description": "Graphics base address high"
+    },
+    {
+      "address": "0x0020",
+      "name": "HIMEM",
+      "type": "zero_page",
+      "description": "High memory pointer (2 bytes)"
+    },
+    {
+      "address": "0x0028",
+      "name": "BASL",
+      "type": "zero_page",
+      "description": "Text base address low"
+    },
+    {
+      "address": "0x0029",
+      "name": "BASH",
+      "type": "zero_page",
+      "description": "Text base address high"
+    },
+    {
+      "address": "0x0032",
+      "name": "INVFLG",
+      "type": "zero_page",
+      "description": "Video attribute mask for inverse/flash"
+    },
+    {
+      "address": "0x0033",
+      "name": "PROMPT",
+      "type": "zero_page",
+      "description": "Monitor prompt character"
+    },
+    {
+      "address": "0x0036",
+      "name": "CSWL",
+      "type": "zero_page",
+      "description": "Character output vector low"
+    },
+    {
+      "address": "0x0037",
+      "name": "CSWH",
+      "type": "zero_page",
+      "description": "Character output vector high"
+    },
+    {
+      "address": "0x0038",
+      "name": "KSWL",
+      "type": "zero_page",
+      "description": "Character input vector low"
+    },
+    {
+      "address": "0x0039",
+      "name": "KSWH",
+      "type": "zero_page",
+      "description": "Character input vector high"
+    },
+    {
+      "address": "0x003E",
+      "name": "HMASK",
+      "type": "zero_page",
+      "description": "Hi-res graphics mask (2 bytes)"
+    },
+    {
+      "address": "0x0067",
+      "name": "TXTTAB",
+      "type": "zero_page",
+      "description": "Applesoft program start (2 bytes)"
+    },
+    {
+      "address": "0x0069",
+      "name": "VARTAB",
+      "type": "zero_page",
+      "description": "Applesoft variable start (2 bytes)"
+    },
+    {
+      "address": "0x006B",
+      "name": "ARYTAB",
+      "type": "zero_page",
+      "description": "Applesoft array start (2 bytes)"
+    },
+    {
+      "address": "0x006D",
+      "name": "STREND",
+      "type": "zero_page",
+      "description": "Applesoft string end (2 bytes)"
+    },
+    {
+      "address": "0x006F",
+      "name": "FRETOP",
+      "type": "zero_page",
+      "description": "Applesoft string free space (2 bytes)"
+    },
+    {
+      "address": "0x00AF",
+      "name": "PRGEND",
+      "type": "zero_page",
+      "description": "Applesoft program end (2 bytes)"
+    }
   ]
 }

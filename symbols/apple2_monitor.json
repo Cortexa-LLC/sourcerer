@@ -1,0 +1,134 @@
+{
+  "platform": "apple2e",
+  "description": "Apple IIe System Monitor ROM Routines ($F800-$FFFF)",
+  "version": "1.0",
+  "source": "Inside the Apple IIe by Gary B. Little - Table 3-3",
+  "symbols": [
+    {
+      "address": "0xF940",
+      "name": "PRINTYX",
+      "type": "rom_routine",
+      "description": "Print Y(hi):X(lo) as 4 hex digits"
+    },
+    {
+      "address": "0xFB1E",
+      "name": "PREAD",
+      "type": "rom_routine",
+      "description": "Read game paddle (X=paddle#, returns Y=value)"
+    },
+    {
+      "address": "0xFBBF",
+      "name": "BELL",
+      "type": "rom_routine",
+      "description": "Sound bell"
+    },
+    {
+      "address": "0xFBC1",
+      "name": "BASCALC",
+      "type": "rom_routine",
+      "description": "Calculate video line base address (A=line#)"
+    },
+    {
+      "address": "0xFC22",
+      "name": "VTAB",
+      "type": "rom_routine",
+      "description": "Move cursor to line in CV ($25)"
+    },
+    {
+      "address": "0xFC42",
+      "name": "CLREOP",
+      "type": "rom_routine",
+      "description": "Clear from cursor to end of page"
+    },
+    {
+      "address": "0xFC58",
+      "name": "HOME",
+      "type": "rom_routine",
+      "description": "Clear screen and home cursor"
+    },
+    {
+      "address": "0xFC62",
+      "name": "CR",
+      "type": "rom_routine",
+      "description": "Carriage return (move to next line)"
+    },
+    {
+      "address": "0xFC9C",
+      "name": "CLREOL",
+      "type": "rom_routine",
+      "description": "Clear from cursor to end of line"
+    },
+    {
+      "address": "0xFCA8",
+      "name": "WAIT",
+      "type": "rom_routine",
+      "description": "Delay 0.5*(26+27*A+5*A*A) microseconds"
+    },
+    {
+      "address": "0xFD0C",
+      "name": "RDKEY",
+      "type": "rom_routine",
+      "description": "Read character from input device (via KSW)"
+    },
+    {
+      "address": "0xFD1B",
+      "name": "KEYIN",
+      "type": "rom_routine",
+      "description": "Read character from keyboard"
+    },
+    {
+      "address": "0xFD35",
+      "name": "RDCHAR",
+      "type": "rom_routine",
+      "description": "Read character with escape sequence handling"
+    },
+    {
+      "address": "0xFD6A",
+      "name": "GETLN",
+      "type": "rom_routine",
+      "description": "Read line from input to buffer at $200"
+    },
+    {
+      "address": "0xFDDA",
+      "name": "PRHEX",
+      "type": "rom_routine",
+      "description": "Print hex digit (A=value 0-15)"
+    },
+    {
+      "address": "0xFDED",
+      "name": "COUT",
+      "type": "rom_routine",
+      "description": "Character output to device (via CSW)"
+    },
+    {
+      "address": "0xFDF0",
+      "name": "COUT1",
+      "type": "rom_routine",
+      "description": "Character output to video screen"
+    },
+    {
+      "address": "0xFE89",
+      "name": "CROUT",
+      "type": "rom_routine",
+      "description": "Output carriage return"
+    },
+    {
+      "address": "0xFE93",
+      "name": "PRBYTE",
+      "type": "rom_routine",
+      "description": "Print byte in A as 2 hex digits"
+    },
+    {
+      "address": "0xFF3A",
+      "name": "MONITOR",
+      "type": "rom_routine",
+      "description": "Enter system monitor"
+    },
+    {
+      "address": "0xFF69",
+      "name": "MONZ",
+      "type": "rom_routine",
+      "description": "Enter system monitor (alternate entry)"
+    }
+  ]
+}

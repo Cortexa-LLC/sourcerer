@@ -42,7 +42,7 @@ class DiskRegistry {
   DiskRegistry();
   void RegisterBuiltinExtractors();
 
-  std::map<std::string, DiskExtractorFactory> factories_;
+  std::vector<std::pair<std::string, DiskExtractorFactory>> factories_;
 };
 
 }  // namespace disk

@@ -113,7 +113,7 @@ std::vector<core::Instruction> DisassembleWithAnalysis(
   uint32_t end_address = address + binary.size();
   
   LOG_INFO("Disassembling code regions...");
-  
+
   // Build a set of all instruction start addresses from the analyzer's instruction cache
   // This helps us identify instruction boundaries vs mid-instruction bytes
   std::set<uint32_t> instruction_boundaries;

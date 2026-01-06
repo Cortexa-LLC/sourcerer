@@ -1,0 +1,7327 @@
+{
+  "platform": "coco",
+  "description": "CoCo Color BASIC ROM routines",
+  "version": "1.0",
+  "symbols": [
+    {
+      "name": "ABS",
+      "address": "0xBC93",
+      "description": "ABS",
+      "type": "routine"
+    },
+    {
+      "name": "ALLCOL",
+      "address": "0x00B5",
+      "description": "ALLCOL",
+      "type": "constant"
+    },
+    {
+      "name": "ANGLE",
+      "address": "0x00E8",
+      "description": "ANGLE",
+      "type": "constant"
+    },
+    {
+      "name": "APOSTROPHE",
+      "address": "0x0027",
+      "description": "APOSTROPHE",
+      "type": "constant"
+    },
+    {
+      "name": "ARYDIS",
+      "address": "0x0008",
+      "description": "ARYDIS",
+      "type": "constant"
+    },
+    {
+      "name": "ARYEND",
+      "address": "0x001F",
+      "description": "ARYEND",
+      "type": "constant"
+    },
+    {
+      "name": "ARYTAB",
+      "address": "0x001D",
+      "description": "ARYTAB",
+      "type": "constant"
+    },
+    {
+      "name": "ASC",
+      "address": "0xB6A0",
+      "description": "ASC",
+      "type": "routine"
+    },
+    {
+      "name": "ATTCTR",
+      "address": "0x0988",
+      "description": "ATTCTR",
+      "type": "data"
+    },
+    {
+      "name": "AUDIO",
+      "address": "0xA990",
+      "description": "AUDIO",
+      "type": "routine"
+    },
+    {
+      "name": "BACDST",
+      "address": "0xA074",
+      "description": "BACDST",
+      "type": "routine"
+    },
+    {
+      "name": "BAKCOL",
+      "address": "0x00B3",
+      "description": "BAKCOL",
+      "type": "constant"
+    },
+    {
+      "name": "BASIC",
+      "address": "0xA000",
+      "description": "BASIC",
+      "type": "routine"
+    },
+    {
+      "name": "BAWMST",
+      "address": "0xA0E8",
+      "description": "BAWMST",
+      "type": "routine"
+    },
+    {
+      "name": "BEGGRP",
+      "address": "0x00BA",
+      "description": "BEGGRP",
+      "type": "constant"
+    },
+    {
+      "name": "BFRQSV",
+      "address": "0xA0F6",
+      "description": "BFRQSV",
+      "type": "routine"
+    },
+    {
+      "name": "BINVAL",
+      "address": "0x002B",
+      "description": "BINVAL",
+      "type": "constant"
+    },
+    {
+      "name": "BIRQSV",
+      "address": "0xA9B3",
+      "description": "BIRQSV",
+      "type": "routine"
+    },
+    {
+      "name": "BLKCNT",
+      "address": "0x0094",
+      "description": "BLKCNT",
+      "type": "constant"
+    },
+    {
+      "name": "BLKIN",
+      "address": "0xA006",
+      "description": "BLKIN",
+      "type": "routine"
+    },
+    {
+      "name": "BLKLEN",
+      "address": "0x007D",
+      "description": "BLKLEN",
+      "type": "constant"
+    },
+    {
+      "name": "BLKOUT",
+      "address": "0xA008",
+      "description": "BLKOUT",
+      "type": "routine"
+    },
+    {
+      "name": "BLKTYP",
+      "address": "0x007C",
+      "description": "BLKTYP",
+      "type": "constant"
+    },
+    {
+      "name": "BOTSTK",
+      "address": "0x0017",
+      "description": "BOTSTK",
+      "type": "constant"
+    },
+    {
+      "name": "BROMHK",
+      "address": "0xAA1A",
+      "description": "BROMHK",
+      "type": "routine"
+    },
+    {
+      "name": "BS",
+      "address": "0x0008",
+      "description": "BS",
+      "type": "constant"
+    },
+    {
+      "name": "CASBUF",
+      "address": "0x01DA",
+      "description": "CASBUF",
+      "type": "data"
+    },
+    {
+      "name": "CASFLG",
+      "address": "0x011A",
+      "description": "CASFLG",
+      "type": "data"
+    },
+    {
+      "name": "CASON",
+      "address": "0xA77C",
+      "description": "CASON",
+      "type": "routine"
+    },
+    {
+      "name": "CBTPHA",
+      "address": "0x0084",
+      "description": "CBTPHA",
+      "type": "constant"
+    },
+    {
+      "name": "CBUFAD",
+      "address": "0x007E",
+      "description": "CBUFAD",
+      "type": "constant"
+    },
+    {
+      "name": "CCKSUM",
+      "address": "0x0080",
+      "description": "CCKSUM",
+      "type": "constant"
+    },
+    {
+      "name": "CFNBUF",
+      "address": "0x01D1",
+      "description": "CFNBUF",
+      "type": "data"
+    },
+    {
+      "name": "CHARAC",
+      "address": "0x0001",
+      "description": "CHARAC",
+      "type": "constant"
+    },
+    {
+      "name": "CHARAD",
+      "address": "0x00A6",
+      "description": "CHARAD",
+      "type": "constant"
+    },
+    {
+      "name": "CHGFLG",
+      "address": "0x00DB",
+      "description": "CHGFLG",
+      "type": "constant"
+    },
+    {
+      "name": "CHR",
+      "address": "0xB68C",
+      "description": "CHR",
+      "type": "routine"
+    },
+    {
+      "name": "CHROUT",
+      "address": "0xA002",
+      "description": "CHROUT",
+      "type": "routine"
+    },
+    {
+      "name": "CINBFL",
+      "address": "0x0070",
+      "description": "CINBFL",
+      "type": "constant"
+    },
+    {
+      "name": "CINCTR",
+      "address": "0x0079",
+      "description": "CINCTR",
+      "type": "constant"
+    },
+    {
+      "name": "CINPTR",
+      "address": "0x007A",
+      "description": "CINPTR",
+      "type": "constant"
+    },
+    {
+      "name": "CLEAR",
+      "address": "0xAE41",
+      "description": "CLEAR",
+      "type": "routine"
+    },
+    {
+      "name": "CLOAD",
+      "address": "0xA498",
+      "description": "CLOAD",
+      "type": "routine"
+    },
+    {
+      "name": "CLOSE",
+      "address": "0xA416",
+      "description": "CLOSE",
+      "type": "routine"
+    },
+    {
+      "name": "CLRSCRN",
+      "address": "0xA928",
+      "description": "CLRSCRN",
+      "type": "routine"
+    },
+    {
+      "name": "CLS",
+      "address": "0xA910",
+      "description": "CLS",
+      "type": "routine"
+    },
+    {
+      "name": "CLSTSN",
+      "address": "0x0085",
+      "description": "CLSTSN",
+      "type": "constant"
+    },
+    {
+      "name": "CMP0",
+      "address": "0x0090",
+      "description": "CMP0",
+      "type": "constant"
+    },
+    {
+      "name": "CMP1",
+      "address": "0x0091",
+      "description": "CMP1",
+      "type": "constant"
+    },
+    {
+      "name": "CMPMID",
+      "address": "0x008F",
+      "description": "CMPMID",
+      "type": "constant"
+    },
+    {
+      "name": "COEFCT",
+      "address": "0x0055",
+      "description": "COEFCT",
+      "type": "constant"
+    },
+    {
+      "name": "COEFPT",
+      "address": "0x0064",
+      "description": "COEFPT",
+      "type": "constant"
+    },
+    {
+      "name": "COMVEC",
+      "address": "0x0120",
+      "description": "COMVEC",
+      "type": "data"
+    },
+    {
+      "name": "CONT",
+      "address": "0xAE30",
+      "description": "CONT",
+      "type": "routine"
+    },
+    {
+      "name": "CONTAB",
+      "address": "0xA26E",
+      "description": "CONTAB",
+      "type": "routine"
+    },
+    {
+      "name": "CPERTM",
+      "address": "0x0083",
+      "description": "CPERTM",
+      "type": "constant"
+    },
+    {
+      "name": "CPULWD",
+      "address": "0x0082",
+      "description": "CPULWD",
+      "type": "constant"
+    },
+    {
+      "name": "CR",
+      "address": "0x000D",
+      "description": "CR",
+      "type": "constant"
+    },
+    {
+      "name": "CSAVE",
+      "address": "0xA44C",
+      "description": "CSAVE",
+      "type": "routine"
+    },
+    {
+      "name": "CSRDON",
+      "address": "0xA004",
+      "description": "CSRDON",
+      "type": "routine"
+    },
+    {
+      "name": "CSRERR",
+      "address": "0x0081",
+      "description": "CSRERR",
+      "type": "constant"
+    },
+    {
+      "name": "CSSVAL",
+      "address": "0x00C1",
+      "description": "CSSVAL",
+      "type": "constant"
+    },
+    {
+      "name": "CURLIN",
+      "address": "0x0068",
+      "description": "CURLIN",
+      "type": "constant"
+    },
+    {
+      "name": "CURPOS",
+      "address": "0x0088",
+      "description": "CURPOS",
+      "type": "constant"
+    },
+    {
+      "name": "DA",
+      "address": "0xFF20",
+      "description": "DA",
+      "type": "io_port"
+    },
+    {
+      "name": "DASCFL",
+      "address": "0x0958",
+      "description": "DASCFL",
+      "type": "data"
+    },
+    {
+      "name": "DATA",
+      "address": "0xAEE0",
+      "description": "DATA",
+      "type": "routine"
+    },
+    {
+      "name": "DATPTR",
+      "address": "0x0033",
+      "description": "DATPTR",
+      "type": "constant"
+    },
+    {
+      "name": "DATTMP",
+      "address": "0x0035",
+      "description": "DATTMP",
+      "type": "constant"
+    },
+    {
+      "name": "DATTXT",
+      "address": "0x0031",
+      "description": "DATTXT",
+      "type": "constant"
+    },
+    {
+      "name": "DBUF0",
+      "address": "0x0600",
+      "description": "DBUF0",
+      "type": "data"
+    },
+    {
+      "name": "DBUF1",
+      "address": "0x0700",
+      "description": "DBUF1",
+      "type": "data"
+    },
+    {
+      "name": "DCBPT",
+      "address": "0x00EE",
+      "description": "DCBPT",
+      "type": "constant"
+    },
+    {
+      "name": "DCDRV",
+      "address": "0x00EB",
+      "description": "DCDRV",
+      "type": "constant"
+    },
+    {
+      "name": "DCOPC",
+      "address": "0x00EA",
+      "description": "DCOPC",
+      "type": "constant"
+    },
+    {
+      "name": "DCSTA",
+      "address": "0x00F0",
+      "description": "DCSTA",
+      "type": "constant"
+    },
+    {
+      "name": "DCTRK",
+      "address": "0x00EC",
+      "description": "DCTRK",
+      "type": "constant"
+    },
+    {
+      "name": "DEBDEL",
+      "address": "0x045E",
+      "description": "DEBDEL",
+      "type": "data"
+    },
+    {
+      "name": "DEBVAL",
+      "address": "0x011B",
+      "description": "DEBVAL",
+      "type": "data"
+    },
+    {
+      "name": "DEFDRV",
+      "address": "0x095A",
+      "description": "DEFDRV",
+      "type": "data"
+    },
+    {
+      "name": "DEVCFW",
+      "address": "0x006A",
+      "description": "DEVCFW",
+      "type": "constant"
+    },
+    {
+      "name": "DEVLCF",
+      "address": "0x006B",
+      "description": "DEVLCF",
+      "type": "constant"
+    },
+    {
+      "name": "DEVNUM",
+      "address": "0x006F",
+      "description": "DEVNUM",
+      "type": "constant"
+    },
+    {
+      "name": "DEVPOS",
+      "address": "0x006C",
+      "description": "DEVPOS",
+      "type": "constant"
+    },
+    {
+      "name": "DEVWID",
+      "address": "0x006D",
+      "description": "DEVWID",
+      "type": "constant"
+    },
+    {
+      "name": "DEXTBF",
+      "address": "0x0954",
+      "description": "DEXTBF",
+      "type": "data"
+    },
+    {
+      "name": "DFFLEN",
+      "address": "0x097C",
+      "description": "DFFLEN",
+      "type": "data"
+    },
+    {
+      "name": "DFLBUF",
+      "address": "0x0989",
+      "description": "DFLBUF",
+      "type": "data"
+    },
+    {
+      "name": "DFLTYP",
+      "address": "0x0957",
+      "description": "DFLTYP",
+      "type": "data"
+    },
+    {
+      "name": "DIM",
+      "address": "0xB34E",
+      "description": "DIM",
+      "type": "routine"
+    },
+    {
+      "name": "DIMFLG",
+      "address": "0x0005",
+      "description": "DIMFLG",
+      "type": "constant"
+    },
+    {
+      "name": "DIRLEN",
+      "address": "0x0020",
+      "description": "DIRLEN",
+      "type": "constant"
+    },
+    {
+      "name": "DLBAUD",
+      "address": "0x00E6",
+      "description": "DLBAUD",
+      "type": "constant"
+    },
+    {
+      "name": "DLODFL",
+      "address": "0x095D",
+      "description": "DLODFL",
+      "type": "data"
+    },
+    {
+      "name": "DMRGFL",
+      "address": "0x095E",
+      "description": "DMRGFL",
+      "type": "data"
+    },
+    {
+      "name": "DNAMBF",
+      "address": "0x094C",
+      "description": "DNAMBF",
+      "type": "data"
+    },
+    {
+      "name": "DNMIVC",
+      "address": "0x0983",
+      "description": "DNMIVC",
+      "type": "data"
+    },
+    {
+      "name": "DOSBAS",
+      "address": "0xC000",
+      "description": "DOSBAS",
+      "type": "routine"
+    },
+    {
+      "name": "DOSBUF",
+      "address": "0x2600",
+      "description": "DOSBUF",
+      "type": "data"
+    },
+    {
+      "name": "DOTVAL",
+      "address": "0x00E5",
+      "description": "DOTVAL",
+      "type": "constant"
+    },
+    {
+      "name": "DR0TRK",
+      "address": "0x097E",
+      "description": "DR0TRK",
+      "type": "data"
+    },
+    {
+      "name": "DRESFL",
+      "address": "0x095C",
+      "description": "DRESFL",
+      "type": "data"
+    },
+    {
+      "name": "DRGRAM",
+      "address": "0x0986",
+      "description": "DRGRAM",
+      "type": "data"
+    },
+    {
+      "name": "DRUNFL",
+      "address": "0x0959",
+      "description": "DRUNFL",
+      "type": "data"
+    },
+    {
+      "name": "DSEC",
+      "address": "0x00ED",
+      "description": "DSEC",
+      "type": "constant"
+    },
+    {
+      "name": "DSKREG",
+      "address": "0xFF40",
+      "description": "DSKREG",
+      "type": "io_port"
+    },
+    {
+      "name": "DUSRVC",
+      "address": "0x095F",
+      "description": "DUSRVC",
+      "type": "data"
+    },
+    {
+      "name": "DVERFL",
+      "address": "0x0987",
+      "description": "DVERFL",
+      "type": "data"
+    },
+    {
+      "name": "ELSE",
+      "address": "0xAEE3",
+      "description": "ELSE",
+      "type": "routine"
+    },
+    {
+      "name": "ENDCHR",
+      "address": "0x0002",
+      "description": "ENDCHR",
+      "type": "constant"
+    },
+    {
+      "name": "ENDFLG",
+      "address": "0x0000",
+      "description": "ENDFLG",
+      "type": "constant"
+    },
+    {
+      "name": "ENDGRP",
+      "address": "0x00B7",
+      "description": "ENDGRP",
+      "type": "constant"
+    },
+    {
+      "name": "ENDTOK",
+      "address": "0xAE02",
+      "description": "ENDTOK",
+      "type": "routine"
+    },
+    {
+      "name": "EOF",
+      "address": "0xA5CE",
+      "description": "EOF",
+      "type": "routine"
+    },
+    {
+      "name": "ESC",
+      "address": "0x001B",
+      "description": "ESC",
+      "type": "constant"
+    },
+    {
+      "name": "EVALEXPB",
+      "address": "0xB70B",
+      "description": "EVALEXPB",
+      "type": "routine"
+    },
+    {
+      "name": "EXBAS",
+      "address": "0x8000",
+      "description": "EXBAS",
+      "type": "routine"
+    },
+    {
+      "name": "EXEC",
+      "address": "0xA53E",
+      "description": "EXEC",
+      "type": "routine"
+    },
+    {
+      "name": "EXECJP",
+      "address": "0x009D",
+      "description": "EXECJP",
+      "type": "constant"
+    },
+    {
+      "name": "EXPJMP",
+      "address": "0x011D",
+      "description": "EXPJMP",
+      "type": "data"
+    },
+    {
+      "name": "F0CLR",
+      "address": "0xFFC6",
+      "description": "F0CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F0SET",
+      "address": "0xFFC7",
+      "description": "F0SET",
+      "type": "io_port"
+    },
+    {
+      "name": "F1CLR",
+      "address": "0xFFC8",
+      "description": "F1CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F1SET",
+      "address": "0xFFC9",
+      "description": "F1SET",
+      "type": "io_port"
+    },
+    {
+      "name": "F2CLR",
+      "address": "0xFFCA",
+      "description": "F2CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F2SET",
+      "address": "0xFFCB",
+      "description": "F2SET",
+      "type": "io_port"
+    },
+    {
+      "name": "F3CLR",
+      "address": "0xFFCC",
+      "description": "F3CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F3SET",
+      "address": "0xFFCD",
+      "description": "F3SET",
+      "type": "io_port"
+    },
+    {
+      "name": "F4CLR",
+      "address": "0xFFCE",
+      "description": "F4CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F4SET",
+      "address": "0xFFCF",
+      "description": "F4SET",
+      "type": "io_port"
+    },
+    {
+      "name": "F5CLR",
+      "address": "0xFFD0",
+      "description": "F5CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F5SET",
+      "address": "0xFFD1",
+      "description": "F5SET",
+      "type": "io_port"
+    },
+    {
+      "name": "F6CLR",
+      "address": "0xFFD2",
+      "description": "F6CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "F6SET",
+      "address": "0xFFD3",
+      "description": "F6SET",
+      "type": "io_port"
+    },
+    {
+      "name": "FATBL0",
+      "address": "0x0800",
+      "description": "FATBL0",
+      "type": "data"
+    },
+    {
+      "name": "FATBL1",
+      "address": "0x084A",
+      "description": "FATBL1",
+      "type": "data"
+    },
+    {
+      "name": "FATBL2",
+      "address": "0x0894",
+      "description": "FATBL2",
+      "type": "data"
+    },
+    {
+      "name": "FATBL3",
+      "address": "0x08DE",
+      "description": "FATBL3",
+      "type": "data"
+    },
+    {
+      "name": "FATLEN",
+      "address": "0x004A",
+      "description": "FATLEN",
+      "type": "constant"
+    },
+    {
+      "name": "FCBACT",
+      "address": "0x095B",
+      "description": "FCBACT",
+      "type": "data"
+    },
+    {
+      "name": "FCBADR",
+      "address": "0x094A",
+      "description": "FCBADR",
+      "type": "data"
+    },
+    {
+      "name": "FCBLEN",
+      "address": "0x0119",
+      "description": "FCBLEN",
+      "type": "data"
+    },
+    {
+      "name": "FCBTMP",
+      "address": "0x00F1",
+      "description": "FCBTMP",
+      "type": "constant"
+    },
+    {
+      "name": "FCBV1",
+      "address": "0x0928",
+      "description": "FCBV1",
+      "type": "data"
+    },
+    {
+      "name": "FDCREG",
+      "address": "0xFF48",
+      "description": "FDCREG",
+      "type": "io_port"
+    },
+    {
+      "name": "FILSTA",
+      "address": "0x0078",
+      "description": "FILSTA",
+      "type": "constant"
+    },
+    {
+      "name": "FIRQ",
+      "address": "0xFFF6",
+      "description": "FIRQ",
+      "type": "io_port"
+    },
+    {
+      "name": "FIRQENR",
+      "address": "0xFF93",
+      "description": "FIRQENR",
+      "type": "io_port"
+    },
+    {
+      "name": "FOR",
+      "address": "0xAD47",
+      "description": "FOR",
+      "type": "routine"
+    },
+    {
+      "name": "FORCOL",
+      "address": "0x00B2",
+      "description": "FORCOL",
+      "type": "constant"
+    },
+    {
+      "name": "FORMF",
+      "address": "0x000C",
+      "description": "FORMF",
+      "type": "constant"
+    },
+    {
+      "name": "FP0EXP",
+      "address": "0x004F",
+      "description": "FP0EXP",
+      "type": "constant"
+    },
+    {
+      "name": "FP0SGN",
+      "address": "0x0054",
+      "description": "FP0SGN",
+      "type": "constant"
+    },
+    {
+      "name": "FP1EXP",
+      "address": "0x005C",
+      "description": "FP1EXP",
+      "type": "constant"
+    },
+    {
+      "name": "FP1SGN",
+      "address": "0x0061",
+      "description": "FP1SGN",
+      "type": "constant"
+    },
+    {
+      "name": "FPA0",
+      "address": "0x0050",
+      "description": "FPA0",
+      "type": "constant"
+    },
+    {
+      "name": "FPA1",
+      "address": "0x005D",
+      "description": "FPA1",
+      "type": "constant"
+    },
+    {
+      "name": "FPA2",
+      "address": "0x0013",
+      "description": "FPA2",
+      "type": "constant"
+    },
+    {
+      "name": "FPCARY",
+      "address": "0x005B",
+      "description": "FPCARY",
+      "type": "constant"
+    },
+    {
+      "name": "FPSBYT",
+      "address": "0x0063",
+      "description": "FPSBYT",
+      "type": "constant"
+    },
+    {
+      "name": "FRESPC",
+      "address": "0x0025",
+      "description": "FRESPC",
+      "type": "constant"
+    },
+    {
+      "name": "FRETOP",
+      "address": "0x0021",
+      "description": "FRETOP",
+      "type": "constant"
+    },
+    {
+      "name": "FRQVEC",
+      "address": "0x010F",
+      "description": "FRQVEC",
+      "type": "data"
+    },
+    {
+      "name": "GARBFL",
+      "address": "0x0007",
+      "description": "GARBFL",
+      "type": "constant"
+    },
+    {
+      "name": "GETBLK",
+      "address": "0xA70B",
+      "description": "GETBLK",
+      "type": "routine"
+    },
+    {
+      "name": "GETCCH",
+      "address": "0x00A5",
+      "description": "GETCCH",
+      "type": "constant"
+    },
+    {
+      "name": "GETJOY",
+      "address": "0xA9DE",
+      "description": "GETJOY",
+      "type": "routine"
+    },
+    {
+      "name": "GETNCH",
+      "address": "0x009F",
+      "description": "GETNCH",
+      "type": "constant"
+    },
+    {
+      "name": "GIVABF",
+      "address": "0xB4F4",
+      "description": "GIVABF",
+      "type": "routine"
+    },
+    {
+      "name": "GO",
+      "address": "0xAE86",
+      "description": "GO",
+      "type": "routine"
+    },
+    {
+      "name": "GRANMX",
+      "address": "0x0044",
+      "description": "GRANMX",
+      "type": "constant"
+    },
+    {
+      "name": "GRBLOK",
+      "address": "0x0086",
+      "description": "GRBLOK",
+      "type": "constant"
+    },
+    {
+      "name": "GRPRAM",
+      "address": "0x00BC",
+      "description": "GRPRAM",
+      "type": "constant"
+    },
+    {
+      "name": "HORBEG",
+      "address": "0x00BD",
+      "description": "HORBEG",
+      "type": "constant"
+    },
+    {
+      "name": "HORBYT",
+      "address": "0x00B9",
+      "description": "HORBYT",
+      "type": "constant"
+    },
+    {
+      "name": "HORDEF",
+      "address": "0x00C7",
+      "description": "HORDEF",
+      "type": "constant"
+    },
+    {
+      "name": "HOREND",
+      "address": "0x00C3",
+      "description": "HOREND",
+      "type": "constant"
+    },
+    {
+      "name": "HRMODE",
+      "address": "0x00E6",
+      "description": "HRMODE",
+      "type": "constant"
+    },
+    {
+      "name": "HRWIDTH",
+      "address": "0x00E7",
+      "description": "HRWIDTH",
+      "type": "constant"
+    },
+    {
+      "name": "H_OFSET0",
+      "address": "0xFF9F",
+      "description": "H_OFSET0",
+      "type": "io_port"
+    },
+    {
+      "name": "IFCTR",
+      "address": "0x0004",
+      "description": "IFCTR",
+      "type": "constant"
+    },
+    {
+      "name": "IFTOK",
+      "address": "0xAF14",
+      "description": "IFTOK",
+      "type": "routine"
+    },
+    {
+      "name": "IKEYIM",
+      "address": "0x0087",
+      "description": "IKEYIM",
+      "type": "constant"
+    },
+    {
+      "name": "INIT0",
+      "address": "0xFF90",
+      "description": "INIT0",
+      "type": "io_port"
+    },
+    {
+      "name": "INIT1",
+      "address": "0xFF91",
+      "description": "INIT1",
+      "type": "io_port"
+    },
+    {
+      "name": "INKEY",
+      "address": "0xA564",
+      "description": "INKEY",
+      "type": "routine"
+    },
+    {
+      "name": "INPFIL",
+      "address": "0x0010",
+      "description": "INPFIL",
+      "type": "constant"
+    },
+    {
+      "name": "INPFLG",
+      "address": "0x0009",
+      "description": "INPFLG",
+      "type": "constant"
+    },
+    {
+      "name": "INPUT",
+      "address": "0xAFF5",
+      "description": "INPUT",
+      "type": "routine"
+    },
+    {
+      "name": "INT",
+      "address": "0xBCEE",
+      "description": "INT",
+      "type": "routine"
+    },
+    {
+      "name": "INTCNV",
+      "address": "0xB3ED",
+      "description": "INTCNV",
+      "type": "routine"
+    },
+    {
+      "name": "IRQ",
+      "address": "0xFFF8",
+      "description": "IRQ",
+      "type": "io_port"
+    },
+    {
+      "name": "IRQENR",
+      "address": "0xFF92",
+      "description": "IRQENR",
+      "type": "io_port"
+    },
+    {
+      "name": "IRQVEC",
+      "address": "0x010C",
+      "description": "IRQVEC",
+      "type": "data"
+    },
+    {
+      "name": "JOYIN",
+      "address": "0xA00A",
+      "description": "JOYIN",
+      "type": "routine"
+    },
+    {
+      "name": "JOYSTK",
+      "address": "0xA9C6",
+      "description": "JOYSTK",
+      "type": "routine"
+    },
+    {
+      "name": "KEYBUF",
+      "address": "0x0152",
+      "description": "KEYBUF",
+      "type": "data"
+    },
+    {
+      "name": "KEYIN",
+      "address": "0xA1CB",
+      "description": "KEYIN",
+      "type": "routine"
+    },
+    {
+      "name": "KEYIN1",
+      "address": "0xA1C1",
+      "description": "KEYIN1",
+      "type": "routine"
+    },
+    {
+      "name": "LA00E",
+      "address": "0xA00E",
+      "description": "LA00E",
+      "type": "routine"
+    },
+    {
+      "name": "LA02A",
+      "address": "0xA02A",
+      "description": "LA02A",
+      "type": "routine"
+    },
+    {
+      "name": "LA05E",
+      "address": "0xA05E",
+      "description": "LA05E",
+      "type": "routine"
+    },
+    {
+      "name": "LA070",
+      "address": "0xA070",
+      "description": "LA070",
+      "type": "routine"
+    },
+    {
+      "name": "LA072",
+      "address": "0xA072",
+      "description": "LA072",
+      "type": "routine"
+    },
+    {
+      "name": "LA077",
+      "address": "0xA077",
+      "description": "LA077",
+      "type": "routine"
+    },
+    {
+      "name": "LA093",
+      "address": "0xA093",
+      "description": "LA093",
+      "type": "routine"
+    },
+    {
+      "name": "LA0B6",
+      "address": "0xA0B6",
+      "description": "LA0B6",
+      "type": "routine"
+    },
+    {
+      "name": "LA0C0",
+      "address": "0xA0C0",
+      "description": "LA0C0",
+      "type": "routine"
+    },
+    {
+      "name": "LA0D6",
+      "address": "0xA0D6",
+      "description": "LA0D6",
+      "type": "routine"
+    },
+    {
+      "name": "LA0E2",
+      "address": "0xA0E2",
+      "description": "LA0E2",
+      "type": "routine"
+    },
+    {
+      "name": "LA0F3",
+      "address": "0xA0F3",
+      "description": "LA0F3",
+      "type": "routine"
+    },
+    {
+      "name": "LA0FC",
+      "address": "0xA0FC",
+      "description": "LA0FC",
+      "type": "routine"
+    },
+    {
+      "name": "LA102",
+      "address": "0xA102",
+      "description": "LA102",
+      "type": "routine"
+    },
+    {
+      "name": "LA108",
+      "address": "0xA108",
+      "description": "LA108",
+      "type": "routine"
+    },
+    {
+      "name": "LA10D",
+      "address": "0xA10D",
+      "description": "LA10D",
+      "type": "routine"
+    },
+    {
+      "name": "LA123",
+      "address": "0xA123",
+      "description": "LA123",
+      "type": "routine"
+    },
+    {
+      "name": "LA13D",
+      "address": "0xA13D",
+      "description": "LA13D",
+      "type": "routine"
+    },
+    {
+      "name": "LA13E",
+      "address": "0xA13E",
+      "description": "LA13E",
+      "type": "routine"
+    },
+    {
+      "name": "LA140",
+      "address": "0xA140",
+      "description": "LA140",
+      "type": "routine"
+    },
+    {
+      "name": "LA142",
+      "address": "0xA142",
+      "description": "LA142",
+      "type": "routine"
+    },
+    {
+      "name": "LA143",
+      "address": "0xA143",
+      "description": "LA143",
+      "type": "routine"
+    },
+    {
+      "name": "LA145",
+      "address": "0xA145",
+      "description": "LA145",
+      "type": "routine"
+    },
+    {
+      "name": "LA147",
+      "address": "0xA147",
+      "description": "LA147",
+      "type": "routine"
+    },
+    {
+      "name": "LA156",
+      "address": "0xA156",
+      "description": "LA156",
+      "type": "routine"
+    },
+    {
+      "name": "LA157",
+      "address": "0xA157",
+      "description": "LA157",
+      "type": "routine"
+    },
+    {
+      "name": "LA165",
+      "address": "0xA165",
+      "description": "LA165",
+      "type": "routine"
+    },
+    {
+      "name": "LA166",
+      "address": "0xA166",
+      "description": "LA166",
+      "type": "routine"
+    },
+    {
+      "name": "LA16F",
+      "address": "0xA16F",
+      "description": "LA16F",
+      "type": "routine"
+    },
+    {
+      "name": "LA171",
+      "address": "0xA171",
+      "description": "LA171",
+      "type": "routine"
+    },
+    {
+      "name": "LA176",
+      "address": "0xA176",
+      "description": "LA176",
+      "type": "routine"
+    },
+    {
+      "name": "LA17B",
+      "address": "0xA17B",
+      "description": "LA17B",
+      "type": "routine"
+    },
+    {
+      "name": "LA185",
+      "address": "0xA185",
+      "description": "LA185",
+      "type": "routine"
+    },
+    {
+      "name": "LA186",
+      "address": "0xA186",
+      "description": "LA186",
+      "type": "routine"
+    },
+    {
+      "name": "LA190",
+      "address": "0xA190",
+      "description": "LA190",
+      "type": "routine"
+    },
+    {
+      "name": "LA197",
+      "address": "0xA197",
+      "description": "LA197",
+      "type": "routine"
+    },
+    {
+      "name": "LA199",
+      "address": "0xA199",
+      "description": "LA199",
+      "type": "routine"
+    },
+    {
+      "name": "LA1AB",
+      "address": "0xA1AB",
+      "description": "LA1AB",
+      "type": "routine"
+    },
+    {
+      "name": "LA1AE",
+      "address": "0xA1AE",
+      "description": "LA1AE",
+      "type": "routine"
+    },
+    {
+      "name": "LA1B1",
+      "address": "0xA1B1",
+      "description": "LA1B1",
+      "type": "routine"
+    },
+    {
+      "name": "LA1B3",
+      "address": "0xA1B3",
+      "description": "LA1B3",
+      "type": "routine"
+    },
+    {
+      "name": "LA1B9",
+      "address": "0xA1B9",
+      "description": "LA1B9",
+      "type": "routine"
+    },
+    {
+      "name": "LA1BF",
+      "address": "0xA1BF",
+      "description": "LA1BF",
+      "type": "routine"
+    },
+    {
+      "name": "LA1D9",
+      "address": "0xA1D9",
+      "description": "LA1D9",
+      "type": "routine"
+    },
+    {
+      "name": "LA1F4",
+      "address": "0xA1F4",
+      "description": "LA1F4",
+      "type": "routine"
+    },
+    {
+      "name": "LA20C",
+      "address": "0xA20C",
+      "description": "LA20C",
+      "type": "routine"
+    },
+    {
+      "name": "LA21A",
+      "address": "0xA21A",
+      "description": "LA21A",
+      "type": "routine"
+    },
+    {
+      "name": "LA220",
+      "address": "0xA220",
+      "description": "LA220",
+      "type": "routine"
+    },
+    {
+      "name": "LA22B",
+      "address": "0xA22B",
+      "description": "LA22B",
+      "type": "routine"
+    },
+    {
+      "name": "LA22C",
+      "address": "0xA22C",
+      "description": "LA22C",
+      "type": "routine"
+    },
+    {
+      "name": "LA22E",
+      "address": "0xA22E",
+      "description": "LA22E",
+      "type": "routine"
+    },
+    {
+      "name": "LA238",
+      "address": "0xA238",
+      "description": "LA238",
+      "type": "routine"
+    },
+    {
+      "name": "LA23A",
+      "address": "0xA23A",
+      "description": "LA23A",
+      "type": "routine"
+    },
+    {
+      "name": "LA244",
+      "address": "0xA244",
+      "description": "LA244",
+      "type": "routine"
+    },
+    {
+      "name": "LA245",
+      "address": "0xA245",
+      "description": "LA245",
+      "type": "routine"
+    },
+    {
+      "name": "LA247",
+      "address": "0xA247",
+      "description": "LA247",
+      "type": "routine"
+    },
+    {
+      "name": "LA25D",
+      "address": "0xA25D",
+      "description": "LA25D",
+      "type": "routine"
+    },
+    {
+      "name": "LA264",
+      "address": "0xA264",
+      "description": "LA264",
+      "type": "routine"
+    },
+    {
+      "name": "LA26A",
+      "address": "0xA26A",
+      "description": "LA26A",
+      "type": "routine"
+    },
+    {
+      "name": "LA29E",
+      "address": "0xA29E",
+      "description": "LA29E",
+      "type": "routine"
+    },
+    {
+      "name": "LA2A6",
+      "address": "0xA2A6",
+      "description": "LA2A6",
+      "type": "routine"
+    },
+    {
+      "name": "LA2A8",
+      "address": "0xA2A8",
+      "description": "LA2A8",
+      "type": "routine"
+    },
+    {
+      "name": "LA2AA",
+      "address": "0xA2AA",
+      "description": "LA2AA",
+      "type": "routine"
+    },
+    {
+      "name": "LA2BF",
+      "address": "0xA2BF",
+      "description": "LA2BF",
+      "type": "routine"
+    },
+    {
+      "name": "LA2C3",
+      "address": "0xA2C3",
+      "description": "LA2C3",
+      "type": "routine"
+    },
+    {
+      "name": "LA2D0",
+      "address": "0xA2D0",
+      "description": "LA2D0",
+      "type": "routine"
+    },
+    {
+      "name": "LA2ED",
+      "address": "0xA2ED",
+      "description": "LA2ED",
+      "type": "routine"
+    },
+    {
+      "name": "LA2F3",
+      "address": "0xA2F3",
+      "description": "LA2F3",
+      "type": "routine"
+    },
+    {
+      "name": "LA2FB",
+      "address": "0xA2FB",
+      "description": "LA2FB",
+      "type": "routine"
+    },
+    {
+      "name": "LA2FD",
+      "address": "0xA2FD",
+      "description": "LA2FD",
+      "type": "routine"
+    },
+    {
+      "name": "LA302",
+      "address": "0xA302",
+      "description": "LA302",
+      "type": "routine"
+    },
+    {
+      "name": "LA305",
+      "address": "0xA305",
+      "description": "LA305",
+      "type": "routine"
+    },
+    {
+      "name": "LA30A",
+      "address": "0xA30A",
+      "description": "LA30A",
+      "type": "routine"
+    },
+    {
+      "name": "LA30E",
+      "address": "0xA30E",
+      "description": "LA30E",
+      "type": "routine"
+    },
+    {
+      "name": "LA31D",
+      "address": "0xA31D",
+      "description": "LA31D",
+      "type": "routine"
+    },
+    {
+      "name": "LA323",
+      "address": "0xA323",
+      "description": "LA323",
+      "type": "routine"
+    },
+    {
+      "name": "LA32F",
+      "address": "0xA32F",
+      "description": "LA32F",
+      "type": "routine"
+    },
+    {
+      "name": "LA340",
+      "address": "0xA340",
+      "description": "LA340",
+      "type": "routine"
+    },
+    {
+      "name": "LA342",
+      "address": "0xA342",
+      "description": "LA342",
+      "type": "routine"
+    },
+    {
+      "name": "LA344",
+      "address": "0xA344",
+      "description": "LA344",
+      "type": "routine"
+    },
+    {
+      "name": "LA34E",
+      "address": "0xA34E",
+      "description": "LA34E",
+      "type": "routine"
+    },
+    {
+      "name": "LA35D",
+      "address": "0xA35D",
+      "description": "LA35D",
+      "type": "routine"
+    },
+    {
+      "name": "LA35F",
+      "address": "0xA35F",
+      "description": "LA35F",
+      "type": "routine"
+    },
+    {
+      "name": "LA373",
+      "address": "0xA373",
+      "description": "LA373",
+      "type": "routine"
+    },
+    {
+      "name": "LA37C",
+      "address": "0xA37C",
+      "description": "LA37C",
+      "type": "routine"
+    },
+    {
+      "name": "LA384",
+      "address": "0xA384",
+      "description": "LA384",
+      "type": "routine"
+    },
+    {
+      "name": "LA38D",
+      "address": "0xA38D",
+      "description": "LA38D",
+      "type": "routine"
+    },
+    {
+      "name": "LA390",
+      "address": "0xA390",
+      "description": "LA390",
+      "type": "routine"
+    },
+    {
+      "name": "LA39A",
+      "address": "0xA39A",
+      "description": "LA39A",
+      "type": "routine"
+    },
+    {
+      "name": "LA3B4",
+      "address": "0xA3B4",
+      "description": "LA3B4",
+      "type": "routine"
+    },
+    {
+      "name": "LA3B8",
+      "address": "0xA3B8",
+      "description": "LA3B8",
+      "type": "routine"
+    },
+    {
+      "name": "LA3C2",
+      "address": "0xA3C2",
+      "description": "LA3C2",
+      "type": "routine"
+    },
+    {
+      "name": "LA3C6",
+      "address": "0xA3C6",
+      "description": "LA3C6",
+      "type": "routine"
+    },
+    {
+      "name": "LA3C8",
+      "address": "0xA3C8",
+      "description": "LA3C8",
+      "type": "routine"
+    },
+    {
+      "name": "LA3CC",
+      "address": "0xA3CC",
+      "description": "LA3CC",
+      "type": "routine"
+    },
+    {
+      "name": "LA3CD",
+      "address": "0xA3CD",
+      "description": "LA3CD",
+      "type": "routine"
+    },
+    {
+      "name": "LA3D9",
+      "address": "0xA3D9",
+      "description": "LA3D9",
+      "type": "routine"
+    },
+    {
+      "name": "LA3E8",
+      "address": "0xA3E8",
+      "description": "LA3E8",
+      "type": "routine"
+    },
+    {
+      "name": "LA3ED",
+      "address": "0xA3ED",
+      "description": "LA3ED",
+      "type": "routine"
+    },
+    {
+      "name": "LA3FB",
+      "address": "0xA3FB",
+      "description": "LA3FB",
+      "type": "routine"
+    },
+    {
+      "name": "LA400",
+      "address": "0xA400",
+      "description": "LA400",
+      "type": "routine"
+    },
+    {
+      "name": "LA403",
+      "address": "0xA403",
+      "description": "LA403",
+      "type": "routine"
+    },
+    {
+      "name": "LA406",
+      "address": "0xA406",
+      "description": "LA406",
+      "type": "routine"
+    },
+    {
+      "name": "LA415",
+      "address": "0xA415",
+      "description": "LA415",
+      "type": "routine"
+    },
+    {
+      "name": "LA41B",
+      "address": "0xA41B",
+      "description": "LA41B",
+      "type": "routine"
+    },
+    {
+      "name": "LA426",
+      "address": "0xA426",
+      "description": "LA426",
+      "type": "routine"
+    },
+    {
+      "name": "LA429",
+      "address": "0xA429",
+      "description": "LA429",
+      "type": "routine"
+    },
+    {
+      "name": "LA42D",
+      "address": "0xA42D",
+      "description": "LA42D",
+      "type": "routine"
+    },
+    {
+      "name": "LA444",
+      "address": "0xA444",
+      "description": "LA444",
+      "type": "routine"
+    },
+    {
+      "name": "LA449",
+      "address": "0xA449",
+      "description": "LA449",
+      "type": "routine"
+    },
+    {
+      "name": "LA44B",
+      "address": "0xA44B",
+      "description": "LA44B",
+      "type": "routine"
+    },
+    {
+      "name": "LA469",
+      "address": "0xA469",
+      "description": "LA469",
+      "type": "routine"
+    },
+    {
+      "name": "LA478",
+      "address": "0xA478",
+      "description": "LA478",
+      "type": "routine"
+    },
+    {
+      "name": "LA48C",
+      "address": "0xA48C",
+      "description": "LA48C",
+      "type": "routine"
+    },
+    {
+      "name": "LA491",
+      "address": "0xA491",
+      "description": "LA491",
+      "type": "routine"
+    },
+    {
+      "name": "LA4BF",
+      "address": "0xA4BF",
+      "description": "LA4BF",
+      "type": "routine"
+    },
+    {
+      "name": "LA4C8",
+      "address": "0xA4C8",
+      "description": "LA4C8",
+      "type": "routine"
+    },
+    {
+      "name": "LA4CD",
+      "address": "0xA4CD",
+      "description": "LA4CD",
+      "type": "routine"
+    },
+    {
+      "name": "LA4D0",
+      "address": "0xA4D0",
+      "description": "LA4D0",
+      "type": "routine"
+    },
+    {
+      "name": "LA4D8",
+      "address": "0xA4D8",
+      "description": "LA4D8",
+      "type": "routine"
+    },
+    {
+      "name": "LA4F8",
+      "address": "0xA4F8",
+      "description": "LA4F8",
+      "type": "routine"
+    },
+    {
+      "name": "LA4FB",
+      "address": "0xA4FB",
+      "description": "LA4FB",
+      "type": "routine"
+    },
+    {
+      "name": "LA4FE",
+      "address": "0xA4FE",
+      "description": "LA4FE",
+      "type": "routine"
+    },
+    {
+      "name": "LA505",
+      "address": "0xA505",
+      "description": "LA505",
+      "type": "routine"
+    },
+    {
+      "name": "LA511",
+      "address": "0xA511",
+      "description": "LA511",
+      "type": "routine"
+    },
+    {
+      "name": "LA52E",
+      "address": "0xA52E",
+      "description": "LA52E",
+      "type": "routine"
+    },
+    {
+      "name": "LA53B",
+      "address": "0xA53B",
+      "description": "LA53B",
+      "type": "routine"
+    },
+    {
+      "name": "LA545",
+      "address": "0xA545",
+      "description": "LA545",
+      "type": "routine"
+    },
+    {
+      "name": "LA549",
+      "address": "0xA549",
+      "description": "LA549",
+      "type": "routine"
+    },
+    {
+      "name": "LA554",
+      "address": "0xA554",
+      "description": "LA554",
+      "type": "routine"
+    },
+    {
+      "name": "LA56B",
+      "address": "0xA56B",
+      "description": "LA56B",
+      "type": "routine"
+    },
+    {
+      "name": "LA578",
+      "address": "0xA578",
+      "description": "LA578",
+      "type": "routine"
+    },
+    {
+      "name": "LA57F",
+      "address": "0xA57F",
+      "description": "LA57F",
+      "type": "routine"
+    },
+    {
+      "name": "LA598",
+      "address": "0xA598",
+      "description": "LA598",
+      "type": "routine"
+    },
+    {
+      "name": "LA59A",
+      "address": "0xA59A",
+      "description": "LA59A",
+      "type": "routine"
+    },
+    {
+      "name": "LA5A1",
+      "address": "0xA5A1",
+      "description": "LA5A1",
+      "type": "routine"
+    },
+    {
+      "name": "LA5A2",
+      "address": "0xA5A2",
+      "description": "LA5A2",
+      "type": "routine"
+    },
+    {
+      "name": "LA5A5",
+      "address": "0xA5A5",
+      "description": "LA5A5",
+      "type": "routine"
+    },
+    {
+      "name": "LA5AB",
+      "address": "0xA5AB",
+      "description": "LA5AB",
+      "type": "routine"
+    },
+    {
+      "name": "LA5AE",
+      "address": "0xA5AE",
+      "description": "LA5AE",
+      "type": "routine"
+    },
+    {
+      "name": "LA5C4",
+      "address": "0xA5C4",
+      "description": "LA5C4",
+      "type": "routine"
+    },
+    {
+      "name": "LA5C5",
+      "address": "0xA5C5",
+      "description": "LA5C5",
+      "type": "routine"
+    },
+    {
+      "name": "LA5C7",
+      "address": "0xA5C7",
+      "description": "LA5C7",
+      "type": "routine"
+    },
+    {
+      "name": "LA5C9",
+      "address": "0xA5C9",
+      "description": "LA5C9",
+      "type": "routine"
+    },
+    {
+      "name": "LA5DA",
+      "address": "0xA5DA",
+      "description": "LA5DA",
+      "type": "routine"
+    },
+    {
+      "name": "LA5E4",
+      "address": "0xA5E4",
+      "description": "LA5E4",
+      "type": "routine"
+    },
+    {
+      "name": "LA5E8",
+      "address": "0xA5E8",
+      "description": "LA5E8",
+      "type": "routine"
+    },
+    {
+      "name": "LA603",
+      "address": "0xA603",
+      "description": "LA603",
+      "type": "routine"
+    },
+    {
+      "name": "LA616",
+      "address": "0xA616",
+      "description": "LA616",
+      "type": "routine"
+    },
+    {
+      "name": "LA619",
+      "address": "0xA619",
+      "description": "LA619",
+      "type": "routine"
+    },
+    {
+      "name": "LA61C",
+      "address": "0xA61C",
+      "description": "LA61C",
+      "type": "routine"
+    },
+    {
+      "name": "LA61F",
+      "address": "0xA61F",
+      "description": "LA61F",
+      "type": "routine"
+    },
+    {
+      "name": "LA624",
+      "address": "0xA624",
+      "description": "LA624",
+      "type": "routine"
+    },
+    {
+      "name": "LA635",
+      "address": "0xA635",
+      "description": "LA635",
+      "type": "routine"
+    },
+    {
+      "name": "LA644",
+      "address": "0xA644",
+      "description": "LA644",
+      "type": "routine"
+    },
+    {
+      "name": "LA648",
+      "address": "0xA648",
+      "description": "LA648",
+      "type": "routine"
+    },
+    {
+      "name": "LA650",
+      "address": "0xA650",
+      "description": "LA650",
+      "type": "routine"
+    },
+    {
+      "name": "LA652",
+      "address": "0xA652",
+      "description": "LA652",
+      "type": "routine"
+    },
+    {
+      "name": "LA657",
+      "address": "0xA657",
+      "description": "LA657",
+      "type": "routine"
+    },
+    {
+      "name": "LA658",
+      "address": "0xA658",
+      "description": "LA658",
+      "type": "routine"
+    },
+    {
+      "name": "LA65C",
+      "address": "0xA65C",
+      "description": "LA65C",
+      "type": "routine"
+    },
+    {
+      "name": "LA65F",
+      "address": "0xA65F",
+      "description": "LA65F",
+      "type": "routine"
+    },
+    {
+      "name": "LA681",
+      "address": "0xA681",
+      "description": "LA681",
+      "type": "routine"
+    },
+    {
+      "name": "LA686",
+      "address": "0xA686",
+      "description": "LA686",
+      "type": "routine"
+    },
+    {
+      "name": "LA696",
+      "address": "0xA696",
+      "description": "LA696",
+      "type": "routine"
+    },
+    {
+      "name": "LA6A6",
+      "address": "0xA6A6",
+      "description": "LA6A6",
+      "type": "routine"
+    },
+    {
+      "name": "LA6B4",
+      "address": "0xA6B4",
+      "description": "LA6B4",
+      "type": "routine"
+    },
+    {
+      "name": "LA6CB",
+      "address": "0xA6CB",
+      "description": "LA6CB",
+      "type": "routine"
+    },
+    {
+      "name": "LA6D0",
+      "address": "0xA6D0",
+      "description": "LA6D0",
+      "type": "routine"
+    },
+    {
+      "name": "LA6D1",
+      "address": "0xA6D1",
+      "description": "LA6D1",
+      "type": "routine"
+    },
+    {
+      "name": "LA6D9",
+      "address": "0xA6D9",
+      "description": "LA6D9",
+      "type": "routine"
+    },
+    {
+      "name": "LA6DF",
+      "address": "0xA6DF",
+      "description": "LA6DF",
+      "type": "routine"
+    },
+    {
+      "name": "LA6E5",
+      "address": "0xA6E5",
+      "description": "LA6E5",
+      "type": "routine"
+    },
+    {
+      "name": "LA6ED",
+      "address": "0xA6ED",
+      "description": "LA6ED",
+      "type": "routine"
+    },
+    {
+      "name": "LA6F3",
+      "address": "0xA6F3",
+      "description": "LA6F3",
+      "type": "routine"
+    },
+    {
+      "name": "LA6F8",
+      "address": "0xA6F8",
+      "description": "LA6F8",
+      "type": "routine"
+    },
+    {
+      "name": "LA700",
+      "address": "0xA700",
+      "description": "LA700",
+      "type": "routine"
+    },
+    {
+      "name": "LA701",
+      "address": "0xA701",
+      "description": "LA701",
+      "type": "routine"
+    },
+    {
+      "name": "LA705",
+      "address": "0xA705",
+      "description": "LA705",
+      "type": "routine"
+    },
+    {
+      "name": "LA712",
+      "address": "0xA712",
+      "description": "LA712",
+      "type": "routine"
+    },
+    {
+      "name": "LA72B",
+      "address": "0xA72B",
+      "description": "LA72B",
+      "type": "routine"
+    },
+    {
+      "name": "LA73B",
+      "address": "0xA73B",
+      "description": "LA73B",
+      "type": "routine"
+    },
+    {
+      "name": "LA744",
+      "address": "0xA744",
+      "description": "LA744",
+      "type": "routine"
+    },
+    {
+      "name": "LA746",
+      "address": "0xA746",
+      "description": "LA746",
+      "type": "routine"
+    },
+    {
+      "name": "LA749",
+      "address": "0xA749",
+      "description": "LA749",
+      "type": "routine"
+    },
+    {
+      "name": "LA74D",
+      "address": "0xA74D",
+      "description": "LA74D",
+      "type": "routine"
+    },
+    {
+      "name": "LA755",
+      "address": "0xA755",
+      "description": "LA755",
+      "type": "routine"
+    },
+    {
+      "name": "LA75D",
+      "address": "0xA75D",
+      "description": "LA75D",
+      "type": "routine"
+    },
+    {
+      "name": "LA763",
+      "address": "0xA763",
+      "description": "LA763",
+      "type": "routine"
+    },
+    {
+      "name": "LA767",
+      "address": "0xA767",
+      "description": "LA767",
+      "type": "routine"
+    },
+    {
+      "name": "LA76C",
+      "address": "0xA76C",
+      "description": "LA76C",
+      "type": "routine"
+    },
+    {
+      "name": "LA773",
+      "address": "0xA773",
+      "description": "LA773",
+      "type": "routine"
+    },
+    {
+      "name": "LA777",
+      "address": "0xA777",
+      "description": "LA777",
+      "type": "routine"
+    },
+    {
+      "name": "LA782",
+      "address": "0xA782",
+      "description": "LA782",
+      "type": "routine"
+    },
+    {
+      "name": "LA784",
+      "address": "0xA784",
+      "description": "LA784",
+      "type": "routine"
+    },
+    {
+      "name": "LA788",
+      "address": "0xA788",
+      "description": "LA788",
+      "type": "routine"
+    },
+    {
+      "name": "LA792",
+      "address": "0xA792",
+      "description": "LA792",
+      "type": "routine"
+    },
+    {
+      "name": "LA797",
+      "address": "0xA797",
+      "description": "LA797",
+      "type": "routine"
+    },
+    {
+      "name": "LA79B",
+      "address": "0xA79B",
+      "description": "LA79B",
+      "type": "routine"
+    },
+    {
+      "name": "LA7A7",
+      "address": "0xA7A7",
+      "description": "LA7A7",
+      "type": "routine"
+    },
+    {
+      "name": "LA7AD",
+      "address": "0xA7AD",
+      "description": "LA7AD",
+      "type": "routine"
+    },
+    {
+      "name": "LA7B1",
+      "address": "0xA7B1",
+      "description": "LA7B1",
+      "type": "routine"
+    },
+    {
+      "name": "LA7BA",
+      "address": "0xA7BA",
+      "description": "LA7BA",
+      "type": "routine"
+    },
+    {
+      "name": "LA7CA",
+      "address": "0xA7CA",
+      "description": "LA7CA",
+      "type": "routine"
+    },
+    {
+      "name": "LA7D1",
+      "address": "0xA7D1",
+      "description": "LA7D1",
+      "type": "routine"
+    },
+    {
+      "name": "LA7D3",
+      "address": "0xA7D3",
+      "description": "LA7D3",
+      "type": "routine"
+    },
+    {
+      "name": "LA7DE",
+      "address": "0xA7DE",
+      "description": "LA7DE",
+      "type": "routine"
+    },
+    {
+      "name": "LA7E5",
+      "address": "0xA7E5",
+      "description": "LA7E5",
+      "type": "routine"
+    },
+    {
+      "name": "LA7E7",
+      "address": "0xA7E7",
+      "description": "LA7E7",
+      "type": "routine"
+    },
+    {
+      "name": "LA7E9",
+      "address": "0xA7E9",
+      "description": "LA7E9",
+      "type": "routine"
+    },
+    {
+      "name": "LA7F0",
+      "address": "0xA7F0",
+      "description": "LA7F0",
+      "type": "routine"
+    },
+    {
+      "name": "LA800",
+      "address": "0xA800",
+      "description": "LA800",
+      "type": "routine"
+    },
+    {
+      "name": "LA805",
+      "address": "0xA805",
+      "description": "LA805",
+      "type": "routine"
+    },
+    {
+      "name": "LA81C",
+      "address": "0xA81C",
+      "description": "LA81C",
+      "type": "routine"
+    },
+    {
+      "name": "LA824",
+      "address": "0xA824",
+      "description": "LA824",
+      "type": "routine"
+    },
+    {
+      "name": "LA828",
+      "address": "0xA828",
+      "description": "LA828",
+      "type": "routine"
+    },
+    {
+      "name": "LA82A",
+      "address": "0xA82A",
+      "description": "LA82A",
+      "type": "routine"
+    },
+    {
+      "name": "LA82E",
+      "address": "0xA82E",
+      "description": "LA82E",
+      "type": "routine"
+    },
+    {
+      "name": "LA83B",
+      "address": "0xA83B",
+      "description": "LA83B",
+      "type": "routine"
+    },
+    {
+      "name": "LA848",
+      "address": "0xA848",
+      "description": "LA848",
+      "type": "routine"
+    },
+    {
+      "name": "LA855",
+      "address": "0xA855",
+      "description": "LA855",
+      "type": "routine"
+    },
+    {
+      "name": "LA85C",
+      "address": "0xA85C",
+      "description": "LA85C",
+      "type": "routine"
+    },
+    {
+      "name": "LA895",
+      "address": "0xA895",
+      "description": "LA895",
+      "type": "routine"
+    },
+    {
+      "name": "LA89C",
+      "address": "0xA89C",
+      "description": "LA89C",
+      "type": "routine"
+    },
+    {
+      "name": "LA89D",
+      "address": "0xA89D",
+      "description": "LA89D",
+      "type": "routine"
+    },
+    {
+      "name": "LA8A6",
+      "address": "0xA8A6",
+      "description": "LA8A6",
+      "type": "routine"
+    },
+    {
+      "name": "LA8AC",
+      "address": "0xA8AC",
+      "description": "LA8AC",
+      "type": "routine"
+    },
+    {
+      "name": "LA8C1",
+      "address": "0xA8C1",
+      "description": "LA8C1",
+      "type": "routine"
+    },
+    {
+      "name": "LA8C4",
+      "address": "0xA8C4",
+      "description": "LA8C4",
+      "type": "routine"
+    },
+    {
+      "name": "LA8D5",
+      "address": "0xA8D5",
+      "description": "LA8D5",
+      "type": "routine"
+    },
+    {
+      "name": "LA8EE",
+      "address": "0xA8EE",
+      "description": "LA8EE",
+      "type": "routine"
+    },
+    {
+      "name": "LA909",
+      "address": "0xA909",
+      "description": "LA909",
+      "type": "routine"
+    },
+    {
+      "name": "LA90A",
+      "address": "0xA90A",
+      "description": "LA90A",
+      "type": "routine"
+    },
+    {
+      "name": "LA90D",
+      "address": "0xA90D",
+      "description": "LA90D",
+      "type": "routine"
+    },
+    {
+      "name": "LA913",
+      "address": "0xA913",
+      "description": "LA913",
+      "type": "routine"
+    },
+    {
+      "name": "LA925",
+      "address": "0xA925",
+      "description": "LA925",
+      "type": "routine"
+    },
+    {
+      "name": "LA92D",
+      "address": "0xA92D",
+      "description": "LA92D",
+      "type": "routine"
+    },
+    {
+      "name": "LA92F",
+      "address": "0xA92F",
+      "description": "LA92F",
+      "type": "routine"
+    },
+    {
+      "name": "LA937",
+      "address": "0xA937",
+      "description": "LA937",
+      "type": "routine"
+    },
+    {
+      "name": "LA93F",
+      "address": "0xA93F",
+      "description": "LA93F",
+      "type": "routine"
+    },
+    {
+      "name": "LA942",
+      "address": "0xA942",
+      "description": "LA942",
+      "type": "routine"
+    },
+    {
+      "name": "LA948",
+      "address": "0xA948",
+      "description": "LA948",
+      "type": "routine"
+    },
+    {
+      "name": "LA951",
+      "address": "0xA951",
+      "description": "LA951",
+      "type": "routine"
+    },
+    {
+      "name": "LA964",
+      "address": "0xA964",
+      "description": "LA964",
+      "type": "routine"
+    },
+    {
+      "name": "LA974",
+      "address": "0xA974",
+      "description": "LA974",
+      "type": "routine"
+    },
+    {
+      "name": "LA976",
+      "address": "0xA976",
+      "description": "LA976",
+      "type": "routine"
+    },
+    {
+      "name": "LA984",
+      "address": "0xA984",
+      "description": "LA984",
+      "type": "routine"
+    },
+    {
+      "name": "LA985",
+      "address": "0xA985",
+      "description": "LA985",
+      "type": "routine"
+    },
+    {
+      "name": "LA987",
+      "address": "0xA987",
+      "description": "LA987",
+      "type": "routine"
+    },
+    {
+      "name": "LA98C",
+      "address": "0xA98C",
+      "description": "LA98C",
+      "type": "routine"
+    },
+    {
+      "name": "LA9A2",
+      "address": "0xA9A2",
+      "description": "LA9A2",
+      "type": "routine"
+    },
+    {
+      "name": "LA9A7",
+      "address": "0xA9A7",
+      "description": "LA9A7",
+      "type": "routine"
+    },
+    {
+      "name": "LA9B0",
+      "address": "0xA9B0",
+      "description": "LA9B0",
+      "type": "routine"
+    },
+    {
+      "name": "LA9BB",
+      "address": "0xA9BB",
+      "description": "LA9BB",
+      "type": "routine"
+    },
+    {
+      "name": "LA9C5",
+      "address": "0xA9C5",
+      "description": "LA9C5",
+      "type": "routine"
+    },
+    {
+      "name": "LA9D4",
+      "address": "0xA9D4",
+      "description": "LA9D4",
+      "type": "routine"
+    },
+    {
+      "name": "LA9E5",
+      "address": "0xA9E5",
+      "description": "LA9E5",
+      "type": "routine"
+    },
+    {
+      "name": "LA9EB",
+      "address": "0xA9EB",
+      "description": "LA9EB",
+      "type": "routine"
+    },
+    {
+      "name": "LA9EE",
+      "address": "0xA9EE",
+      "description": "LA9EE",
+      "type": "routine"
+    },
+    {
+      "name": "LA9FF",
+      "address": "0xA9FF",
+      "description": "LA9FF",
+      "type": "routine"
+    },
+    {
+      "name": "LAA12",
+      "address": "0xAA12",
+      "description": "LAA12",
+      "type": "routine"
+    },
+    {
+      "name": "LAA24",
+      "address": "0xAA24",
+      "description": "LAA24",
+      "type": "routine"
+    },
+    {
+      "name": "LAA28",
+      "address": "0xAA28",
+      "description": "LAA28",
+      "type": "routine"
+    },
+    {
+      "name": "LAA29",
+      "address": "0xAA29",
+      "description": "LAA29",
+      "type": "routine"
+    },
+    {
+      "name": "LAA51",
+      "address": "0xAA51",
+      "description": "LAA51",
+      "type": "routine"
+    },
+    {
+      "name": "LAA66",
+      "address": "0xAA66",
+      "description": "LAA66",
+      "type": "routine"
+    },
+    {
+      "name": "LAB1A",
+      "address": "0xAB1A",
+      "description": "LAB1A",
+      "type": "routine"
+    },
+    {
+      "name": "LAB67",
+      "address": "0xAB67",
+      "description": "LAB67",
+      "type": "routine"
+    },
+    {
+      "name": "LABAF",
+      "address": "0xABAF",
+      "description": "LABAF",
+      "type": "routine"
+    },
+    {
+      "name": "LABE1",
+      "address": "0xABE1",
+      "description": "LABE1",
+      "type": "routine"
+    },
+    {
+      "name": "LABE8",
+      "address": "0xABE8",
+      "description": "LABE8",
+      "type": "routine"
+    },
+    {
+      "name": "LABED",
+      "address": "0xABED",
+      "description": "LABED",
+      "type": "routine"
+    },
+    {
+      "name": "LABEE",
+      "address": "0xABEE",
+      "description": "LABEE",
+      "type": "routine"
+    },
+    {
+      "name": "LABF2",
+      "address": "0xABF2",
+      "description": "LABF2",
+      "type": "routine"
+    },
+    {
+      "name": "LABF9",
+      "address": "0xABF9",
+      "description": "LABF9",
+      "type": "routine"
+    },
+    {
+      "name": "LABFB",
+      "address": "0xABFB",
+      "description": "LABFB",
+      "type": "routine"
+    },
+    {
+      "name": "LAC16",
+      "address": "0xAC16",
+      "description": "LAC16",
+      "type": "routine"
+    },
+    {
+      "name": "LAC1A",
+      "address": "0xAC1A",
+      "description": "LAC1A",
+      "type": "routine"
+    },
+    {
+      "name": "LAC1E",
+      "address": "0xAC1E",
+      "description": "LAC1E",
+      "type": "routine"
+    },
+    {
+      "name": "LAC20",
+      "address": "0xAC20",
+      "description": "LAC20",
+      "type": "routine"
+    },
+    {
+      "name": "LAC28",
+      "address": "0xAC28",
+      "description": "LAC28",
+      "type": "routine"
+    },
+    {
+      "name": "LAC32",
+      "address": "0xAC32",
+      "description": "LAC32",
+      "type": "routine"
+    },
+    {
+      "name": "LAC33",
+      "address": "0xAC33",
+      "description": "LAC33",
+      "type": "routine"
+    },
+    {
+      "name": "LAC37",
+      "address": "0xAC37",
+      "description": "LAC37",
+      "type": "routine"
+    },
+    {
+      "name": "LAC44",
+      "address": "0xAC44",
+      "description": "LAC44",
+      "type": "routine"
+    },
+    {
+      "name": "LAC46",
+      "address": "0xAC46",
+      "description": "LAC46",
+      "type": "routine"
+    },
+    {
+      "name": "LAC49",
+      "address": "0xAC49",
+      "description": "LAC49",
+      "type": "routine"
+    },
+    {
+      "name": "LAC60",
+      "address": "0xAC60",
+      "description": "LAC60",
+      "type": "routine"
+    },
+    {
+      "name": "LAC65",
+      "address": "0xAC65",
+      "description": "LAC65",
+      "type": "routine"
+    },
+    {
+      "name": "LAC68",
+      "address": "0xAC68",
+      "description": "LAC68",
+      "type": "routine"
+    },
+    {
+      "name": "LAC73",
+      "address": "0xAC73",
+      "description": "LAC73",
+      "type": "routine"
+    },
+    {
+      "name": "LAC76",
+      "address": "0xAC76",
+      "description": "LAC76",
+      "type": "routine"
+    },
+    {
+      "name": "LAC7C",
+      "address": "0xAC7C",
+      "description": "LAC7C",
+      "type": "routine"
+    },
+    {
+      "name": "LAC9D",
+      "address": "0xAC9D",
+      "description": "LAC9D",
+      "type": "routine"
+    },
+    {
+      "name": "LACA0",
+      "address": "0xACA0",
+      "description": "LACA0",
+      "type": "routine"
+    },
+    {
+      "name": "LACA5",
+      "address": "0xACA5",
+      "description": "LACA5",
+      "type": "routine"
+    },
+    {
+      "name": "LACA8",
+      "address": "0xACA8",
+      "description": "LACA8",
+      "type": "routine"
+    },
+    {
+      "name": "LACC0",
+      "address": "0xACC0",
+      "description": "LACC0",
+      "type": "routine"
+    },
+    {
+      "name": "LACC8",
+      "address": "0xACC8",
+      "description": "LACC8",
+      "type": "routine"
+    },
+    {
+      "name": "LACDD",
+      "address": "0xACDD",
+      "description": "LACDD",
+      "type": "routine"
+    },
+    {
+      "name": "LACE9",
+      "address": "0xACE9",
+      "description": "LACE9",
+      "type": "routine"
+    },
+    {
+      "name": "LACEF",
+      "address": "0xACEF",
+      "description": "LACEF",
+      "type": "routine"
+    },
+    {
+      "name": "LACF1",
+      "address": "0xACF1",
+      "description": "LACF1",
+      "type": "routine"
+    },
+    {
+      "name": "LACF7",
+      "address": "0xACF7",
+      "description": "LACF7",
+      "type": "routine"
+    },
+    {
+      "name": "LAD01",
+      "address": "0xAD01",
+      "description": "LAD01",
+      "type": "routine"
+    },
+    {
+      "name": "LAD05",
+      "address": "0xAD05",
+      "description": "LAD05",
+      "type": "routine"
+    },
+    {
+      "name": "LAD12",
+      "address": "0xAD12",
+      "description": "LAD12",
+      "type": "routine"
+    },
+    {
+      "name": "LAD14",
+      "address": "0xAD14",
+      "description": "LAD14",
+      "type": "routine"
+    },
+    {
+      "name": "LAD16",
+      "address": "0xAD16",
+      "description": "LAD16",
+      "type": "routine"
+    },
+    {
+      "name": "LAD19",
+      "address": "0xAD19",
+      "description": "LAD19",
+      "type": "routine"
+    },
+    {
+      "name": "LAD21",
+      "address": "0xAD21",
+      "description": "LAD21",
+      "type": "routine"
+    },
+    {
+      "name": "LAD26",
+      "address": "0xAD26",
+      "description": "LAD26",
+      "type": "routine"
+    },
+    {
+      "name": "LAD33",
+      "address": "0xAD33",
+      "description": "LAD33",
+      "type": "routine"
+    },
+    {
+      "name": "LAD3F",
+      "address": "0xAD3F",
+      "description": "LAD3F",
+      "type": "routine"
+    },
+    {
+      "name": "LAD43",
+      "address": "0xAD43",
+      "description": "LAD43",
+      "type": "routine"
+    },
+    {
+      "name": "LAD59",
+      "address": "0xAD59",
+      "description": "LAD59",
+      "type": "routine"
+    },
+    {
+      "name": "LAD7F",
+      "address": "0xAD7F",
+      "description": "LAD7F",
+      "type": "routine"
+    },
+    {
+      "name": "LAD90",
+      "address": "0xAD90",
+      "description": "LAD90",
+      "type": "routine"
+    },
+    {
+      "name": "LAD9E",
+      "address": "0xAD9E",
+      "description": "LAD9E",
+      "type": "routine"
+    },
+    {
+      "name": "LADB1",
+      "address": "0xADB1",
+      "description": "LADB1",
+      "type": "routine"
+    },
+    {
+      "name": "LADB4",
+      "address": "0xADB4",
+      "description": "LADB4",
+      "type": "routine"
+    },
+    {
+      "name": "LADC0",
+      "address": "0xADC0",
+      "description": "LADC0",
+      "type": "routine"
+    },
+    {
+      "name": "LADC4",
+      "address": "0xADC4",
+      "description": "LADC4",
+      "type": "routine"
+    },
+    {
+      "name": "LADC6",
+      "address": "0xADC6",
+      "description": "LADC6",
+      "type": "routine"
+    },
+    {
+      "name": "LADD4",
+      "address": "0xADD4",
+      "description": "LADD4",
+      "type": "routine"
+    },
+    {
+      "name": "LADDC",
+      "address": "0xADDC",
+      "description": "LADDC",
+      "type": "routine"
+    },
+    {
+      "name": "LADE8",
+      "address": "0xADE8",
+      "description": "LADE8",
+      "type": "routine"
+    },
+    {
+      "name": "LADEB",
+      "address": "0xADEB",
+      "description": "LADEB",
+      "type": "routine"
+    },
+    {
+      "name": "LADF0",
+      "address": "0xADF0",
+      "description": "LADF0",
+      "type": "routine"
+    },
+    {
+      "name": "LADF4",
+      "address": "0xADF4",
+      "description": "LADF4",
+      "type": "routine"
+    },
+    {
+      "name": "LADFA",
+      "address": "0xADFA",
+      "description": "LADFA",
+      "type": "routine"
+    },
+    {
+      "name": "LADFB",
+      "address": "0xADFB",
+      "description": "LADFB",
+      "type": "routine"
+    },
+    {
+      "name": "LAE0B",
+      "address": "0xAE0B",
+      "description": "LAE0B",
+      "type": "routine"
+    },
+    {
+      "name": "LAE11",
+      "address": "0xAE11",
+      "description": "LAE11",
+      "type": "routine"
+    },
+    {
+      "name": "LAE15",
+      "address": "0xAE15",
+      "description": "LAE15",
+      "type": "routine"
+    },
+    {
+      "name": "LAE22",
+      "address": "0xAE22",
+      "description": "LAE22",
+      "type": "routine"
+    },
+    {
+      "name": "LAE40",
+      "address": "0xAE40",
+      "description": "LAE40",
+      "type": "routine"
+    },
+    {
+      "name": "LAE5A",
+      "address": "0xAE5A",
+      "description": "LAE5A",
+      "type": "routine"
+    },
+    {
+      "name": "LAE6F",
+      "address": "0xAE6F",
+      "description": "LAE6F",
+      "type": "routine"
+    },
+    {
+      "name": "LAE72",
+      "address": "0xAE72",
+      "description": "LAE72",
+      "type": "routine"
+    },
+    {
+      "name": "LAE88",
+      "address": "0xAE88",
+      "description": "LAE88",
+      "type": "routine"
+    },
+    {
+      "name": "LAE9F",
+      "address": "0xAE9F",
+      "description": "LAE9F",
+      "type": "routine"
+    },
+    {
+      "name": "LAEA4",
+      "address": "0xAEA4",
+      "description": "LAEA4",
+      "type": "routine"
+    },
+    {
+      "name": "LAEB6",
+      "address": "0xAEB6",
+      "description": "LAEB6",
+      "type": "routine"
+    },
+    {
+      "name": "LAEBB",
+      "address": "0xAEBB",
+      "description": "LAEBB",
+      "type": "routine"
+    },
+    {
+      "name": "LAEBF",
+      "address": "0xAEBF",
+      "description": "LAEBF",
+      "type": "routine"
+    },
+    {
+      "name": "LAED2",
+      "address": "0xAED2",
+      "description": "LAED2",
+      "type": "routine"
+    },
+    {
+      "name": "LAED7",
+      "address": "0xAED7",
+      "description": "LAED7",
+      "type": "routine"
+    },
+    {
+      "name": "LAEDA",
+      "address": "0xAEDA",
+      "description": "LAEDA",
+      "type": "routine"
+    },
+    {
+      "name": "LAEE7",
+      "address": "0xAEE7",
+      "description": "LAEE7",
+      "type": "routine"
+    },
+    {
+      "name": "LAEE8",
+      "address": "0xAEE8",
+      "description": "LAEE8",
+      "type": "routine"
+    },
+    {
+      "name": "LAEEA",
+      "address": "0xAEEA",
+      "description": "LAEEA",
+      "type": "routine"
+    },
+    {
+      "name": "LAEEB",
+      "address": "0xAEEB",
+      "description": "LAEEB",
+      "type": "routine"
+    },
+    {
+      "name": "LAEF1",
+      "address": "0xAEF1",
+      "description": "LAEF1",
+      "type": "routine"
+    },
+    {
+      "name": "LAEF7",
+      "address": "0xAEF7",
+      "description": "LAEF7",
+      "type": "routine"
+    },
+    {
+      "name": "LAF0C",
+      "address": "0xAF0C",
+      "description": "LAF0C",
+      "type": "routine"
+    },
+    {
+      "name": "LAF22",
+      "address": "0xAF22",
+      "description": "LAF22",
+      "type": "routine"
+    },
+    {
+      "name": "LAF28",
+      "address": "0xAF28",
+      "description": "LAF28",
+      "type": "routine"
+    },
+    {
+      "name": "LAF39",
+      "address": "0xAF39",
+      "description": "LAF39",
+      "type": "routine"
+    },
+    {
+      "name": "LAF45",
+      "address": "0xAF45",
+      "description": "LAF45",
+      "type": "routine"
+    },
+    {
+      "name": "LAF52",
+      "address": "0xAF52",
+      "description": "LAF52",
+      "type": "routine"
+    },
+    {
+      "name": "LAF54",
+      "address": "0xAF54",
+      "description": "LAF54",
+      "type": "routine"
+    },
+    {
+      "name": "LAF5D",
+      "address": "0xAF5D",
+      "description": "LAF5D",
+      "type": "routine"
+    },
+    {
+      "name": "LAF67",
+      "address": "0xAF67",
+      "description": "LAF67",
+      "type": "routine"
+    },
+    {
+      "name": "LAF6B",
+      "address": "0xAF6B",
+      "description": "LAF6B",
+      "type": "routine"
+    },
+    {
+      "name": "LAF9A",
+      "address": "0xAF9A",
+      "description": "LAF9A",
+      "type": "routine"
+    },
+    {
+      "name": "LAFA4",
+      "address": "0xAFA4",
+      "description": "LAFA4",
+      "type": "routine"
+    },
+    {
+      "name": "LAFB1",
+      "address": "0xAFB1",
+      "description": "LAFB1",
+      "type": "routine"
+    },
+    {
+      "name": "LAFBE",
+      "address": "0xAFBE",
+      "description": "LAFBE",
+      "type": "routine"
+    },
+    {
+      "name": "LAFCE",
+      "address": "0xAFCE",
+      "description": "LAFCE",
+      "type": "routine"
+    },
+    {
+      "name": "LAFCF",
+      "address": "0xAFCF",
+      "description": "LAFCF",
+      "type": "routine"
+    },
+    {
+      "name": "LAFD6",
+      "address": "0xAFD6",
+      "description": "LAFD6",
+      "type": "routine"
+    },
+    {
+      "name": "LAFDC",
+      "address": "0xAFDC",
+      "description": "LAFDC",
+      "type": "routine"
+    },
+    {
+      "name": "LAFDF",
+      "address": "0xAFDF",
+      "description": "LAFDF",
+      "type": "routine"
+    },
+    {
+      "name": "LAFEA",
+      "address": "0xAFEA",
+      "description": "LAFEA",
+      "type": "routine"
+    },
+    {
+      "name": "LASTPT",
+      "address": "0x000D",
+      "description": "LASTPT",
+      "type": "constant"
+    },
+    {
+      "name": "LB002",
+      "address": "0xB002",
+      "description": "LB002",
+      "type": "routine"
+    },
+    {
+      "name": "LB00C",
+      "address": "0xB00C",
+      "description": "LB00C",
+      "type": "routine"
+    },
+    {
+      "name": "LB00F",
+      "address": "0xB00F",
+      "description": "LB00F",
+      "type": "routine"
+    },
+    {
+      "name": "LB01E",
+      "address": "0xB01E",
+      "description": "LB01E",
+      "type": "routine"
+    },
+    {
+      "name": "LB02F",
+      "address": "0xB02F",
+      "description": "LB02F",
+      "type": "routine"
+    },
+    {
+      "name": "LB035",
+      "address": "0xB035",
+      "description": "LB035",
+      "type": "routine"
+    },
+    {
+      "name": "LB03C",
+      "address": "0xB03C",
+      "description": "LB03C",
+      "type": "routine"
+    },
+    {
+      "name": "LB03F",
+      "address": "0xB03F",
+      "description": "LB03F",
+      "type": "routine"
+    },
+    {
+      "name": "LB049",
+      "address": "0xB049",
+      "description": "LB049",
+      "type": "routine"
+    },
+    {
+      "name": "LB04E",
+      "address": "0xB04E",
+      "description": "LB04E",
+      "type": "routine"
+    },
+    {
+      "name": "LB069",
+      "address": "0xB069",
+      "description": "LB069",
+      "type": "routine"
+    },
+    {
+      "name": "LB08B",
+      "address": "0xB08B",
+      "description": "LB08B",
+      "type": "routine"
+    },
+    {
+      "name": "LB098",
+      "address": "0xB098",
+      "description": "LB098",
+      "type": "routine"
+    },
+    {
+      "name": "LB09E",
+      "address": "0xB09E",
+      "description": "LB09E",
+      "type": "routine"
+    },
+    {
+      "name": "LB0A8",
+      "address": "0xB0A8",
+      "description": "LB0A8",
+      "type": "routine"
+    },
+    {
+      "name": "LB0B9",
+      "address": "0xB0B9",
+      "description": "LB0B9",
+      "type": "routine"
+    },
+    {
+      "name": "LB0CD",
+      "address": "0xB0CD",
+      "description": "LB0CD",
+      "type": "routine"
+    },
+    {
+      "name": "LB0D5",
+      "address": "0xB0D5",
+      "description": "LB0D5",
+      "type": "routine"
+    },
+    {
+      "name": "LB0E7",
+      "address": "0xB0E7",
+      "description": "LB0E7",
+      "type": "routine"
+    },
+    {
+      "name": "LB0E8",
+      "address": "0xB0E8",
+      "description": "LB0E8",
+      "type": "routine"
+    },
+    {
+      "name": "LB0FE",
+      "address": "0xB0FE",
+      "description": "LB0FE",
+      "type": "routine"
+    },
+    {
+      "name": "LB101",
+      "address": "0xB101",
+      "description": "LB101",
+      "type": "routine"
+    },
+    {
+      "name": "LB10A",
+      "address": "0xB10A",
+      "description": "LB10A",
+      "type": "routine"
+    },
+    {
+      "name": "LB10C",
+      "address": "0xB10C",
+      "description": "LB10C",
+      "type": "routine"
+    },
+    {
+      "name": "LB131",
+      "address": "0xB131",
+      "description": "LB131",
+      "type": "routine"
+    },
+    {
+      "name": "LB134",
+      "address": "0xB134",
+      "description": "LB134",
+      "type": "routine"
+    },
+    {
+      "name": "LB141",
+      "address": "0xB141",
+      "description": "LB141",
+      "type": "routine"
+    },
+    {
+      "name": "LB143",
+      "address": "0xB143",
+      "description": "LB143",
+      "type": "routine"
+    },
+    {
+      "name": "LB145",
+      "address": "0xB145",
+      "description": "LB145",
+      "type": "routine"
+    },
+    {
+      "name": "LB146",
+      "address": "0xB146",
+      "description": "LB146",
+      "type": "routine"
+    },
+    {
+      "name": "LB148",
+      "address": "0xB148",
+      "description": "LB148",
+      "type": "routine"
+    },
+    {
+      "name": "LB14F",
+      "address": "0xB14F",
+      "description": "LB14F",
+      "type": "routine"
+    },
+    {
+      "name": "LB151",
+      "address": "0xB151",
+      "description": "LB151",
+      "type": "routine"
+    },
+    {
+      "name": "LB153",
+      "address": "0xB153",
+      "description": "LB153",
+      "type": "routine"
+    },
+    {
+      "name": "LB156",
+      "address": "0xB156",
+      "description": "LB156",
+      "type": "routine"
+    },
+    {
+      "name": "LB158",
+      "address": "0xB158",
+      "description": "LB158",
+      "type": "routine"
+    },
+    {
+      "name": "LB15A",
+      "address": "0xB15A",
+      "description": "LB15A",
+      "type": "routine"
+    },
+    {
+      "name": "LB166",
+      "address": "0xB166",
+      "description": "LB166",
+      "type": "routine"
+    },
+    {
+      "name": "LB168",
+      "address": "0xB168",
+      "description": "LB168",
+      "type": "routine"
+    },
+    {
+      "name": "LB16A",
+      "address": "0xB16A",
+      "description": "LB16A",
+      "type": "routine"
+    },
+    {
+      "name": "LB181",
+      "address": "0xB181",
+      "description": "LB181",
+      "type": "routine"
+    },
+    {
+      "name": "LB19F",
+      "address": "0xB19F",
+      "description": "LB19F",
+      "type": "routine"
+    },
+    {
+      "name": "LB1A7",
+      "address": "0xB1A7",
+      "description": "LB1A7",
+      "type": "routine"
+    },
+    {
+      "name": "LB1B8",
+      "address": "0xB1B8",
+      "description": "LB1B8",
+      "type": "routine"
+    },
+    {
+      "name": "LB1C6",
+      "address": "0xB1C6",
+      "description": "LB1C6",
+      "type": "routine"
+    },
+    {
+      "name": "LB1CB",
+      "address": "0xB1CB",
+      "description": "LB1CB",
+      "type": "routine"
+    },
+    {
+      "name": "LB1CC",
+      "address": "0xB1CC",
+      "description": "LB1CC",
+      "type": "routine"
+    },
+    {
+      "name": "LB1CE",
+      "address": "0xB1CE",
+      "description": "LB1CE",
+      "type": "routine"
+    },
+    {
+      "name": "LB1D4",
+      "address": "0xB1D4",
+      "description": "LB1D4",
+      "type": "routine"
+    },
+    {
+      "name": "LB1DF",
+      "address": "0xB1DF",
+      "description": "LB1DF",
+      "type": "routine"
+    },
+    {
+      "name": "LB1E2",
+      "address": "0xB1E2",
+      "description": "LB1E2",
+      "type": "routine"
+    },
+    {
+      "name": "LB1E6",
+      "address": "0xB1E6",
+      "description": "LB1E6",
+      "type": "routine"
+    },
+    {
+      "name": "LB1EA",
+      "address": "0xB1EA",
+      "description": "LB1EA",
+      "type": "routine"
+    },
+    {
+      "name": "LB1F4",
+      "address": "0xB1F4",
+      "description": "LB1F4",
+      "type": "routine"
+    },
+    {
+      "name": "LB1FA",
+      "address": "0xB1FA",
+      "description": "LB1FA",
+      "type": "routine"
+    },
+    {
+      "name": "LB201",
+      "address": "0xB201",
+      "description": "LB201",
+      "type": "routine"
+    },
+    {
+      "name": "LB203",
+      "address": "0xB203",
+      "description": "LB203",
+      "type": "routine"
+    },
+    {
+      "name": "LB220",
+      "address": "0xB220",
+      "description": "LB220",
+      "type": "routine"
+    },
+    {
+      "name": "LB222",
+      "address": "0xB222",
+      "description": "LB222",
+      "type": "routine"
+    },
+    {
+      "name": "LB223",
+      "address": "0xB223",
+      "description": "LB223",
+      "type": "routine"
+    },
+    {
+      "name": "LB228",
+      "address": "0xB228",
+      "description": "LB228",
+      "type": "routine"
+    },
+    {
+      "name": "LB22C",
+      "address": "0xB22C",
+      "description": "LB22C",
+      "type": "routine"
+    },
+    {
+      "name": "LB22F",
+      "address": "0xB22F",
+      "description": "LB22F",
+      "type": "routine"
+    },
+    {
+      "name": "LB244",
+      "address": "0xB244",
+      "description": "LB244",
+      "type": "routine"
+    },
+    {
+      "name": "LB249",
+      "address": "0xB249",
+      "description": "LB249",
+      "type": "routine"
+    },
+    {
+      "name": "LB24E",
+      "address": "0xB24E",
+      "description": "LB24E",
+      "type": "routine"
+    },
+    {
+      "name": "LB25F",
+      "address": "0xB25F",
+      "description": "LB25F",
+      "type": "routine"
+    },
+    {
+      "name": "LB262",
+      "address": "0xB262",
+      "description": "LB262",
+      "type": "routine"
+    },
+    {
+      "name": "LB267",
+      "address": "0xB267",
+      "description": "LB267",
+      "type": "routine"
+    },
+    {
+      "name": "LB26A",
+      "address": "0xB26A",
+      "description": "LB26A",
+      "type": "routine"
+    },
+    {
+      "name": "LB26D",
+      "address": "0xB26D",
+      "description": "LB26D",
+      "type": "routine"
+    },
+    {
+      "name": "LB26F",
+      "address": "0xB26F",
+      "description": "LB26F",
+      "type": "routine"
+    },
+    {
+      "name": "LB277",
+      "address": "0xB277",
+      "description": "LB277",
+      "type": "routine"
+    },
+    {
+      "name": "LB27C",
+      "address": "0xB27C",
+      "description": "LB27C",
+      "type": "routine"
+    },
+    {
+      "name": "LB284",
+      "address": "0xB284",
+      "description": "LB284",
+      "type": "routine"
+    },
+    {
+      "name": "LB287",
+      "address": "0xB287",
+      "description": "LB287",
+      "type": "routine"
+    },
+    {
+      "name": "LB290",
+      "address": "0xB290",
+      "description": "LB290",
+      "type": "routine"
+    },
+    {
+      "name": "LB29F",
+      "address": "0xB29F",
+      "description": "LB29F",
+      "type": "routine"
+    },
+    {
+      "name": "LB2C7",
+      "address": "0xB2C7",
+      "description": "LB2C7",
+      "type": "routine"
+    },
+    {
+      "name": "LB2C9",
+      "address": "0xB2C9",
+      "description": "LB2C9",
+      "type": "routine"
+    },
+    {
+      "name": "LB2CE",
+      "address": "0xB2CE",
+      "description": "LB2CE",
+      "type": "routine"
+    },
+    {
+      "name": "LB2D4",
+      "address": "0xB2D4",
+      "description": "LB2D4",
+      "type": "routine"
+    },
+    {
+      "name": "LB2D5",
+      "address": "0xB2D5",
+      "description": "LB2D5",
+      "type": "routine"
+    },
+    {
+      "name": "LB2ED",
+      "address": "0xB2ED",
+      "description": "LB2ED",
+      "type": "routine"
+    },
+    {
+      "name": "LB2F1",
+      "address": "0xB2F1",
+      "description": "LB2F1",
+      "type": "routine"
+    },
+    {
+      "name": "LB2F4",
+      "address": "0xB2F4",
+      "description": "LB2F4",
+      "type": "routine"
+    },
+    {
+      "name": "LB309",
+      "address": "0xB309",
+      "description": "LB309",
+      "type": "routine"
+    },
+    {
+      "name": "LB328",
+      "address": "0xB328",
+      "description": "LB328",
+      "type": "routine"
+    },
+    {
+      "name": "LB32D",
+      "address": "0xB32D",
+      "description": "LB32D",
+      "type": "routine"
+    },
+    {
+      "name": "LB334",
+      "address": "0xB334",
+      "description": "LB334",
+      "type": "routine"
+    },
+    {
+      "name": "LB33F",
+      "address": "0xB33F",
+      "description": "LB33F",
+      "type": "routine"
+    },
+    {
+      "name": "LB348",
+      "address": "0xB348",
+      "description": "LB348",
+      "type": "routine"
+    },
+    {
+      "name": "LB34B",
+      "address": "0xB34B",
+      "description": "LB34B",
+      "type": "routine"
+    },
+    {
+      "name": "LB357",
+      "address": "0xB357",
+      "description": "LB357",
+      "type": "routine"
+    },
+    {
+      "name": "LB35A",
+      "address": "0xB35A",
+      "description": "LB35A",
+      "type": "routine"
+    },
+    {
+      "name": "LB35C",
+      "address": "0xB35C",
+      "description": "LB35C",
+      "type": "routine"
+    },
+    {
+      "name": "LB371",
+      "address": "0xB371",
+      "description": "LB371",
+      "type": "routine"
+    },
+    {
+      "name": "LB373",
+      "address": "0xB373",
+      "description": "LB373",
+      "type": "routine"
+    },
+    {
+      "name": "LB37B",
+      "address": "0xB37B",
+      "description": "LB37B",
+      "type": "routine"
+    },
+    {
+      "name": "LB385",
+      "address": "0xB385",
+      "description": "LB385",
+      "type": "routine"
+    },
+    {
+      "name": "LB395",
+      "address": "0xB395",
+      "description": "LB395",
+      "type": "routine"
+    },
+    {
+      "name": "LB3A2",
+      "address": "0xB3A2",
+      "description": "LB3A2",
+      "type": "routine"
+    },
+    {
+      "name": "LB3AA",
+      "address": "0xB3AA",
+      "description": "LB3AA",
+      "type": "routine"
+    },
+    {
+      "name": "LB3AB",
+      "address": "0xB3AB",
+      "description": "LB3AB",
+      "type": "routine"
+    },
+    {
+      "name": "LB3DC",
+      "address": "0xB3DC",
+      "description": "LB3DC",
+      "type": "routine"
+    },
+    {
+      "name": "LB3DE",
+      "address": "0xB3DE",
+      "description": "LB3DE",
+      "type": "routine"
+    },
+    {
+      "name": "LB3DF",
+      "address": "0xB3DF",
+      "description": "LB3DF",
+      "type": "routine"
+    },
+    {
+      "name": "LB3E4",
+      "address": "0xB3E4",
+      "description": "LB3E4",
+      "type": "routine"
+    },
+    {
+      "name": "LB3E6",
+      "address": "0xB3E6",
+      "description": "LB3E6",
+      "type": "routine"
+    },
+    {
+      "name": "LB3E9",
+      "address": "0xB3E9",
+      "description": "LB3E9",
+      "type": "routine"
+    },
+    {
+      "name": "LB3FE",
+      "address": "0xB3FE",
+      "description": "LB3FE",
+      "type": "routine"
+    },
+    {
+      "name": "LB40A",
+      "address": "0xB40A",
+      "description": "LB40A",
+      "type": "routine"
+    },
+    {
+      "name": "LB42A",
+      "address": "0xB42A",
+      "description": "LB42A",
+      "type": "routine"
+    },
+    {
+      "name": "LB43B",
+      "address": "0xB43B",
+      "description": "LB43B",
+      "type": "routine"
+    },
+    {
+      "name": "LB447",
+      "address": "0xB447",
+      "description": "LB447",
+      "type": "routine"
+    },
+    {
+      "name": "LB44A",
+      "address": "0xB44A",
+      "description": "LB44A",
+      "type": "routine"
+    },
+    {
+      "name": "LB44C",
+      "address": "0xB44C",
+      "description": "LB44C",
+      "type": "routine"
+    },
+    {
+      "name": "LB44F",
+      "address": "0xB44F",
+      "description": "LB44F",
+      "type": "routine"
+    },
+    {
+      "name": "LB461",
+      "address": "0xB461",
+      "description": "LB461",
+      "type": "routine"
+    },
+    {
+      "name": "LB46D",
+      "address": "0xB46D",
+      "description": "LB46D",
+      "type": "routine"
+    },
+    {
+      "name": "LB48C",
+      "address": "0xB48C",
+      "description": "LB48C",
+      "type": "routine"
+    },
+    {
+      "name": "LB4A0",
+      "address": "0xB4A0",
+      "description": "LB4A0",
+      "type": "routine"
+    },
+    {
+      "name": "LB4A6",
+      "address": "0xB4A6",
+      "description": "LB4A6",
+      "type": "routine"
+    },
+    {
+      "name": "LB4B9",
+      "address": "0xB4B9",
+      "description": "LB4B9",
+      "type": "routine"
+    },
+    {
+      "name": "LB4CD",
+      "address": "0xB4CD",
+      "description": "LB4CD",
+      "type": "routine"
+    },
+    {
+      "name": "LB4CE",
+      "address": "0xB4CE",
+      "description": "LB4CE",
+      "type": "routine"
+    },
+    {
+      "name": "LB4D8",
+      "address": "0xB4D8",
+      "description": "LB4D8",
+      "type": "routine"
+    },
+    {
+      "name": "LB4E6",
+      "address": "0xB4E6",
+      "description": "LB4E6",
+      "type": "routine"
+    },
+    {
+      "name": "LB4EB",
+      "address": "0xB4EB",
+      "description": "LB4EB",
+      "type": "routine"
+    },
+    {
+      "name": "LB4F3",
+      "address": "0xB4F3",
+      "description": "LB4F3",
+      "type": "routine"
+    },
+    {
+      "name": "LB50D",
+      "address": "0xB50D",
+      "description": "LB50D",
+      "type": "routine"
+    },
+    {
+      "name": "LB50F",
+      "address": "0xB50F",
+      "description": "LB50F",
+      "type": "routine"
+    },
+    {
+      "name": "LB511",
+      "address": "0xB511",
+      "description": "LB511",
+      "type": "routine"
+    },
+    {
+      "name": "LB516",
+      "address": "0xB516",
+      "description": "LB516",
+      "type": "routine"
+    },
+    {
+      "name": "LB518",
+      "address": "0xB518",
+      "description": "LB518",
+      "type": "routine"
+    },
+    {
+      "name": "LB51A",
+      "address": "0xB51A",
+      "description": "LB51A",
+      "type": "routine"
+    },
+    {
+      "name": "LB51E",
+      "address": "0xB51E",
+      "description": "LB51E",
+      "type": "routine"
+    },
+    {
+      "name": "LB526",
+      "address": "0xB526",
+      "description": "LB526",
+      "type": "routine"
+    },
+    {
+      "name": "LB533",
+      "address": "0xB533",
+      "description": "LB533",
+      "type": "routine"
+    },
+    {
+      "name": "LB537",
+      "address": "0xB537",
+      "description": "LB537",
+      "type": "routine"
+    },
+    {
+      "name": "LB539",
+      "address": "0xB539",
+      "description": "LB539",
+      "type": "routine"
+    },
+    {
+      "name": "LB543",
+      "address": "0xB543",
+      "description": "LB543",
+      "type": "routine"
+    },
+    {
+      "name": "LB54C",
+      "address": "0xB54C",
+      "description": "LB54C",
+      "type": "routine"
+    },
+    {
+      "name": "LB555",
+      "address": "0xB555",
+      "description": "LB555",
+      "type": "routine"
+    },
+    {
+      "name": "LB558",
+      "address": "0xB558",
+      "description": "LB558",
+      "type": "routine"
+    },
+    {
+      "name": "LB56D",
+      "address": "0xB56D",
+      "description": "LB56D",
+      "type": "routine"
+    },
+    {
+      "name": "LB56F",
+      "address": "0xB56F",
+      "description": "LB56F",
+      "type": "routine"
+    },
+    {
+      "name": "LB585",
+      "address": "0xB585",
+      "description": "LB585",
+      "type": "routine"
+    },
+    {
+      "name": "LB591",
+      "address": "0xB591",
+      "description": "LB591",
+      "type": "routine"
+    },
+    {
+      "name": "LB593",
+      "address": "0xB593",
+      "description": "LB593",
+      "type": "routine"
+    },
+    {
+      "name": "LB5A0",
+      "address": "0xB5A0",
+      "description": "LB5A0",
+      "type": "routine"
+    },
+    {
+      "name": "LB5A8",
+      "address": "0xB5A8",
+      "description": "LB5A8",
+      "type": "routine"
+    },
+    {
+      "name": "LB5AA",
+      "address": "0xB5AA",
+      "description": "LB5AA",
+      "type": "routine"
+    },
+    {
+      "name": "LB5B2",
+      "address": "0xB5B2",
+      "description": "LB5B2",
+      "type": "routine"
+    },
+    {
+      "name": "LB5B4",
+      "address": "0xB5B4",
+      "description": "LB5B4",
+      "type": "routine"
+    },
+    {
+      "name": "LB5B6",
+      "address": "0xB5B6",
+      "description": "LB5B6",
+      "type": "routine"
+    },
+    {
+      "name": "LB5CA",
+      "address": "0xB5CA",
+      "description": "LB5CA",
+      "type": "routine"
+    },
+    {
+      "name": "LB5D2",
+      "address": "0xB5D2",
+      "description": "LB5D2",
+      "type": "routine"
+    },
+    {
+      "name": "LB5D8",
+      "address": "0xB5D8",
+      "description": "LB5D8",
+      "type": "routine"
+    },
+    {
+      "name": "LB5EC",
+      "address": "0xB5EC",
+      "description": "LB5EC",
+      "type": "routine"
+    },
+    {
+      "name": "LB5EE",
+      "address": "0xB5EE",
+      "description": "LB5EE",
+      "type": "routine"
+    },
+    {
+      "name": "LB5EF",
+      "address": "0xB5EF",
+      "description": "LB5EF",
+      "type": "routine"
+    },
+    {
+      "name": "LB60F",
+      "address": "0xB60F",
+      "description": "LB60F",
+      "type": "routine"
+    },
+    {
+      "name": "LB62A",
+      "address": "0xB62A",
+      "description": "LB62A",
+      "type": "routine"
+    },
+    {
+      "name": "LB643",
+      "address": "0xB643",
+      "description": "LB643",
+      "type": "routine"
+    },
+    {
+      "name": "LB645",
+      "address": "0xB645",
+      "description": "LB645",
+      "type": "routine"
+    },
+    {
+      "name": "LB64A",
+      "address": "0xB64A",
+      "description": "LB64A",
+      "type": "routine"
+    },
+    {
+      "name": "LB64E",
+      "address": "0xB64E",
+      "description": "LB64E",
+      "type": "routine"
+    },
+    {
+      "name": "LB654",
+      "address": "0xB654",
+      "description": "LB654",
+      "type": "routine"
+    },
+    {
+      "name": "LB657",
+      "address": "0xB657",
+      "description": "LB657",
+      "type": "routine"
+    },
+    {
+      "name": "LB659",
+      "address": "0xB659",
+      "description": "LB659",
+      "type": "routine"
+    },
+    {
+      "name": "LB66F",
+      "address": "0xB66F",
+      "description": "LB66F",
+      "type": "routine"
+    },
+    {
+      "name": "LB672",
+      "address": "0xB672",
+      "description": "LB672",
+      "type": "routine"
+    },
+    {
+      "name": "LB675",
+      "address": "0xB675",
+      "description": "LB675",
+      "type": "routine"
+    },
+    {
+      "name": "LB680",
+      "address": "0xB680",
+      "description": "LB680",
+      "type": "routine"
+    },
+    {
+      "name": "LB683",
+      "address": "0xB683",
+      "description": "LB683",
+      "type": "routine"
+    },
+    {
+      "name": "LB686",
+      "address": "0xB686",
+      "description": "LB686",
+      "type": "routine"
+    },
+    {
+      "name": "LB68F",
+      "address": "0xB68F",
+      "description": "LB68F",
+      "type": "routine"
+    },
+    {
+      "name": "LB69B",
+      "address": "0xB69B",
+      "description": "LB69B",
+      "type": "routine"
+    },
+    {
+      "name": "LB69D",
+      "address": "0xB69D",
+      "description": "LB69D",
+      "type": "routine"
+    },
+    {
+      "name": "LB6A4",
+      "address": "0xB6A4",
+      "description": "LB6A4",
+      "type": "routine"
+    },
+    {
+      "name": "LB6AD",
+      "address": "0xB6AD",
+      "description": "LB6AD",
+      "type": "routine"
+    },
+    {
+      "name": "LB6AE",
+      "address": "0xB6AE",
+      "description": "LB6AE",
+      "type": "routine"
+    },
+    {
+      "name": "LB6B5",
+      "address": "0xB6B5",
+      "description": "LB6B5",
+      "type": "routine"
+    },
+    {
+      "name": "LB6DE",
+      "address": "0xB6DE",
+      "description": "LB6DE",
+      "type": "routine"
+    },
+    {
+      "name": "LB6F5",
+      "address": "0xB6F5",
+      "description": "LB6F5",
+      "type": "routine"
+    },
+    {
+      "name": "LB706",
+      "address": "0xB706",
+      "description": "LB706",
+      "type": "routine"
+    },
+    {
+      "name": "LB709",
+      "address": "0xB709",
+      "description": "LB709",
+      "type": "routine"
+    },
+    {
+      "name": "LB70B",
+      "address": "0xB70B",
+      "description": "LB70B",
+      "type": "routine"
+    },
+    {
+      "name": "LB70E",
+      "address": "0xB70E",
+      "description": "LB70E",
+      "type": "routine"
+    },
+    {
+      "name": "LB734",
+      "address": "0xB734",
+      "description": "LB734",
+      "type": "routine"
+    },
+    {
+      "name": "LB738",
+      "address": "0xB738",
+      "description": "LB738",
+      "type": "routine"
+    },
+    {
+      "name": "LB73D",
+      "address": "0xB73D",
+      "description": "LB73D",
+      "type": "routine"
+    },
+    {
+      "name": "LB740",
+      "address": "0xB740",
+      "description": "LB740",
+      "type": "routine"
+    },
+    {
+      "name": "LB783",
+      "address": "0xB783",
+      "description": "LB783",
+      "type": "routine"
+    },
+    {
+      "name": "LB784",
+      "address": "0xB784",
+      "description": "LB784",
+      "type": "routine"
+    },
+    {
+      "name": "LB789",
+      "address": "0xB789",
+      "description": "LB789",
+      "type": "routine"
+    },
+    {
+      "name": "LB78D",
+      "address": "0xB78D",
+      "description": "LB78D",
+      "type": "routine"
+    },
+    {
+      "name": "LB797",
+      "address": "0xB797",
+      "description": "LB797",
+      "type": "routine"
+    },
+    {
+      "name": "LB79F",
+      "address": "0xB79F",
+      "description": "LB79F",
+      "type": "routine"
+    },
+    {
+      "name": "LB7B9",
+      "address": "0xB7B9",
+      "description": "LB7B9",
+      "type": "routine"
+    },
+    {
+      "name": "LB7C2",
+      "address": "0xB7C2",
+      "description": "LB7C2",
+      "type": "routine"
+    },
+    {
+      "name": "LB7CB",
+      "address": "0xB7CB",
+      "description": "LB7CB",
+      "type": "routine"
+    },
+    {
+      "name": "LB7E0",
+      "address": "0xB7E0",
+      "description": "LB7E0",
+      "type": "routine"
+    },
+    {
+      "name": "LB7E2",
+      "address": "0xB7E2",
+      "description": "LB7E2",
+      "type": "routine"
+    },
+    {
+      "name": "LB7E6",
+      "address": "0xB7E6",
+      "description": "LB7E6",
+      "type": "routine"
+    },
+    {
+      "name": "LB7F1",
+      "address": "0xB7F1",
+      "description": "LB7F1",
+      "type": "routine"
+    },
+    {
+      "name": "LB7F3",
+      "address": "0xB7F3",
+      "description": "LB7F3",
+      "type": "routine"
+    },
+    {
+      "name": "LB7F9",
+      "address": "0xB7F9",
+      "description": "LB7F9",
+      "type": "routine"
+    },
+    {
+      "name": "LB801",
+      "address": "0xB801",
+      "description": "LB801",
+      "type": "routine"
+    },
+    {
+      "name": "LB804",
+      "address": "0xB804",
+      "description": "LB804",
+      "type": "routine"
+    },
+    {
+      "name": "LB80A",
+      "address": "0xB80A",
+      "description": "LB80A",
+      "type": "routine"
+    },
+    {
+      "name": "LB814",
+      "address": "0xB814",
+      "description": "LB814",
+      "type": "routine"
+    },
+    {
+      "name": "LB820",
+      "address": "0xB820",
+      "description": "LB820",
+      "type": "routine"
+    },
+    {
+      "name": "LB821",
+      "address": "0xB821",
+      "description": "LB821",
+      "type": "routine"
+    },
+    {
+      "name": "LB829",
+      "address": "0xB829",
+      "description": "LB829",
+      "type": "routine"
+    },
+    {
+      "name": "LB82D",
+      "address": "0xB82D",
+      "description": "LB82D",
+      "type": "routine"
+    },
+    {
+      "name": "LB842",
+      "address": "0xB842",
+      "description": "LB842",
+      "type": "routine"
+    },
+    {
+      "name": "LB844",
+      "address": "0xB844",
+      "description": "LB844",
+      "type": "routine"
+    },
+    {
+      "name": "LB852",
+      "address": "0xB852",
+      "description": "LB852",
+      "type": "routine"
+    },
+    {
+      "name": "LB85A",
+      "address": "0xB85A",
+      "description": "LB85A",
+      "type": "routine"
+    },
+    {
+      "name": "LB85C",
+      "address": "0xB85C",
+      "description": "LB85C",
+      "type": "routine"
+    },
+    {
+      "name": "LB86B",
+      "address": "0xB86B",
+      "description": "LB86B",
+      "type": "routine"
+    },
+    {
+      "name": "LB873",
+      "address": "0xB873",
+      "description": "LB873",
+      "type": "routine"
+    },
+    {
+      "name": "LB87C",
+      "address": "0xB87C",
+      "description": "LB87C",
+      "type": "routine"
+    },
+    {
+      "name": "LB87E",
+      "address": "0xB87E",
+      "description": "LB87E",
+      "type": "routine"
+    },
+    {
+      "name": "LB886",
+      "address": "0xB886",
+      "description": "LB886",
+      "type": "routine"
+    },
+    {
+      "name": "LB88A",
+      "address": "0xB88A",
+      "description": "LB88A",
+      "type": "routine"
+    },
+    {
+      "name": "LB892",
+      "address": "0xB892",
+      "description": "LB892",
+      "type": "routine"
+    },
+    {
+      "name": "LB89B",
+      "address": "0xB89B",
+      "description": "LB89B",
+      "type": "routine"
+    },
+    {
+      "name": "LB89D",
+      "address": "0xB89D",
+      "description": "LB89D",
+      "type": "routine"
+    },
+    {
+      "name": "LB8A6",
+      "address": "0xB8A6",
+      "description": "LB8A6",
+      "type": "routine"
+    },
+    {
+      "name": "LB8A8",
+      "address": "0xB8A8",
+      "description": "LB8A8",
+      "type": "routine"
+    },
+    {
+      "name": "LB8C2",
+      "address": "0xB8C2",
+      "description": "LB8C2",
+      "type": "routine"
+    },
+    {
+      "name": "LB8C6",
+      "address": "0xB8C6",
+      "description": "LB8C6",
+      "type": "routine"
+    },
+    {
+      "name": "LB8CE",
+      "address": "0xB8CE",
+      "description": "LB8CE",
+      "type": "routine"
+    },
+    {
+      "name": "LB8D2",
+      "address": "0xB8D2",
+      "description": "LB8D2",
+      "type": "routine"
+    },
+    {
+      "name": "LB8D4",
+      "address": "0xB8D4",
+      "description": "LB8D4",
+      "type": "routine"
+    },
+    {
+      "name": "LB8D7",
+      "address": "0xB8D7",
+      "description": "LB8D7",
+      "type": "routine"
+    },
+    {
+      "name": "LB8EA",
+      "address": "0xB8EA",
+      "description": "LB8EA",
+      "type": "routine"
+    },
+    {
+      "name": "LB8F1",
+      "address": "0xB8F1",
+      "description": "LB8F1",
+      "type": "routine"
+    },
+    {
+      "name": "LB8FE",
+      "address": "0xB8FE",
+      "description": "LB8FE",
+      "type": "routine"
+    },
+    {
+      "name": "LB902",
+      "address": "0xB902",
+      "description": "LB902",
+      "type": "routine"
+    },
+    {
+      "name": "LB905",
+      "address": "0xB905",
+      "description": "LB905",
+      "type": "routine"
+    },
+    {
+      "name": "LB907",
+      "address": "0xB907",
+      "description": "LB907",
+      "type": "routine"
+    },
+    {
+      "name": "LB911",
+      "address": "0xB911",
+      "description": "LB911",
+      "type": "routine"
+    },
+    {
+      "name": "LB918",
+      "address": "0xB918",
+      "description": "LB918",
+      "type": "routine"
+    },
+    {
+      "name": "LB91B",
+      "address": "0xB91B",
+      "description": "LB91B",
+      "type": "routine"
+    },
+    {
+      "name": "LB91D",
+      "address": "0xB91D",
+      "description": "LB91D",
+      "type": "routine"
+    },
+    {
+      "name": "LB938",
+      "address": "0xB938",
+      "description": "LB938",
+      "type": "routine"
+    },
+    {
+      "name": "LB949",
+      "address": "0xB949",
+      "description": "LB949",
+      "type": "routine"
+    },
+    {
+      "name": "LB954",
+      "address": "0xB954",
+      "description": "LB954",
+      "type": "routine"
+    },
+    {
+      "name": "LB958",
+      "address": "0xB958",
+      "description": "LB958",
+      "type": "routine"
+    },
+    {
+      "name": "LB95C",
+      "address": "0xB95C",
+      "description": "LB95C",
+      "type": "routine"
+    },
+    {
+      "name": "LB95F",
+      "address": "0xB95F",
+      "description": "LB95F",
+      "type": "routine"
+    },
+    {
+      "name": "LB965",
+      "address": "0xB965",
+      "description": "LB965",
+      "type": "routine"
+    },
+    {
+      "name": "LB966",
+      "address": "0xB966",
+      "description": "LB966",
+      "type": "routine"
+    },
+    {
+      "name": "LB975",
+      "address": "0xB975",
+      "description": "LB975",
+      "type": "routine"
+    },
+    {
+      "name": "LB977",
+      "address": "0xB977",
+      "description": "LB977",
+      "type": "routine"
+    },
+    {
+      "name": "LB97E",
+      "address": "0xB97E",
+      "description": "LB97E",
+      "type": "routine"
+    },
+    {
+      "name": "LB98E",
+      "address": "0xB98E",
+      "description": "LB98E",
+      "type": "routine"
+    },
+    {
+      "name": "LB992",
+      "address": "0xB992",
+      "description": "LB992",
+      "type": "routine"
+    },
+    {
+      "name": "LB997",
+      "address": "0xB997",
+      "description": "LB997",
+      "type": "routine"
+    },
+    {
+      "name": "LB99C",
+      "address": "0xB99C",
+      "description": "LB99C",
+      "type": "routine"
+    },
+    {
+      "name": "LB99F",
+      "address": "0xB99F",
+      "description": "LB99F",
+      "type": "routine"
+    },
+    {
+      "name": "LB9A2",
+      "address": "0xB9A2",
+      "description": "LB9A2",
+      "type": "routine"
+    },
+    {
+      "name": "LB9A3",
+      "address": "0xB9A3",
+      "description": "LB9A3",
+      "type": "routine"
+    },
+    {
+      "name": "LB9AC",
+      "address": "0xB9AC",
+      "description": "LB9AC",
+      "type": "routine"
+    },
+    {
+      "name": "LB9AF",
+      "address": "0xB9AF",
+      "description": "LB9AF",
+      "type": "routine"
+    },
+    {
+      "name": "LB9B1",
+      "address": "0xB9B1",
+      "description": "LB9B1",
+      "type": "routine"
+    },
+    {
+      "name": "LB9B4",
+      "address": "0xB9B4",
+      "description": "LB9B4",
+      "type": "routine"
+    },
+    {
+      "name": "LB9B9",
+      "address": "0xB9B9",
+      "description": "LB9B9",
+      "type": "routine"
+    },
+    {
+      "name": "LB9BC",
+      "address": "0xB9BC",
+      "description": "LB9BC",
+      "type": "routine"
+    },
+    {
+      "name": "LB9C2",
+      "address": "0xB9C2",
+      "description": "LB9C2",
+      "type": "routine"
+    },
+    {
+      "name": "LB9C5",
+      "address": "0xB9C5",
+      "description": "LB9C5",
+      "type": "routine"
+    },
+    {
+      "name": "LB9CD",
+      "address": "0xB9CD",
+      "description": "LB9CD",
+      "type": "routine"
+    },
+    {
+      "name": "LB9E2",
+      "address": "0xB9E2",
+      "description": "LB9E2",
+      "type": "routine"
+    },
+    {
+      "name": "LB9EC",
+      "address": "0xB9EC",
+      "description": "LB9EC",
+      "type": "routine"
+    },
+    {
+      "name": "LB9FB",
+      "address": "0xB9FB",
+      "description": "LB9FB",
+      "type": "routine"
+    },
+    {
+      "name": "LBA18",
+      "address": "0xBA18",
+      "description": "LBA18",
+      "type": "routine"
+    },
+    {
+      "name": "LBA1C",
+      "address": "0xBA1C",
+      "description": "LBA1C",
+      "type": "routine"
+    },
+    {
+      "name": "LBA1D",
+      "address": "0xBA1D",
+      "description": "LBA1D",
+      "type": "routine"
+    },
+    {
+      "name": "LBA39",
+      "address": "0xBA39",
+      "description": "LBA39",
+      "type": "routine"
+    },
+    {
+      "name": "LBA3A",
+      "address": "0xBA3A",
+      "description": "LBA3A",
+      "type": "routine"
+    },
+    {
+      "name": "LBA3E",
+      "address": "0xBA3E",
+      "description": "LBA3E",
+      "type": "routine"
+    },
+    {
+      "name": "LBA3F",
+      "address": "0xBA3F",
+      "description": "LBA3F",
+      "type": "routine"
+    },
+    {
+      "name": "LBA44",
+      "address": "0xBA44",
+      "description": "LBA44",
+      "type": "routine"
+    },
+    {
+      "name": "LBA4F",
+      "address": "0xBA4F",
+      "description": "LBA4F",
+      "type": "routine"
+    },
+    {
+      "name": "LBA5C",
+      "address": "0xBA5C",
+      "description": "LBA5C",
+      "type": "routine"
+    },
+    {
+      "name": "LBA66",
+      "address": "0xBA66",
+      "description": "LBA66",
+      "type": "routine"
+    },
+    {
+      "name": "LBA72",
+      "address": "0xBA72",
+      "description": "LBA72",
+      "type": "routine"
+    },
+    {
+      "name": "LBA78",
+      "address": "0xBA78",
+      "description": "LBA78",
+      "type": "routine"
+    },
+    {
+      "name": "LBA79",
+      "address": "0xBA79",
+      "description": "LBA79",
+      "type": "routine"
+    },
+    {
+      "name": "LBA7B",
+      "address": "0xBA7B",
+      "description": "LBA7B",
+      "type": "routine"
+    },
+    {
+      "name": "LBA83",
+      "address": "0xBA83",
+      "description": "LBA83",
+      "type": "routine"
+    },
+    {
+      "name": "LBA91",
+      "address": "0xBA91",
+      "description": "LBA91",
+      "type": "routine"
+    },
+    {
+      "name": "LBA92",
+      "address": "0xBA92",
+      "description": "LBA92",
+      "type": "routine"
+    },
+    {
+      "name": "LBA97",
+      "address": "0xBA97",
+      "description": "LBA97",
+      "type": "routine"
+    },
+    {
+      "name": "LBA9A",
+      "address": "0xBA9A",
+      "description": "LBA9A",
+      "type": "routine"
+    },
+    {
+      "name": "LBAAE",
+      "address": "0xBAAE",
+      "description": "LBAAE",
+      "type": "routine"
+    },
+    {
+      "name": "LBAB8",
+      "address": "0xBAB8",
+      "description": "LBAB8",
+      "type": "routine"
+    },
+    {
+      "name": "LBABA",
+      "address": "0xBABA",
+      "description": "LBABA",
+      "type": "routine"
+    },
+    {
+      "name": "LBAC4",
+      "address": "0xBAC4",
+      "description": "LBAC4",
+      "type": "routine"
+    },
+    {
+      "name": "LBAC5",
+      "address": "0xBAC5",
+      "description": "LBAC5",
+      "type": "routine"
+    },
+    {
+      "name": "LBACA",
+      "address": "0xBACA",
+      "description": "LBACA",
+      "type": "routine"
+    },
+    {
+      "name": "LBAD0",
+      "address": "0xBAD0",
+      "description": "LBAD0",
+      "type": "routine"
+    },
+    {
+      "name": "LBB00",
+      "address": "0xBB00",
+      "description": "LBB00",
+      "type": "routine"
+    },
+    {
+      "name": "LBB02",
+      "address": "0xBB02",
+      "description": "LBB02",
+      "type": "routine"
+    },
+    {
+      "name": "LBB03",
+      "address": "0xBB03",
+      "description": "LBB03",
+      "type": "routine"
+    },
+    {
+      "name": "LBB20",
+      "address": "0xBB20",
+      "description": "LBB20",
+      "type": "routine"
+    },
+    {
+      "name": "LBB2E",
+      "address": "0xBB2E",
+      "description": "LBB2E",
+      "type": "routine"
+    },
+    {
+      "name": "LBB2F",
+      "address": "0xBB2F",
+      "description": "LBB2F",
+      "type": "routine"
+    },
+    {
+      "name": "LBB48",
+      "address": "0xBB48",
+      "description": "LBB48",
+      "type": "routine"
+    },
+    {
+      "name": "LBB5C",
+      "address": "0xBB5C",
+      "description": "LBB5C",
+      "type": "routine"
+    },
+    {
+      "name": "LBB61",
+      "address": "0xBB61",
+      "description": "LBB61",
+      "type": "routine"
+    },
+    {
+      "name": "LBB63",
+      "address": "0xBB63",
+      "description": "LBB63",
+      "type": "routine"
+    },
+    {
+      "name": "LBB67",
+      "address": "0xBB67",
+      "description": "LBB67",
+      "type": "routine"
+    },
+    {
+      "name": "LBB6A",
+      "address": "0xBB6A",
+      "description": "LBB6A",
+      "type": "routine"
+    },
+    {
+      "name": "LBB7C",
+      "address": "0xBB7C",
+      "description": "LBB7C",
+      "type": "routine"
+    },
+    {
+      "name": "LBB7D",
+      "address": "0xBB7D",
+      "description": "LBB7D",
+      "type": "routine"
+    },
+    {
+      "name": "LBB82",
+      "address": "0xBB82",
+      "description": "LBB82",
+      "type": "routine"
+    },
+    {
+      "name": "LBB89",
+      "address": "0xBB89",
+      "description": "LBB89",
+      "type": "routine"
+    },
+    {
+      "name": "LBB8F",
+      "address": "0xBB8F",
+      "description": "LBB8F",
+      "type": "routine"
+    },
+    {
+      "name": "LBB91",
+      "address": "0xBB91",
+      "description": "LBB91",
+      "type": "routine"
+    },
+    {
+      "name": "LBBA4",
+      "address": "0xBBA4",
+      "description": "LBBA4",
+      "type": "routine"
+    },
+    {
+      "name": "LBBBD",
+      "address": "0xBBBD",
+      "description": "LBBBD",
+      "type": "routine"
+    },
+    {
+      "name": "LBBCC",
+      "address": "0xBBCC",
+      "description": "LBBCC",
+      "type": "routine"
+    },
+    {
+      "name": "LBBD0",
+      "address": "0xBBD0",
+      "description": "LBBD0",
+      "type": "routine"
+    },
+    {
+      "name": "LBBDE",
+      "address": "0xBBDE",
+      "description": "LBBDE",
+      "type": "routine"
+    },
+    {
+      "name": "LBBF8",
+      "address": "0xBBF8",
+      "description": "LBBF8",
+      "type": "routine"
+    },
+    {
+      "name": "LBBFC",
+      "address": "0xBBFC",
+      "description": "LBBFC",
+      "type": "routine"
+    },
+    {
+      "name": "LBC06",
+      "address": "0xBC06",
+      "description": "LBC06",
+      "type": "routine"
+    },
+    {
+      "name": "LBC0B",
+      "address": "0xBC0B",
+      "description": "LBC0B",
+      "type": "routine"
+    },
+    {
+      "name": "LBC14",
+      "address": "0xBC14",
+      "description": "LBC14",
+      "type": "routine"
+    },
+    {
+      "name": "LBC2A",
+      "address": "0xBC2A",
+      "description": "LBC2A",
+      "type": "routine"
+    },
+    {
+      "name": "LBC2F",
+      "address": "0xBC2F",
+      "description": "LBC2F",
+      "type": "routine"
+    },
+    {
+      "name": "LBC33",
+      "address": "0xBC33",
+      "description": "LBC33",
+      "type": "routine"
+    },
+    {
+      "name": "LBC35",
+      "address": "0xBC35",
+      "description": "LBC35",
+      "type": "routine"
+    },
+    {
+      "name": "LBC4A",
+      "address": "0xBC4A",
+      "description": "LBC4A",
+      "type": "routine"
+    },
+    {
+      "name": "LBC4C",
+      "address": "0xBC4C",
+      "description": "LBC4C",
+      "type": "routine"
+    },
+    {
+      "name": "LBC5F",
+      "address": "0xBC5F",
+      "description": "LBC5F",
+      "type": "routine"
+    },
+    {
+      "name": "LBC6D",
+      "address": "0xBC6D",
+      "description": "LBC6D",
+      "type": "routine"
+    },
+    {
+      "name": "LBC71",
+      "address": "0xBC71",
+      "description": "LBC71",
+      "type": "routine"
+    },
+    {
+      "name": "LBC73",
+      "address": "0xBC73",
+      "description": "LBC73",
+      "type": "routine"
+    },
+    {
+      "name": "LBC79",
+      "address": "0xBC79",
+      "description": "LBC79",
+      "type": "routine"
+    },
+    {
+      "name": "LBC7C",
+      "address": "0xBC7C",
+      "description": "LBC7C",
+      "type": "routine"
+    },
+    {
+      "name": "LBC82",
+      "address": "0xBC82",
+      "description": "LBC82",
+      "type": "routine"
+    },
+    {
+      "name": "LBC86",
+      "address": "0xBC86",
+      "description": "LBC86",
+      "type": "routine"
+    },
+    {
+      "name": "LBC96",
+      "address": "0xBC96",
+      "description": "LBC96",
+      "type": "routine"
+    },
+    {
+      "name": "LBCA0",
+      "address": "0xBCA0",
+      "description": "LBCA0",
+      "type": "routine"
+    },
+    {
+      "name": "LBCC3",
+      "address": "0xBCC3",
+      "description": "LBCC3",
+      "type": "routine"
+    },
+    {
+      "name": "LBCC8",
+      "address": "0xBCC8",
+      "description": "LBCC8",
+      "type": "routine"
+    },
+    {
+      "name": "LBCD7",
+      "address": "0xBCD7",
+      "description": "LBCD7",
+      "type": "routine"
+    },
+    {
+      "name": "LBCE4",
+      "address": "0xBCE4",
+      "description": "LBCE4",
+      "type": "routine"
+    },
+    {
+      "name": "LBD09",
+      "address": "0xBD09",
+      "description": "LBD09",
+      "type": "routine"
+    },
+    {
+      "name": "LBD11",
+      "address": "0xBD11",
+      "description": "LBD11",
+      "type": "routine"
+    },
+    {
+      "name": "LBD12",
+      "address": "0xBD12",
+      "description": "LBD12",
+      "type": "routine"
+    },
+    {
+      "name": "LBD2D",
+      "address": "0xBD2D",
+      "description": "LBD2D",
+      "type": "routine"
+    },
+    {
+      "name": "LBD31",
+      "address": "0xBD31",
+      "description": "LBD31",
+      "type": "routine"
+    },
+    {
+      "name": "LBD35",
+      "address": "0xBD35",
+      "description": "LBD35",
+      "type": "routine"
+    },
+    {
+      "name": "LBD53",
+      "address": "0xBD53",
+      "description": "LBD53",
+      "type": "routine"
+    },
+    {
+      "name": "LBD55",
+      "address": "0xBD55",
+      "description": "LBD55",
+      "type": "routine"
+    },
+    {
+      "name": "LBD59",
+      "address": "0xBD59",
+      "description": "LBD59",
+      "type": "routine"
+    },
+    {
+      "name": "LBD61",
+      "address": "0xBD61",
+      "description": "LBD61",
+      "type": "routine"
+    },
+    {
+      "name": "LBD65",
+      "address": "0xBD65",
+      "description": "LBD65",
+      "type": "routine"
+    },
+    {
+      "name": "LBD6F",
+      "address": "0xBD6F",
+      "description": "LBD6F",
+      "type": "routine"
+    },
+    {
+      "name": "LBD78",
+      "address": "0xBD78",
+      "description": "LBD78",
+      "type": "routine"
+    },
+    {
+      "name": "LBD7F",
+      "address": "0xBD7F",
+      "description": "LBD7F",
+      "type": "routine"
+    },
+    {
+      "name": "LBD86",
+      "address": "0xBD86",
+      "description": "LBD86",
+      "type": "routine"
+    },
+    {
+      "name": "LBD99",
+      "address": "0xBD99",
+      "description": "LBD99",
+      "type": "routine"
+    },
+    {
+      "name": "LBDA5",
+      "address": "0xBDA5",
+      "description": "LBDA5",
+      "type": "routine"
+    },
+    {
+      "name": "LBDB6",
+      "address": "0xBDB6",
+      "description": "LBDB6",
+      "type": "routine"
+    },
+    {
+      "name": "LBDBB",
+      "address": "0xBDBB",
+      "description": "LBDBB",
+      "type": "routine"
+    },
+    {
+      "name": "LBDC0",
+      "address": "0xBDC0",
+      "description": "LBDC0",
+      "type": "routine"
+    },
+    {
+      "name": "LBDC5",
+      "address": "0xBDC5",
+      "description": "LBDC5",
+      "type": "routine"
+    },
+    {
+      "name": "LBDCC",
+      "address": "0xBDCC",
+      "description": "LBDCC",
+      "type": "routine"
+    },
+    {
+      "name": "LBDD6",
+      "address": "0xBDD6",
+      "description": "LBDD6",
+      "type": "routine"
+    },
+    {
+      "name": "LBDD9",
+      "address": "0xBDD9",
+      "description": "LBDD9",
+      "type": "routine"
+    },
+    {
+      "name": "LBDDC",
+      "address": "0xBDDC",
+      "description": "LBDDC",
+      "type": "routine"
+    },
+    {
+      "name": "LBDE4",
+      "address": "0xBDE4",
+      "description": "LBDE4",
+      "type": "routine"
+    },
+    {
+      "name": "LBDFF",
+      "address": "0xBDFF",
+      "description": "LBDFF",
+      "type": "routine"
+    },
+    {
+      "name": "LBE01",
+      "address": "0xBE01",
+      "description": "LBE01",
+      "type": "routine"
+    },
+    {
+      "name": "LBE09",
+      "address": "0xBE09",
+      "description": "LBE09",
+      "type": "routine"
+    },
+    {
+      "name": "LBE18",
+      "address": "0xBE18",
+      "description": "LBE18",
+      "type": "routine"
+    },
+    {
+      "name": "LBE1F",
+      "address": "0xBE1F",
+      "description": "LBE1F",
+      "type": "routine"
+    },
+    {
+      "name": "LBE36",
+      "address": "0xBE36",
+      "description": "LBE36",
+      "type": "routine"
+    },
+    {
+      "name": "LBE4B",
+      "address": "0xBE4B",
+      "description": "LBE4B",
+      "type": "routine"
+    },
+    {
+      "name": "LBE50",
+      "address": "0xBE50",
+      "description": "LBE50",
+      "type": "routine"
+    },
+    {
+      "name": "LBE72",
+      "address": "0xBE72",
+      "description": "LBE72",
+      "type": "routine"
+    },
+    {
+      "name": "LBE84",
+      "address": "0xBE84",
+      "description": "LBE84",
+      "type": "routine"
+    },
+    {
+      "name": "LBE8C",
+      "address": "0xBE8C",
+      "description": "LBE8C",
+      "type": "routine"
+    },
+    {
+      "name": "LBE98",
+      "address": "0xBE98",
+      "description": "LBE98",
+      "type": "routine"
+    },
+    {
+      "name": "LBEA3",
+      "address": "0xBEA3",
+      "description": "LBEA3",
+      "type": "routine"
+    },
+    {
+      "name": "LBEAB",
+      "address": "0xBEAB",
+      "description": "LBEAB",
+      "type": "routine"
+    },
+    {
+      "name": "LBEB8",
+      "address": "0xBEB8",
+      "description": "LBEB8",
+      "type": "routine"
+    },
+    {
+      "name": "LBEBA",
+      "address": "0xBEBA",
+      "description": "LBEBA",
+      "type": "routine"
+    },
+    {
+      "name": "LBEBC",
+      "address": "0xBEBC",
+      "description": "LBEBC",
+      "type": "routine"
+    },
+    {
+      "name": "LBEC0",
+      "address": "0xBEC0",
+      "description": "LBEC0",
+      "type": "routine"
+    },
+    {
+      "name": "LBEC5",
+      "address": "0xBEC5",
+      "description": "LBEC5",
+      "type": "routine"
+    },
+    {
+      "name": "LBEC9",
+      "address": "0xBEC9",
+      "description": "LBEC9",
+      "type": "routine"
+    },
+    {
+      "name": "LBECD",
+      "address": "0xBECD",
+      "description": "LBECD",
+      "type": "routine"
+    },
+    {
+      "name": "LBED1",
+      "address": "0xBED1",
+      "description": "LBED1",
+      "type": "routine"
+    },
+    {
+      "name": "LBED5",
+      "address": "0xBED5",
+      "description": "LBED5",
+      "type": "routine"
+    },
+    {
+      "name": "LBED9",
+      "address": "0xBED9",
+      "description": "LBED9",
+      "type": "routine"
+    },
+    {
+      "name": "LBEDD",
+      "address": "0xBEDD",
+      "description": "LBEDD",
+      "type": "routine"
+    },
+    {
+      "name": "LBEE1",
+      "address": "0xBEE1",
+      "description": "LBEE1",
+      "type": "routine"
+    },
+    {
+      "name": "LBEE5",
+      "address": "0xBEE5",
+      "description": "LBEE5",
+      "type": "routine"
+    },
+    {
+      "name": "LBEE9",
+      "address": "0xBEE9",
+      "description": "LBEE9",
+      "type": "routine"
+    },
+    {
+      "name": "LBEEF",
+      "address": "0xBEEF",
+      "description": "LBEEF",
+      "type": "routine"
+    },
+    {
+      "name": "LBEF0",
+      "address": "0xBEF0",
+      "description": "LBEF0",
+      "type": "routine"
+    },
+    {
+      "name": "LBEFC",
+      "address": "0xBEFC",
+      "description": "LBEFC",
+      "type": "routine"
+    },
+    {
+      "name": "LBEFF",
+      "address": "0xBEFF",
+      "description": "LBEFF",
+      "type": "routine"
+    },
+    {
+      "name": "LBF01",
+      "address": "0xBF01",
+      "description": "LBF01",
+      "type": "routine"
+    },
+    {
+      "name": "LBF0C",
+      "address": "0xBF0C",
+      "description": "LBF0C",
+      "type": "routine"
+    },
+    {
+      "name": "LBF38",
+      "address": "0xBF38",
+      "description": "LBF38",
+      "type": "routine"
+    },
+    {
+      "name": "LBF3B",
+      "address": "0xBF3B",
+      "description": "LBF3B",
+      "type": "routine"
+    },
+    {
+      "name": "LBF45",
+      "address": "0xBF45",
+      "description": "LBF45",
+      "type": "routine"
+    },
+    {
+      "name": "LBFA6",
+      "address": "0xBFA6",
+      "description": "LBFA6",
+      "type": "routine"
+    },
+    {
+      "name": "LBFA9",
+      "address": "0xBFA9",
+      "description": "LBFA9",
+      "type": "routine"
+    },
+    {
+      "name": "LBFB7",
+      "address": "0xBFB7",
+      "description": "LBFB7",
+      "type": "routine"
+    },
+    {
+      "name": "LBFBD",
+      "address": "0xBFBD",
+      "description": "LBFBD",
+      "type": "routine"
+    },
+    {
+      "name": "LBFC2",
+      "address": "0xBFC2",
+      "description": "LBFC2",
+      "type": "routine"
+    },
+    {
+      "name": "LBFC7",
+      "address": "0xBFC7",
+      "description": "LBFC7",
+      "type": "routine"
+    },
+    {
+      "name": "LBFC8",
+      "address": "0xBFC8",
+      "description": "LBFC8",
+      "type": "routine"
+    },
+    {
+      "name": "LBFCD",
+      "address": "0xBFCD",
+      "description": "LBFCD",
+      "type": "routine"
+    },
+    {
+      "name": "LBFD2",
+      "address": "0xBFD2",
+      "description": "LBFD2",
+      "type": "routine"
+    },
+    {
+      "name": "LBFD7",
+      "address": "0xBFD7",
+      "description": "LBFD7",
+      "type": "routine"
+    },
+    {
+      "name": "LBFDC",
+      "address": "0xBFDC",
+      "description": "LBFDC",
+      "type": "routine"
+    },
+    {
+      "name": "LBFE1",
+      "address": "0xBFE1",
+      "description": "LBFE1",
+      "type": "routine"
+    },
+    {
+      "name": "LBFE6",
+      "address": "0xBFE6",
+      "description": "LBFE6",
+      "type": "routine"
+    },
+    {
+      "name": "LBFF0",
+      "address": "0xBFF0",
+      "description": "LBFF0",
+      "type": "routine"
+    },
+    {
+      "name": "LBUFMX",
+      "address": "0x00FA",
+      "description": "LBUFMX",
+      "type": "constant"
+    },
+    {
+      "name": "LEFT",
+      "address": "0xB6AB",
+      "description": "LEFT",
+      "type": "routine"
+    },
+    {
+      "name": "LEN",
+      "address": "0xB681",
+      "description": "LEN",
+      "type": "routine"
+    },
+    {
+      "name": "LET",
+      "address": "0xAF89",
+      "description": "LET",
+      "type": "routine"
+    },
+    {
+      "name": "LEVARYV",
+      "address": "0xB404",
+      "description": "LEVARYV",
+      "type": "routine"
+    },
+    {
+      "name": "LF",
+      "address": "0x000A",
+      "description": "LF",
+      "type": "constant"
+    },
+    {
+      "name": "LINBUF",
+      "address": "0x02DC",
+      "description": "LINBUF",
+      "type": "data"
+    },
+    {
+      "name": "LINHDR",
+      "address": "0x02DA",
+      "description": "LINHDR",
+      "type": "data"
+    },
+    {
+      "name": "LIST",
+      "address": "0xB764",
+      "description": "LIST",
+      "type": "routine"
+    },
+    {
+      "name": "LLIST",
+      "address": "0xB75E",
+      "description": "LLIST",
+      "type": "routine"
+    },
+    {
+      "name": "LPTBTD",
+      "address": "0x0095",
+      "description": "LPTBTD",
+      "type": "constant"
+    },
+    {
+      "name": "LPTCFW",
+      "address": "0x0099",
+      "description": "LPTCFW",
+      "type": "constant"
+    },
+    {
+      "name": "LPTLCF",
+      "address": "0x009A",
+      "description": "LPTLCF",
+      "type": "constant"
+    },
+    {
+      "name": "LPTLND",
+      "address": "0x0097",
+      "description": "LPTLND",
+      "type": "constant"
+    },
+    {
+      "name": "LPTPOS",
+      "address": "0x009C",
+      "description": "LPTPOS",
+      "type": "constant"
+    },
+    {
+      "name": "LPTWID",
+      "address": "0x009B",
+      "description": "LPTWID",
+      "type": "constant"
+    },
+    {
+      "name": "LSTTXT",
+      "address": "0x0066",
+      "description": "LSTTXT",
+      "type": "constant"
+    },
+    {
+      "name": "MAXLIN",
+      "address": "0x00FA",
+      "description": "MAXLIN",
+      "type": "constant"
+    },
+    {
+      "name": "MEM",
+      "address": "0xB4EE",
+      "description": "MEM",
+      "type": "routine"
+    },
+    {
+      "name": "MEMSIZ",
+      "address": "0x0027",
+      "description": "MEMSIZ",
+      "type": "constant"
+    },
+    {
+      "name": "MID",
+      "address": "0xB6CF",
+      "description": "MID",
+      "type": "routine"
+    },
+    {
+      "name": "MMUREG",
+      "address": "0xFFA0",
+      "description": "MMUREG",
+      "type": "io_port"
+    },
+    {
+      "name": "MOTOR",
+      "address": "0xA7BD",
+      "description": "MOTOR",
+      "type": "routine"
+    },
+    {
+      "name": "NEW",
+      "address": "0xAD17",
+      "description": "NEW",
+      "type": "routine"
+    },
+    {
+      "name": "NEXT",
+      "address": "0xB0F8",
+      "description": "NEXT",
+      "type": "routine"
+    },
+    {
+      "name": "NMI",
+      "address": "0xFFFC",
+      "description": "NMI",
+      "type": "io_port"
+    },
+    {
+      "name": "NMIFLG",
+      "address": "0x0982",
+      "description": "NMIFLG",
+      "type": "data"
+    },
+    {
+      "name": "NMIVEC",
+      "address": "0x0109",
+      "description": "NMIVEC",
+      "type": "data"
+    },
+    {
+      "name": "NOTELN",
+      "address": "0x00E1",
+      "description": "NOTELN",
+      "type": "constant"
+    },
+    {
+      "name": "OCTAVE",
+      "address": "0x00DE",
+      "description": "OCTAVE",
+      "type": "constant"
+    },
+    {
+      "name": "OLDPTR",
+      "address": "0x002D",
+      "description": "OLDPTR",
+      "type": "constant"
+    },
+    {
+      "name": "OLDTXT",
+      "address": "0x0029",
+      "description": "OLDTXT",
+      "type": "constant"
+    },
+    {
+      "name": "ON",
+      "address": "0xAF42",
+      "description": "ON",
+      "type": "routine"
+    },
+    {
+      "name": "OPEN",
+      "address": "0xA5F6",
+      "description": "OPEN",
+      "type": "routine"
+    },
+    {
+      "name": "OUTFIL",
+      "address": "0x0020",
+      "description": "OUTFIL",
+      "type": "constant"
+    },
+    {
+      "name": "PALETREG",
+      "address": "0xFFB0",
+      "description": "PALETREG",
+      "type": "io_port"
+    },
+    {
+      "name": "PEEK",
+      "address": "0xB750",
+      "description": "PEEK",
+      "type": "routine"
+    },
+    {
+      "name": "PIA0",
+      "address": "0xFF00",
+      "description": "PIA0",
+      "type": "io_port"
+    },
+    {
+      "name": "PIA1",
+      "address": "0xFF20",
+      "description": "PIA1",
+      "type": "io_port"
+    },
+    {
+      "name": "PIA2",
+      "address": "0xFF40",
+      "description": "PIA2",
+      "type": "io_port"
+    },
+    {
+      "name": "PLYTMR",
+      "address": "0x00E3",
+      "description": "PLYTMR",
+      "type": "constant"
+    },
+    {
+      "name": "PMODE",
+      "address": "0x00B6",
+      "description": "PMODE",
+      "type": "constant"
+    },
+    {
+      "name": "POINT",
+      "address": "0xA8F5",
+      "description": "POINT",
+      "type": "routine"
+    },
+    {
+      "name": "POKE",
+      "address": "0xB757",
+      "description": "POKE",
+      "type": "routine"
+    },
+    {
+      "name": "POLCAT",
+      "address": "0xA000",
+      "description": "POLCAT",
+      "type": "routine"
+    },
+    {
+      "name": "POTVAL",
+      "address": "0x015A",
+      "description": "POTVAL",
+      "type": "data"
+    },
+    {
+      "name": "PRINT",
+      "address": "0xB8F7",
+      "description": "PRINT",
+      "type": "routine"
+    },
+    {
+      "name": "PRTDEV",
+      "address": "0x006E",
+      "description": "PRTDEV",
+      "type": "constant"
+    },
+    {
+      "name": "PUTCHR",
+      "address": "0xA282",
+      "description": "PUTCHR",
+      "type": "routine"
+    },
+    {
+      "name": "R1CLR",
+      "address": "0xFFD8",
+      "description": "R1CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "R1SET",
+      "address": "0xFFD9",
+      "description": "R1SET",
+      "type": "io_port"
+    },
+    {
+      "name": "RANFIL",
+      "address": "0x0040",
+      "description": "RANFIL",
+      "type": "constant"
+    },
+    {
+      "name": "RDYTMR",
+      "address": "0x0985",
+      "description": "RDYTMR",
+      "type": "data"
+    },
+    {
+      "name": "READ",
+      "address": "0xB046",
+      "description": "READ",
+      "type": "routine"
+    },
+    {
+      "name": "RELFLG",
+      "address": "0x000A",
+      "description": "RELFLG",
+      "type": "constant"
+    },
+    {
+      "name": "RELPTR",
+      "address": "0x003D",
+      "description": "RELPTR",
+      "type": "constant"
+    },
+    {
+      "name": "REM",
+      "address": "0xAEE3",
+      "description": "REM",
+      "type": "routine"
+    },
+    {
+      "name": "RESET",
+      "address": "0xA8B1",
+      "description": "RESET",
+      "type": "routine"
+    },
+    {
+      "name": "RESETV",
+      "address": "0xFFFE",
+      "description": "RESETV",
+      "type": "io_port"
+    },
+    {
+      "name": "RESSGN",
+      "address": "0x0062",
+      "description": "RESSGN",
+      "type": "constant"
+    },
+    {
+      "name": "RESTOR",
+      "address": "0xADE4",
+      "description": "RESTOR",
+      "type": "routine"
+    },
+    {
+      "name": "RESVEC",
+      "address": "0xA027",
+      "description": "RESVEC",
+      "type": "routine"
+    },
+    {
+      "name": "RETURN",
+      "address": "0xAEC0",
+      "description": "RETURN",
+      "type": "routine"
+    },
+    {
+      "name": "RIGHT",
+      "address": "0xB6C8",
+      "description": "RIGHT",
+      "type": "routine"
+    },
+    {
+      "name": "RNBFAD",
+      "address": "0x0948",
+      "description": "RNBFAD",
+      "type": "data"
+    },
+    {
+      "name": "RND",
+      "address": "0xBF1F",
+      "description": "RND",
+      "type": "routine"
+    },
+    {
+      "name": "ROMCLR",
+      "address": "0xFFDE",
+      "description": "ROMCLR",
+      "type": "io_port"
+    },
+    {
+      "name": "ROMPAK",
+      "address": "0xC000",
+      "description": "ROMPAK",
+      "type": "routine"
+    },
+    {
+      "name": "ROMSET",
+      "address": "0xFFDF",
+      "description": "ROMSET",
+      "type": "io_port"
+    },
+    {
+      "name": "RSEED",
+      "address": "0xBF74",
+      "description": "RSEED",
+      "type": "routine"
+    },
+    {
+      "name": "RSTFLG",
+      "address": "0x0071",
+      "description": "RSTFLG",
+      "type": "constant"
+    },
+    {
+      "name": "RSTVEC",
+      "address": "0x0072",
+      "description": "RSTVEC",
+      "type": "constant"
+    },
+    {
+      "name": "RUN",
+      "address": "0xAE75",
+      "description": "RUN",
+      "type": "routine"
+    },
+    {
+      "name": "RVEC0",
+      "address": "0x015E",
+      "description": "RVEC0",
+      "type": "data"
+    },
+    {
+      "name": "RVEC1",
+      "address": "0x0161",
+      "description": "RVEC1",
+      "type": "data"
+    },
+    {
+      "name": "RVEC10",
+      "address": "0x017C",
+      "description": "RVEC10",
+      "type": "data"
+    },
+    {
+      "name": "RVEC11",
+      "address": "0x017F",
+      "description": "RVEC11",
+      "type": "data"
+    },
+    {
+      "name": "RVEC12",
+      "address": "0x0182",
+      "description": "RVEC12",
+      "type": "data"
+    },
+    {
+      "name": "RVEC13",
+      "address": "0x0185",
+      "description": "RVEC13",
+      "type": "data"
+    },
+    {
+      "name": "RVEC14",
+      "address": "0x0188",
+      "description": "RVEC14",
+      "type": "data"
+    },
+    {
+      "name": "RVEC15",
+      "address": "0x018B",
+      "description": "RVEC15",
+      "type": "data"
+    },
+    {
+      "name": "RVEC16",
+      "address": "0x018E",
+      "description": "RVEC16",
+      "type": "data"
+    },
+    {
+      "name": "RVEC17",
+      "address": "0x0191",
+      "description": "RVEC17",
+      "type": "data"
+    },
+    {
+      "name": "RVEC18",
+      "address": "0x0194",
+      "description": "RVEC18",
+      "type": "data"
+    },
+    {
+      "name": "RVEC19",
+      "address": "0x0197",
+      "description": "RVEC19",
+      "type": "data"
+    },
+    {
+      "name": "RVEC2",
+      "address": "0x0164",
+      "description": "RVEC2",
+      "type": "data"
+    },
+    {
+      "name": "RVEC20",
+      "address": "0x019A",
+      "description": "RVEC20",
+      "type": "data"
+    },
+    {
+      "name": "RVEC21",
+      "address": "0x019D",
+      "description": "RVEC21",
+      "type": "data"
+    },
+    {
+      "name": "RVEC22",
+      "address": "0x01A0",
+      "description": "RVEC22",
+      "type": "data"
+    },
+    {
+      "name": "RVEC23",
+      "address": "0x01A3",
+      "description": "RVEC23",
+      "type": "data"
+    },
+    {
+      "name": "RVEC24",
+      "address": "0x01A6",
+      "description": "RVEC24",
+      "type": "data"
+    },
+    {
+      "name": "RVEC3",
+      "address": "0x0167",
+      "description": "RVEC3",
+      "type": "data"
+    },
+    {
+      "name": "RVEC4",
+      "address": "0x016A",
+      "description": "RVEC4",
+      "type": "data"
+    },
+    {
+      "name": "RVEC5",
+      "address": "0x016D",
+      "description": "RVEC5",
+      "type": "data"
+    },
+    {
+      "name": "RVEC6",
+      "address": "0x0170",
+      "description": "RVEC6",
+      "type": "data"
+    },
+    {
+      "name": "RVEC7",
+      "address": "0x0173",
+      "description": "RVEC7",
+      "type": "data"
+    },
+    {
+      "name": "RVEC8",
+      "address": "0x0176",
+      "description": "RVEC8",
+      "type": "data"
+    },
+    {
+      "name": "RVEC9",
+      "address": "0x0179",
+      "description": "RVEC9",
+      "type": "data"
+    },
+    {
+      "name": "RVSEED",
+      "address": "0x0115",
+      "description": "RVSEED",
+      "type": "data"
+    },
+    {
+      "name": "SAMREG",
+      "address": "0xFFC0",
+      "description": "SAMREG",
+      "type": "io_port"
+    },
+    {
+      "name": "SCALE",
+      "address": "0x00E9",
+      "description": "SCALE",
+      "type": "constant"
+    },
+    {
+      "name": "SECLEN",
+      "address": "0x0100",
+      "description": "SECLEN",
+      "type": "data"
+    },
+    {
+      "name": "SECMAX",
+      "address": "0x0012",
+      "description": "SECMAX",
+      "type": "constant"
+    },
+    {
+      "name": "SET",
+      "address": "0xA880",
+      "description": "SET",
+      "type": "routine"
+    },
+    {
+      "name": "SETFLG",
+      "address": "0x00C2",
+      "description": "SETFLG",
+      "type": "constant"
+    },
+    {
+      "name": "SGN",
+      "address": "0xBC7A",
+      "description": "SGN",
+      "type": "routine"
+    },
+    {
+      "name": "SIN",
+      "address": "0xBF78",
+      "description": "SIN",
+      "type": "routine"
+    },
+    {
+      "name": "SKIPF",
+      "address": "0xA5EC",
+      "description": "SKIPF",
+      "type": "routine"
+    },
+    {
+      "name": "SKP1",
+      "address": "0x0021",
+      "description": "SKP1",
+      "type": "constant"
+    },
+    {
+      "name": "SKP1LD",
+      "address": "0x0086",
+      "description": "SKP1LD",
+      "type": "constant"
+    },
+    {
+      "name": "SKP2",
+      "address": "0x008C",
+      "description": "SKP2",
+      "type": "constant"
+    },
+    {
+      "name": "SNDBLK",
+      "address": "0xA7F4",
+      "description": "SNDBLK",
+      "type": "routine"
+    },
+    {
+      "name": "SNDDUR",
+      "address": "0x008D",
+      "description": "SNDDUR",
+      "type": "constant"
+    },
+    {
+      "name": "SNDTON",
+      "address": "0x008C",
+      "description": "SNDTON",
+      "type": "constant"
+    },
+    {
+      "name": "SOUND",
+      "address": "0xA94B",
+      "description": "SOUND",
+      "type": "routine"
+    },
+    {
+      "name": "SPACE",
+      "address": "0x0020",
+      "description": "SPACE",
+      "type": "constant"
+    },
+    {
+      "name": "STKBUF",
+      "address": "0x003A",
+      "description": "STKBUF",
+      "type": "constant"
+    },
+    {
+      "name": "STOP",
+      "address": "0xAE09",
+      "description": "STOP",
+      "type": "routine"
+    },
+    {
+      "name": "STR",
+      "address": "0xB4FD",
+      "description": "STR",
+      "type": "routine"
+    },
+    {
+      "name": "STRBUF",
+      "address": "0x03D7",
+      "description": "STRBUF",
+      "type": "data"
+    },
+    {
+      "name": "STRDES",
+      "address": "0x0056",
+      "description": "STRDES",
+      "type": "constant"
+    },
+    {
+      "name": "STRINOUT",
+      "address": "0xB99C",
+      "description": "STRINOUT",
+      "type": "routine"
+    },
+    {
+      "name": "STRSTK",
+      "address": "0x01A9",
+      "description": "STRSTK",
+      "type": "data"
+    },
+    {
+      "name": "STRTAB",
+      "address": "0x0023",
+      "description": "STRTAB",
+      "type": "constant"
+    },
+    {
+      "name": "SW2VEC",
+      "address": "0x0103",
+      "description": "SW2VEC",
+      "type": "data"
+    },
+    {
+      "name": "SW3VEC",
+      "address": "0x0100",
+      "description": "SW3VEC",
+      "type": "data"
+    },
+    {
+      "name": "SWI",
+      "address": "0xFFFA",
+      "description": "SWI",
+      "type": "io_port"
+    },
+    {
+      "name": "SWI2",
+      "address": "0xFFF4",
+      "description": "SWI2",
+      "type": "io_port"
+    },
+    {
+      "name": "SWI3",
+      "address": "0xFFF2",
+      "description": "SWI3",
+      "type": "io_port"
+    },
+    {
+      "name": "SWIVEC",
+      "address": "0x0106",
+      "description": "SWIVEC",
+      "type": "data"
+    },
+    {
+      "name": "SYNCLN",
+      "address": "0x0092",
+      "description": "SYNCLN",
+      "type": "constant"
+    },
+    {
+      "name": "SYNCOMMA",
+      "address": "0xB26D",
+      "description": "SYNCOMMA",
+      "type": "routine"
+    },
+    {
+      "name": "TEMPO",
+      "address": "0x00E2",
+      "description": "TEMPO",
+      "type": "constant"
+    },
+    {
+      "name": "TEMPPT",
+      "address": "0x000B",
+      "description": "TEMPPT",
+      "type": "constant"
+    },
+    {
+      "name": "TEMPTR",
+      "address": "0x000F",
+      "description": "TEMPTR",
+      "type": "constant"
+    },
+    {
+      "name": "TIMOUT",
+      "address": "0x00E7",
+      "description": "TIMOUT",
+      "type": "constant"
+    },
+    {
+      "name": "TIMVAL",
+      "address": "0x0112",
+      "description": "TIMVAL",
+      "type": "data"
+    },
+    {
+      "name": "TINPTR",
+      "address": "0x002F",
+      "description": "TINPTR",
+      "type": "constant"
+    },
+    {
+      "name": "TMPLOC",
+      "address": "0x0003",
+      "description": "TMPLOC",
+      "type": "constant"
+    },
+    {
+      "name": "TMPSTK",
+      "address": "0x00DC",
+      "description": "TMPSTK",
+      "type": "constant"
+    },
+    {
+      "name": "TMPTR1",
+      "address": "0x0011",
+      "description": "TMPTR1",
+      "type": "constant"
+    },
+    {
+      "name": "TOPRAM",
+      "address": "0x0074",
+      "description": "TOPRAM",
+      "type": "constant"
+    },
+    {
+      "name": "TRCFLG",
+      "address": "0x00AF",
+      "description": "TRCFLG",
+      "type": "constant"
+    },
+    {
+      "name": "TRELFL",
+      "address": "0x003F",
+      "description": "TRELFL",
+      "type": "constant"
+    },
+    {
+      "name": "TRKLEN",
+      "address": "0x1200",
+      "description": "TRKLEN",
+      "type": "data"
+    },
+    {
+      "name": "TRKMAX",
+      "address": "0x0023",
+      "description": "TRKMAX",
+      "type": "constant"
+    },
+    {
+      "name": "TXTTAB",
+      "address": "0x0019",
+      "description": "TXTTAB",
+      "type": "constant"
+    },
+    {
+      "name": "USR0",
+      "address": "0x013E",
+      "description": "USR0",
+      "type": "data"
+    },
+    {
+      "name": "USRADR",
+      "address": "0x00B0",
+      "description": "USRADR",
+      "type": "constant"
+    },
+    {
+      "name": "USRJMP",
+      "address": "0x0112",
+      "description": "USRJMP",
+      "type": "data"
+    },
+    {
+      "name": "V0CLR",
+      "address": "0xFFC0",
+      "description": "V0CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "V0SET",
+      "address": "0xFFC1",
+      "description": "V0SET",
+      "type": "io_port"
+    },
+    {
+      "name": "V1CLR",
+      "address": "0xFFC2",
+      "description": "V1CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "V1SET",
+      "address": "0xFFC3",
+      "description": "V1SET",
+      "type": "io_port"
+    },
+    {
+      "name": "V2CLR",
+      "address": "0xFFC4",
+      "description": "V2CLR",
+      "type": "io_port"
+    },
+    {
+      "name": "V2SET",
+      "address": "0xFFC5",
+      "description": "V2SET",
+      "type": "io_port"
+    },
+    {
+      "name": "V40",
+      "address": "0x0040",
+      "description": "V40",
+      "type": "constant"
+    },
+    {
+      "name": "V41",
+      "address": "0x0041",
+      "description": "V41",
+      "type": "constant"
+    },
+    {
+      "name": "V42",
+      "address": "0x0042",
+      "description": "V42",
+      "type": "constant"
+    },
+    {
+      "name": "V43",
+      "address": "0x0043",
+      "description": "V43",
+      "type": "constant"
+    },
+    {
+      "name": "V44",
+      "address": "0x0044",
+      "description": "V44",
+      "type": "constant"
+    },
+    {
+      "name": "V45",
+      "address": "0x0045",
+      "description": "V45",
+      "type": "constant"
+    },
+    {
+      "name": "V46",
+      "address": "0x0046",
+      "description": "V46",
+      "type": "constant"
+    },
+    {
+      "name": "V47",
+      "address": "0x0047",
+      "description": "V47",
+      "type": "constant"
+    },
+    {
+      "name": "V48",
+      "address": "0x0048",
+      "description": "V48",
+      "type": "constant"
+    },
+    {
+      "name": "V4A",
+      "address": "0x004A",
+      "description": "V4A",
+      "type": "constant"
+    },
+    {
+      "name": "V4B",
+      "address": "0x004B",
+      "description": "V4B",
+      "type": "constant"
+    },
+    {
+      "name": "V4D",
+      "address": "0x004D",
+      "description": "V4D",
+      "type": "constant"
+    },
+    {
+      "name": "V973",
+      "address": "0x0973",
+      "description": "V973",
+      "type": "data"
+    },
+    {
+      "name": "V974",
+      "address": "0x0974",
+      "description": "V974",
+      "type": "data"
+    },
+    {
+      "name": "V976",
+      "address": "0x0976",
+      "description": "V976",
+      "type": "data"
+    },
+    {
+      "name": "V977",
+      "address": "0x0977",
+      "description": "V977",
+      "type": "data"
+    },
+    {
+      "name": "V978",
+      "address": "0x0978",
+      "description": "V978",
+      "type": "data"
+    },
+    {
+      "name": "VAB",
+      "address": "0x00AB",
+      "description": "VAB",
+      "type": "constant"
+    },
+    {
+      "name": "VAC",
+      "address": "0x00AC",
+      "description": "VAC",
+      "type": "constant"
+    },
+    {
+      "name": "VAD",
+      "address": "0x00AD",
+      "description": "VAD",
+      "type": "constant"
+    },
+    {
+      "name": "VAE",
+      "address": "0x00AE",
+      "description": "VAE",
+      "type": "constant"
+    },
+    {
+      "name": "VAL",
+      "address": "0xB716",
+      "description": "VAL",
+      "type": "routine"
+    },
+    {
+      "name": "VALTYP",
+      "address": "0x0006",
+      "description": "VALTYP",
+      "type": "constant"
+    },
+    {
+      "name": "VARDES",
+      "address": "0x003B",
+      "description": "VARDES",
+      "type": "constant"
+    },
+    {
+      "name": "VARNAM",
+      "address": "0x0037",
+      "description": "VARNAM",
+      "type": "constant"
+    },
+    {
+      "name": "VARPTR",
+      "address": "0x0039",
+      "description": "VARPTR",
+      "type": "constant"
+    },
+    {
+      "name": "VARTAB",
+      "address": "0x001B",
+      "description": "VARTAB",
+      "type": "constant"
+    },
+    {
+      "name": "VCB",
+      "address": "0x00CB",
+      "description": "VCB",
+      "type": "constant"
+    },
+    {
+      "name": "VCD",
+      "address": "0x00CD",
+      "description": "VCD",
+      "type": "constant"
+    },
+    {
+      "name": "VCF",
+      "address": "0x00CF",
+      "description": "VCF",
+      "type": "constant"
+    },
+    {
+      "name": "VD1",
+      "address": "0x00D1",
+      "description": "VD1",
+      "type": "constant"
+    },
+    {
+      "name": "VD3",
+      "address": "0x00D3",
+      "description": "VD3",
+      "type": "constant"
+    },
+    {
+      "name": "VD4",
+      "address": "0x00D4",
+      "description": "VD4",
+      "type": "constant"
+    },
+    {
+      "name": "VD5",
+      "address": "0x00D5",
+      "description": "VD5",
+      "type": "constant"
+    },
+    {
+      "name": "VD6",
+      "address": "0x00D6",
+      "description": "VD6",
+      "type": "constant"
+    },
+    {
+      "name": "VD7",
+      "address": "0x00D7",
+      "description": "VD7",
+      "type": "constant"
+    },
+    {
+      "name": "VD8",
+      "address": "0x00D8",
+      "description": "VD8",
+      "type": "constant"
+    },
+    {
+      "name": "VD9",
+      "address": "0x00D9",
+      "description": "VD9",
+      "type": "constant"
+    },
+    {
+      "name": "VDA",
+      "address": "0x00DA",
+      "description": "VDA",
+      "type": "constant"
+    },
+    {
+      "name": "VERBAS",
+      "address": "0x0014",
+      "description": "VERBAS",
+      "type": "constant"
+    },
+    {
+      "name": "VERBEG",
+      "address": "0x00BF",
+      "description": "VERBEG",
+      "type": "constant"
+    },
+    {
+      "name": "VERDEF",
+      "address": "0x00C9",
+      "description": "VERDEF",
+      "type": "constant"
+    },
+    {
+      "name": "VEREND",
+      "address": "0x00C5",
+      "description": "VEREND",
+      "type": "constant"
+    },
+    {
+      "name": "VIDEOMOD",
+      "address": "0xFF98",
+      "description": "VIDEOMOD",
+      "type": "io_port"
+    },
+    {
+      "name": "VIDEORES",
+      "address": "0xFF99",
+      "description": "VIDEORES",
+      "type": "io_port"
+    },
+    {
+      "name": "VIDRAM",
+      "address": "0x0400",
+      "description": "VIDRAM",
+      "type": "data"
+    },
+    {
+      "name": "VOLHI",
+      "address": "0x00DF",
+      "description": "VOLHI",
+      "type": "constant"
+    },
+    {
+      "name": "VOLLOW",
+      "address": "0x00E0",
+      "description": "VOLLOW",
+      "type": "constant"
+    },
+    {
+      "name": "V_BORDER",
+      "address": "0xFF9A",
+      "description": "V_BORDER",
+      "type": "io_port"
+    },
+    {
+      "name": "V_OFSET0",
+      "address": "0xFF9E",
+      "description": "V_OFSET0",
+      "type": "io_port"
+    },
+    {
+      "name": "V_OFSET1",
+      "address": "0xFF9D",
+      "description": "V_OFSET1",
+      "type": "io_port"
+    },
+    {
+      "name": "V_SCROLL",
+      "address": "0xFF9C",
+      "description": "V_SCROLL",
+      "type": "io_port"
+    },
+    {
+      "name": "V_TIMER",
+      "address": "0xFF94",
+      "description": "V_TIMER",
+      "type": "io_port"
+    },
+    {
+      "name": "WCOLOR",
+      "address": "0x00B4",
+      "description": "WCOLOR",
+      "type": "constant"
+    },
+    {
+      "name": "WFATVL",
+      "address": "0x097A",
+      "description": "WFATVL",
+      "type": "data"
+    },
+    {
+      "name": "WRLDR",
+      "address": "0xA7D8",
+      "description": "WRLDR",
+      "type": "routine"
+    },
+    {
+      "name": "WRTLDR",
+      "address": "0xA00C",
+      "description": "WRTLDR",
+      "type": "routine"
+    },
+    {
+      "name": "ZERO",
+      "address": "0x008A",
+      "description": "ZERO",
+      "type": "constant"
+    }
+  ]
+}

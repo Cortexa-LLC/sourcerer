@@ -100,9 +100,8 @@ std::string XrefBuilder::FormatAddressWithLabel(uint32_t address) const {
   }
 
   // Check if this address has a label
-  if (address_map_->HasLabel(address)) {
-    std::string label = address_map_->GetLabel(address);
-    return label;
+  if (auto label = address_map_->GetLabel(address)) {
+    return *label;
   }
 
   // No label, just return address

@@ -61,6 +61,7 @@ bool SymbolTable::LoadFromJson(const std::string& json_content) {
         }
 
         symbol.name = sym.value("name", "");
+        symbol.symbol = sym.value("symbol", symbol.name);  // Default to name if not present
         symbol.description = sym.value("description", "");
         symbol.platform = platform;
 
@@ -68,7 +69,7 @@ bool SymbolTable::LoadFromJson(const std::string& json_content) {
         std::string type_str = sym.value("type", "unknown");
         if (type_str == "io_port") {
           symbol.type = SymbolType::IO_PORT;
-        } else if (type_str == "rom_routine") {
+        } else if (type_str == "rom_routine" || type_str == "routine") {
           symbol.type = SymbolType::ROM_ROUTINE;
         } else if (type_str == "zero_page") {
           symbol.type = SymbolType::ZERO_PAGE;
@@ -110,6 +111,7 @@ void SymbolTable::AddSymbol(uint32_t address, const std::string& name,
   Symbol symbol;
   symbol.address = address;
   symbol.name = name;
+  symbol.symbol = name;  // Default to name
   symbol.type = type;
   symbol.description = description;
   symbol.platform = platform;
@@ -120,20 +122,21 @@ bool SymbolTable::HasSymbol(uint32_t address) const {
   return symbols_.find(address) != symbols_.end();
 }
 
-Symbol SymbolTable::GetSymbol(uint32_t address) const {
+std::optional<Symbol> SymbolTable::GetSymbol(uint32_t address) const {
   auto it = symbols_.find(address);
   if (it != symbols_.end()) {
     return it->second;
   }
-  return Symbol{address, "", SymbolType::UNKNOWN, "", ""};
+  return std::nullopt;
 }
 
-std::string SymbolTable::GetSymbolName(uint32_t address) const {
+std::optional<std::string> SymbolTable::GetSymbolName(uint32_t address) const {
   auto it = symbols_.find(address);
   if (it != symbols_.end()) {
-    return it->second.name;
+    // Return symbol field (assembler-safe name), which defaults to name if not set
+    return it->second.symbol;
   }
-  return "";
+  return std::nullopt;
 }
 
 std::vector<Symbol> SymbolTable::GetSymbolsByPlatform(

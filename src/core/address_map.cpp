@@ -39,12 +39,12 @@ bool AddressMap::HasLabel(uint32_t address) const {
   return labels_.find(address) != labels_.end();
 }
 
-std::string AddressMap::GetLabel(uint32_t address) const {
+std::optional<std::string> AddressMap::GetLabel(uint32_t address) const {
   auto it = labels_.find(address);
   if (it != labels_.end()) {
     return it->second;
   }
-  return "";
+  return std::nullopt;
 }
 
 void AddressMap::SetComment(uint32_t address, const std::string& comment) {
@@ -64,16 +64,29 @@ bool AddressMap::HasComment(uint32_t address) const {
   return comments_.find(address) != comments_.end();
 }
 
-std::string AddressMap::GetComment(uint32_t address) const {
+std::optional<std::string> AddressMap::GetComment(uint32_t address) const {
   auto it = comments_.find(address);
   if (it != comments_.end()) {
     return it->second;
   }
-  return "";
+  return std::nullopt;
 }
 
 void AddressMap::AddXref(uint32_t target, uint32_t source) {
   xrefs_.insert(std::make_pair(target, source));
+}
+
+void AddressMap::RemoveXrefsFrom(uint32_t source) {
+  // Remove all xrefs where this address is the source
+  // xrefs_ is multimap<target, source>, so we need to scan all entries
+  auto it = xrefs_.begin();
+  while (it != xrefs_.end()) {
+    if (it->second == source) {
+      it = xrefs_.erase(it);  // erase returns next valid iterator
+    } else {
+      ++it;
+    }
+  }
 }
 
 std::vector<uint32_t> AddressMap::GetXrefs(uint32_t target) const {

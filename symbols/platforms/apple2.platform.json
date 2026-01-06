@@ -6,8 +6,7 @@
   "version": "1.0",
   
   "symbol_files": [
-    "symbols/apple2_rom.json",
-    "symbols/apple2_zeropage.json"
+    "symbols/apple2e.json"
   ],
   
   "hint_files": [],

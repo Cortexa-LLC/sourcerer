@@ -1,0 +1,193 @@
+{
+  "platform": "coco",
+  "description": "CoCo Hardware I/O Registers with detailed bit definitions",
+  "version": "1.0",
+  "symbols": [
+    {
+      "name": "PIA0_DA",
+      "address": "0xFF00",
+      "description": "PIA0 Data/Direction Register A (Keyboard row select)",
+      "type": "io_port",
+      "bits": {
+        "0-7": "Keyboard row select (output) or DDR"
+      }
+    },
+    {
+      "name": "PIA0_CA",
+      "address": "0xFF01",
+      "description": "PIA0 Control Register A (Keyboard IRQ control)",
+      "type": "io_port",
+      "bits": {
+        "0": "IRQ enable (0=disabled, 1=enabled)",
+        "6": "CA2 control",
+        "7": "IRQ flag (read: 1=IRQ pending, write: ignored)"
+      }
+    },
+    {
+      "name": "PIA0_DB",
+      "address": "0xFF02",
+      "description": "PIA0 Data/Direction Register B (Keyboard columns, comparator, cassette)",
+      "type": "io_port",
+      "bits": {
+        "0-6": "Keyboard column input",
+        "7": "Comparator input / cassette input"
+      }
+    },
+    {
+      "name": "PIA0_CB",
+      "address": "0xFF03",
+      "description": "PIA0 Control Register B (Sound enable, cassette motor)",
+      "type": "io_port",
+      "bits": {
+        "0": "IRQ enable (0=disabled, 1=enabled)",
+        "1": "CB2 direction (cassette motor)",
+        "3": "CB2 output (1=motor on, 0=motor off)",
+        "6": "CB2 control",
+        "7": "IRQ flag"
+      }
+    },
+    {
+      "name": "PIA1_DA",
+      "address": "0xFF20",
+      "description": "PIA1 Data/Direction Register A (6-bit DAC, RS-232)",
+      "type": "io_port",
+      "bits": {
+        "0": "RS-232 output",
+        "1": "RS-232 CTS",
+        "2-7": "6-bit DAC (sound output)"
+      }
+    },
+    {
+      "name": "PIA1_CA",
+      "address": "0xFF21",
+      "description": "PIA1 Control Register A (DAC IRQ control)",
+      "type": "io_port",
+      "bits": {
+        "0": "IRQ enable (HSYNC interrupt)",
+        "6": "CA2 control",
+        "7": "IRQ flag (HSYNC)"
+      }
+    },
+    {
+      "name": "PIA1_DB",
+      "address": "0xFF22",
+      "description": "PIA1 Data/Direction Register B (Printer, VDG mode, RAM size)",
+      "type": "io_port",
+      "bits": {
+        "0": "Printer strobe",
+        "1": "RS-232 input",
+        "2-4": "VDG mode select",
+        "5": "RAM size (0=4K, 1=16K+)",
+        "6": "Single-bit sound",
+        "7": "Cassette comparator"
+      }
+    },
+    {
+      "name": "PIA1_CB",
+      "address": "0xFF23",
+      "description": "PIA1 Control Register B (VDG IRQ control)",
+      "type": "io_port",
+      "bits": {
+        "0": "IRQ enable (VSYNC interrupt)",
+        "6": "CB2 control",
+        "7": "IRQ flag (VSYNC)"
+      }
+    },
+    {
+      "name": "SAM_V0",
+      "address": "0xFFC0",
+      "description": "SAM VDG Display Offset bit 0 (clear)",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_V1",
+      "address": "0xFFC1",
+      "description": "SAM VDG Display Offset bit 0 (set)",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_V2",
+      "address": "0xFFC2",
+      "description": "SAM VDG Display Offset bit 1 (clear)",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F0",
+      "address": "0xFFC6",
+      "description": "SAM Display Offset bit 15 (clear) - F0",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F1",
+      "address": "0xFFC7",
+      "description": "SAM Display Offset bit 15 (set) - F0",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F2",
+      "address": "0xFFC8",
+      "description": "SAM Display Offset bit 16 (clear) - F1",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F3",
+      "address": "0xFFC9",
+      "description": "SAM Display Offset bit 16 (set) - F1",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F4",
+      "address": "0xFFCA",
+      "description": "SAM Display Offset bit 17 (clear) - F2",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F5",
+      "address": "0xFFCB",
+      "description": "SAM Display Offset bit 17 (set) - F2",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_F6",
+      "address": "0xFFCC",
+      "description": "SAM Display Offset bit 18 (clear) - F3",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_P1",
+      "address": "0xFFDE",
+      "description": "SAM Page #1 Select (clear = ROM, set = RAM at $8000-$9FFF)",
+      "type": "io_port"
+    },
+    {
+      "name": "SAM_P1_SET",
+      "address": "0xFFDF",
+      "description": "SAM Page #1 Select (set = RAM at $8000-$9FFF)",
+      "type": "io_port"
+    },
+    {
+      "name": "DSKREG",
+      "address": "0xFF40",
+      "description": "Disk controller command/status register",
+      "type": "io_port"
+    },
+    {
+      "name": "DSKTRK",
+      "address": "0xFF41",
+      "description": "Disk controller track register",
+      "type": "io_port"
+    },
+    {
+      "name": "DSKSEC",
+      "address": "0xFF42",
+      "description": "Disk controller sector register",
+      "type": "io_port"
+    },
+    {
+      "name": "DSKDAT",
+      "address": "0xFF43",
+      "description": "Disk controller data register",
+      "type": "io_port"
+    }
+  ]
+}

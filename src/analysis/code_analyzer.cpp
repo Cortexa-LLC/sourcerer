@@ -77,6 +77,16 @@ void CodeAnalyzer::Analyze(core::AddressMap* address_map) {
   LOG_INFO("  Code bytes: " + std::to_string(code_bytes_));
   LOG_INFO("  Data bytes: " + std::to_string(data_bytes_));
 
+  // Count UNKNOWN bytes
+  uint32_t unknown_bytes = 0;
+  for (uint32_t addr = binary_->load_address();
+       addr < binary_->load_address() + binary_->size(); ++addr) {
+    if (address_map->GetType(addr) == core::AddressType::UNKNOWN) {
+      unknown_bytes++;
+    }
+  }
+  LOG_INFO("  Unknown bytes: " + std::to_string(unknown_bytes));
+
   // Second pass: Reclassify CODE after computed jumps
   LOG_INFO("Running second pass: computed jump cleanup...");
   ReclassifyAfterComputedJumps(address_map);
@@ -355,6 +365,10 @@ uint32_t CodeAnalyzer::FindFirstValidInstruction(uint32_t start_address) const {
       LOG_INFO("Skipped " + std::to_string(offset) +
                " byte(s) of non-code data at start of binary");
     }
+
+    LOG_INFO("FindFirstValidInstruction: start=$" + std::to_string(start_address) +
+              " best=$" + std::to_string(best_addr) + " score=" + std::to_string(best->score));
+
     return best_addr;
   }
 
@@ -1381,25 +1395,16 @@ void CodeAnalyzer::AnalyzeRecursively(uint32_t address,
 
   // Skip if already visited in this recursive pass
   if (visited_recursive_.count(address)) {
-    if (address == 0x7937) {
-      std::cerr << "DEBUG: Skipping $7937 (already visited in pass " << passes_completed_ << ")" << std::endl;
-    }
     return;
   }
 
   // Skip if outside binary bounds
   if (!IsValidAddress(address)) {
-    if (address == 0x7937) {
-      std::cerr << "DEBUG: Skipping $7937 (invalid address in pass " << passes_completed_ << ")" << std::endl;
-    }
     return;
   }
 
   // Skip if already confirmed as DATA
   if (address_map->GetType(address) == core::AddressType::DATA) {
-    if (address == 0x7937) {
-      std::cerr << "DEBUG: Skipping $7937 (marked as DATA in pass " << passes_completed_ << ")" << std::endl;
-    }
     return;
   }
 
@@ -1442,12 +1447,6 @@ void CodeAnalyzer::AnalyzeRecursively(uint32_t address,
       if (!address_map->IsCode(current + i)) {
         address_map->SetType(current + i, core::AddressType::CODE);
         code_bytes_discovered_++;
-
-        // Debug: track $7937
-        if (current + i == 0x7937) {
-          std::cerr << "DEBUG: Marked $7937 as CODE in pass " << passes_completed_
-                    << " inst: " << inst.mnemonic << " at $" << std::hex << current << std::dec << std::endl;
-        }
       }
     }
 
@@ -1469,12 +1468,6 @@ void CodeAnalyzer::AnalyzeRecursively(uint32_t address,
 
     // Handle branches - RECURSIVELY explore both paths
     if (inst.is_branch) {
-      // Debug: track branch at $792D
-      if (current == 0x792D) {
-        std::cerr << "DEBUG: Branch at $792D, target_address=$" << std::hex << inst.target_address
-                  << " in pass " << std::dec << passes_completed_ << std::endl;
-      }
-
       if (inst.target_address != 0) {
         // Add cross-reference
         address_map->AddXref(inst.target_address, current);
@@ -1488,25 +1481,11 @@ void CodeAnalyzer::AnalyzeRecursively(uint32_t address,
           // Resolve the conflict
           should_follow = ResolveMisalignment(inst.target_address, current,
                                              is_unconditional, address_map);
-
-          // Debug: track $7937
-          if (inst.target_address == 0x7937) {
-            std::cerr << "DEBUG: Misalignment at $7937, should_follow=" << should_follow
-                      << " in pass " << passes_completed_ << std::endl;
-          }
         }
 
         // RECURSIVE: Follow branch target if resolved or no conflict
         if (should_follow) {
-          // Debug: track $7937
-          if (inst.target_address == 0x7937) {
-            std::cerr << "DEBUG: Following branch to $7937 from $" << std::hex << current
-                      << " in pass " << std::dec << passes_completed_ << std::endl;
-          }
           AnalyzeRecursively(inst.target_address, address_map, depth + 1);
-        } else if (inst.target_address == 0x7937) {
-          std::cerr << "DEBUG: NOT following branch to $7937 from $" << std::hex << current
-                    << " in pass " << std::dec << passes_completed_ << std::endl;
         }
       }
 
@@ -2511,12 +2490,6 @@ void CodeAnalyzer::InvalidateConflictingInstructions(uint32_t target_address,
     for (size_t i = 0; i < inst.bytes.size(); ++i) {
       uint32_t byte_addr = addr + i;
       address_map->SetType(byte_addr, core::AddressType::DATA);
-
-      // Debug: track $7937
-      if (byte_addr == 0x7937) {
-        std::cerr << "DEBUG: Marked $7937 as DATA (invalidated from $" << std::hex << addr
-                  << ") inst: " << inst.mnemonic << std::dec << std::endl;
-      }
 
       // CRITICAL: Clear visited marker so target address can be re-analyzed
       visited_recursive_.erase(byte_addr);

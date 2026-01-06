@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "output/formatter.h"
+#include "output/address_analyzer.h"
 
 namespace sourcerer {
 namespace output {
@@ -61,7 +62,8 @@ class MerlinFormatter : public Formatter {
                               const std::vector<uint8_t>& bytes,
                               const core::AddressMap* address_map,
                               const core::SymbolTable* symbol_table = nullptr,
-                              const core::Binary* binary = nullptr);
+                              const core::Binary* binary = nullptr,
+                              const AddressAnalyzer* address_analyzer = nullptr);
 
   // Helper: Check if label represents a subroutine (needs separator)
   bool IsSubroutineLabel(const std::string& label) const;

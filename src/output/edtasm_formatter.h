@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Cortexa LLC
 // SPDX-License-Identifier: MIT
 
-#ifndef SOURCERER_OUTPUT_SCMASM_FORMATTER_H_
-#define SOURCERER_OUTPUT_SCMASM_FORMATTER_H_
+#ifndef SOURCERER_OUTPUT_EDTASM_FORMATTER_H_
+#define SOURCERER_OUTPUT_EDTASM_FORMATTER_H_
 
 #include <memory>
 #include <string>
@@ -13,15 +13,15 @@
 namespace sourcerer {
 namespace output {
 
-// SCMASM 3.1 assembler syntax formatter
-// Based on vasm-ext/syntax/scmasm documentation
-class ScmasmFormatter : public Formatter {
+// EDTASM+ assembler syntax formatter for 6809
+// Based on Radio Shack Color Computer Disk EDTASM+ assembler
+class EdtasmFormatter : public Formatter {
  public:
-  ScmasmFormatter() = default;
-  ~ScmasmFormatter() override = default;
+  EdtasmFormatter() = default;
+  ~EdtasmFormatter() override = default;
 
   // Formatter interface
-  std::string Name() const override { return "SCMASM"; }
+  std::string Name() const override { return "EDTASM+"; }
 
   std::string Format(const core::Binary& binary,
                     const std::vector<core::Instruction>& instructions,
@@ -43,31 +43,14 @@ class ScmasmFormatter : public Formatter {
   std::string FormatFooter() override;
 
  private:
-  // Helper: Format a data region (detects strings vs binary)
-  std::string FormatDataRegion(uint32_t address,
-                              const std::vector<uint8_t>& bytes,
-                              const core::AddressMap* address_map,
-                              const core::SymbolTable* symbol_table = nullptr,
-                              const core::Binary* binary = nullptr);
-
-  // Column positions for SCMASM format
+  // Column positions for EDTASM+ format
   static constexpr int LABEL_COL = 0;
   static constexpr int OPCODE_COL = 9;
-  static constexpr int OPERAND_COL = 14;
+  static constexpr int OPERAND_COL = 15;
   static constexpr int COMMENT_COL = 40;
-
-  // Line numbering for SCMASM format
-  static constexpr int LINE_NUMBER_START = 1000;
-  static constexpr int LINE_NUMBER_INCREMENT = 10;
 
   // Helper: Format address as hex string
   std::string FormatAddress(uint32_t address, int width = 4) const;
-
-  // Helper: Format line number (e.g., "1000 ")
-  std::string FormatLineNumber(int line_num) const;
-
-  // Helper: Add line numbers to all lines in the output
-  std::string AddLineNumbers(const std::string& text) const;
 
   // Helper: Format label for address
   std::string GetLabel(uint32_t address,
@@ -78,12 +61,33 @@ class ScmasmFormatter : public Formatter {
 
   // Helper: Generate contextual comment for branch instructions
   std::string GenerateBranchComment(const std::string& mnemonic) const;
+
+  // Helper: Generate semantic comment for instruction
+  std::string GenerateSemanticComment(
+      const core::Instruction& inst,
+      const core::SymbolTable* symbol_table) const;
+
+  // Helper: Check if operand references platform-specific hardware
+  std::string GetPlatformHint(const std::string& operand,
+                              const core::SymbolTable* symbol_table) const;
+
+  // Helper: Detect register type from symbol name
+  bool IsPlatformRegister(const std::string& symbol) const;
+
+  // NEW: Data output helpers
+  bool IsStringData(const uint8_t* data, size_t size) const;
+  std::string FormatStringData(uint32_t address, const uint8_t* data, size_t size,
+                               const core::AddressMap* address_map) const;
+  std::string FormatBinaryData(uint32_t address, const uint8_t* data, size_t size,
+                               const core::AddressMap* address_map) const;
+  std::string FormatWordData(uint32_t address, const uint8_t* data, size_t size,
+                             const core::AddressMap* address_map) const;
 };
 
 // Factory function
-std::unique_ptr<Formatter> CreateScmasmFormatter();
+std::unique_ptr<Formatter> CreateEdtasmFormatter();
 
 }  // namespace output
 }  // namespace sourcerer
 
-#endif  // SOURCERER_OUTPUT_SCMASM_FORMATTER_H_
+#endif  // SOURCERER_OUTPUT_EDTASM_FORMATTER_H_

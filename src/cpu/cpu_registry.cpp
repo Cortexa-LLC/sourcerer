@@ -4,6 +4,7 @@
 #include "cpu/cpu_registry.h"
 
 #include "cpu/m6502/cpu_6502.h"
+#include "cpu/m6809/cpu_6809.h"
 #include "utils/logger.h"
 
 namespace sourcerer {
@@ -23,6 +24,10 @@ void CpuRegistry::RegisterBuiltinCpus() {
   Register("6502", &m6502::Create6502Plugin);
   Register("65c02", &m6502::Create65C02Plugin);
   LOG_INFO("Registered 6502 family CPU plugins");
+
+  // Register 6809 plugin
+  Register("6809", &m6809::Create6809Plugin);
+  LOG_INFO("Registered 6809 CPU plugin");
 }
 
 void CpuRegistry::Register(const std::string& name, CpuPluginFactory factory) {

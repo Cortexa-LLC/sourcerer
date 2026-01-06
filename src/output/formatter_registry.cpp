@@ -5,6 +5,7 @@
 
 #include "output/merlin_formatter.h"
 #include "output/scmasm_formatter.h"
+#include "output/edtasm_formatter.h"
 #include "utils/logger.h"
 
 namespace sourcerer {
@@ -25,6 +26,9 @@ void FormatterRegistry::RegisterBuiltinFormatters() {
 
   // Register SCMASM formatter
   Register("scmasm", &CreateScmasmFormatter);
+
+  // Register EDTASM+ formatter
+  Register("edtasm", &CreateEdtasmFormatter);
 
   LOG_INFO("Registered output formatters");
 }

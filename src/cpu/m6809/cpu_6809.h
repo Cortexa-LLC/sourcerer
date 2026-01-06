@@ -1,30 +1,32 @@
 // Copyright (c) 2025 Cortexa LLC
 // SPDX-License-Identifier: MIT
 
-#ifndef SOURCERER_CPU_M6502_CPU_6502_H_
-#define SOURCERER_CPU_M6502_CPU_6502_H_
+#ifndef SOURCERER_CPU_M6809_CPU_6809_H_
+#define SOURCERER_CPU_M6809_CPU_6809_H_
 
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "cpu/cpu_plugin.h"
+#include "core/instruction.h"
 
 namespace sourcerer {
 namespace cpu {
-namespace m6502 {
+namespace m6809 {
 
-// 6502 family CPU plugin
-// Supports: 6502, 65C02, (65816 in Phase 11)
-class Cpu6502 : public CpuPlugin {
+// 6809 CPU plugin
+class Cpu6809 : public CpuPlugin {
  public:
-  explicit Cpu6502(CpuVariant variant = CpuVariant::MOS_6502);
-  ~Cpu6502() override = default;
+  Cpu6809();
+  ~Cpu6809() override = default;
 
-  // CpuPlugin interface implementation
-  std::string Name() const override;
-  std::vector<std::string> Aliases() const override;
-  CpuVariant GetVariant() const override { return variant_; }
+  // CpuPlugin interface
+  std::string Name() const override { return "6809"; }
+  std::vector<std::string> Aliases() const override {
+    return {"6809", "motorola6809", "m6809"};
+  }
+  CpuVariant GetVariant() const override { return CpuVariant::MOTOROLA_6809; }
 
   core::Instruction Disassemble(const uint8_t* data, size_t size,
                                 uint32_t address) const override;
@@ -32,7 +34,6 @@ class Cpu6502 : public CpuPlugin {
   size_t GetInstructionSize(const uint8_t* data, size_t size,
                             uint32_t address) override;
 
-  bool Supports16Bit() const override { return false; }  // True for 65816
   uint32_t MaxAddress() const override { return 0xFFFF; }
   uint32_t AddressMask() const override { return 0xFFFF; }
 
@@ -47,26 +48,25 @@ class Cpu6502 : public CpuPlugin {
                    size_t scan_length = 16) const override;
 
  private:
-  CpuVariant variant_;
-  bool allow_illegal_;
-
   // Format operand string based on addressing mode
-  std::string FormatOperand(core::AddressingMode mode,
-                           const uint8_t* data,
-                           size_t size,
-                           uint32_t address,
-                           uint32_t* target_address) const;
+  std::string FormatOperand(core::AddressingMode mode, const uint8_t* data,
+                           size_t size, uint32_t address,
+                           uint32_t* target_address, size_t* extra_bytes,
+                           bool* success, size_t opcode_length) const;
 
-  // Helper to read 16-bit value (little-endian)
+  // Read 16-bit value (big-endian)
   uint16_t Read16(const uint8_t* data, size_t offset) const;
+
+  // Decode TFR/EXG register pair post-byte
+  // Sets *valid = false if register codes are invalid
+  std::string DecodeRegisterPair(uint8_t post_byte, bool* valid) const;
 };
 
-// Factory functions
-std::unique_ptr<CpuPlugin> Create6502Plugin();
-std::unique_ptr<CpuPlugin> Create65C02Plugin();
+// Factory function
+std::unique_ptr<CpuPlugin> Create6809Plugin();
 
-}  // namespace m6502
+}  // namespace m6809
 }  // namespace cpu
 }  // namespace sourcerer
 
-#endif  // SOURCERER_CPU_M6502_CPU_6502_H_
+#endif  // SOURCERER_CPU_M6809_CPU_6809_H_

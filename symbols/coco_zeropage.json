@@ -1,0 +1,134 @@
+{
+  "platform": "coco",
+  "description": "CoCo hardware and constants - zero page variables",
+  "version": "1.0",
+  "symbols": [
+    {
+      "name": "APOSTROPHE",
+      "address": "0x0027",
+      "description": "APOSTROPHE",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "BS",
+      "address": "0x0008",
+      "description": "BACKSPACE",
+      "type": "constant"
+    },
+    {
+      "name": "CR",
+      "address": "0x000D",
+      "description": "ENTER KEY",
+      "type": "constant"
+    },
+    {
+      "name": "ESC",
+      "address": "0x001B",
+      "description": "ESCAPE CODE",
+      "type": "constant"
+    },
+    {
+      "name": "LF",
+      "address": "0x000A",
+      "description": "LINE FEED",
+      "type": "constant"
+    },
+    {
+      "name": "FORMF",
+      "address": "0x000C",
+      "description": "FORM FEED",
+      "type": "constant"
+    },
+    {
+      "name": "SPACE",
+      "address": "0x0020",
+      "description": "SPACE (BLANK)",
+      "type": "constant"
+    },
+    {
+      "name": "STKBUF",
+      "address": "0x003A",
+      "description": "STACK BUFFER ROOM",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "LBUFMX",
+      "address": "0x00FA",
+      "description": "MAX NUMBER OF CHARS IN A BASIC LINE",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "MAXLIN",
+      "address": "0x00FA",
+      "description": "MAXIMUM MS BYTE OF LINE NUMBER",
+      "type": "constant"
+    },
+    {
+      "name": "DIRLEN",
+      "address": "0x0020",
+      "description": "NUMBER OF BYTES IN DIRECTORY ENTRY",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "SECMAX",
+      "address": "0x0012",
+      "description": "MAXIMUM NUMBER OF SECTORS PER TRACK",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "TRKMAX",
+      "address": "0x0023",
+      "description": "MAX NUMBER OF TRACKS",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "FATLEN",
+      "address": "0x0006",
+      "description": "+(TRKMAX-1)*2  ; FILE ALLOCATION TABLE LENGTH",
+      "type": "constant",
+      "is_constant": true
+    },
+    {
+      "name": "INPFIL",
+      "address": "0x0010",
+      "description": "INPUT FILE TYPE",
+      "type": "constant"
+    },
+    {
+      "name": "OUTFIL",
+      "address": "0x0020",
+      "description": "OUTPUT FILE TYPE",
+      "type": "constant"
+    },
+    {
+      "name": "RANFIL",
+      "address": "0x0040",
+      "description": "RANDOM/DIRECT FILE TYPE",
+      "type": "constant"
+    },
+    {
+      "name": "SKP1",
+      "address": "0x0021",
+      "description": "OP CODE OF BRN SKIP ONE BYTE",
+      "type": "constant"
+    },
+    {
+      "name": "SKP2",
+      "address": "0x008C",
+      "description": "OP CODE OF CMPX # - SKIP TWO BYTES",
+      "type": "constant"
+    },
+    {
+      "name": "SKP1LD",
+      "address": "0x0086",
+      "description": "OP CODE OF LDA # - SKIP THE NEXT BYTE",
+      "type": "constant"
+    }
+  ]
+}

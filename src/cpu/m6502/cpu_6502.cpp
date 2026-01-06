@@ -43,7 +43,7 @@ std::vector<std::string> Cpu6502::Aliases() const {
 }
 
 core::Instruction Cpu6502::Disassemble(const uint8_t* data, size_t size,
-                                       uint32_t address) {
+                                       uint32_t address) const {
   core::Instruction inst;
   inst.address = address;
 
@@ -101,7 +101,7 @@ std::string Cpu6502::FormatOperand(core::AddressingMode mode,
                                    const uint8_t* data,
                                    size_t size,
                                    uint32_t address,
-                                   uint32_t* target_address) {
+                                   uint32_t* target_address) const {
   std::ostringstream oss;
   *target_address = 0;
 
@@ -213,6 +213,118 @@ std::string Cpu6502::FormatOperand(core::AddressingMode mode,
 
 uint16_t Cpu6502::Read16(const uint8_t* data, size_t offset) const {
   return data[offset] | (data[offset + 1] << 8);
+}
+
+// CPU-specific analysis methods (SOLID architecture)
+AnalysisCapabilities Cpu6502::GetAnalysisCapabilities() const {
+  AnalysisCapabilities caps;
+  caps.has_interrupt_vectors = true;
+  caps.has_subroutines = true;
+  caps.code_alignment = 1;  // Byte-aligned
+  return caps;
+}
+
+std::vector<InterruptVector> Cpu6502::GetInterruptVectors() const {
+  // 6502 has 3 interrupt vectors at top of memory
+  return {
+    {0xFFFA, "NMI"},
+    {0xFFFC, "RESET"},
+    {0xFFFE, "IRQ/BRK"}
+  };
+}
+
+uint32_t Cpu6502::ReadVectorTarget(const uint8_t* data, size_t size,
+                                   uint32_t vector_address) const {
+  // Need 2 bytes for vector (little-endian 16-bit address)
+  if (size < 2) return 0;
+  if (vector_address > size - 2) return 0;
+
+  // 6502 is little-endian
+  uint16_t target = data[vector_address] |
+                   (static_cast<uint16_t>(data[vector_address + 1]) << 8);
+  return target;
+}
+
+bool Cpu6502::LooksLikeSubroutineStart(const uint8_t* data, size_t size,
+                                       uint32_t address) const {
+  if (size < 8) return false;  // Need at least a few bytes
+
+  try {
+    int inst_count = 0;
+    const int MAX_SCAN = 8;
+    size_t offset = 0;
+
+    // Look for common 6502 subroutine patterns
+    while (inst_count < MAX_SCAN && offset < size && offset < 32) {
+      core::Instruction inst = Disassemble(data + offset, size - offset,
+                                          address + offset);
+
+      // Illegal opcodes suggest data
+      if (inst.is_illegal || inst.bytes.empty()) return false;
+
+      // PHP or PHA at start is strong indicator of subroutine entry
+      if (inst_count == 0 && (inst.mnemonic == "PHP" || inst.mnemonic == "PHA")) {
+        return true;
+      }
+
+      // Common register operations at function start
+      if (inst.mnemonic == "PHP" || inst.mnemonic == "PHA" ||
+          inst.mnemonic == "PLA" || inst.mnemonic == "PLP" ||
+          inst.mnemonic == "LDA" || inst.mnemonic == "LDX" ||
+          inst.mnemonic == "LDY" || inst.mnemonic == "STA" ||
+          inst.mnemonic == "STX" || inst.mnemonic == "STY" ||
+          inst.mnemonic == "TAX" || inst.mnemonic == "TAY" ||
+          inst.mnemonic == "TXA" || inst.mnemonic == "TYA") {
+        // Valid instruction, continue
+      }
+
+      // Early return suggests not a typical subroutine
+      if (inst_count < 3 && inst.is_return) return false;
+
+      // Too many branches early suggests jump table/data
+      if (inst.is_branch && inst_count < 2) return false;
+
+      offset += inst.bytes.size();
+      inst_count++;
+    }
+
+    // Successfully scanned several valid instructions
+    return inst_count >= 4;
+
+  } catch (...) {
+    return false;
+  }
+}
+
+bool Cpu6502::IsLikelyCode(const uint8_t* data, size_t size, uint32_t address,
+                          size_t scan_length) const {
+  if (size == 0) return false;
+
+  try {
+    int valid_instructions = 0;
+    int illegal_count = 0;
+    size_t bytes_scanned = 0;
+
+    while (bytes_scanned < scan_length && bytes_scanned < size) {
+      core::Instruction inst = Disassemble(data + bytes_scanned,
+                                          size - bytes_scanned,
+                                          address + bytes_scanned);
+
+      if (inst.is_illegal || inst.bytes.empty()) {
+        illegal_count++;
+        if (illegal_count > 2) return false;  // Too many illegal opcodes
+        bytes_scanned++;  // Skip this byte
+      } else {
+        valid_instructions++;
+        bytes_scanned += inst.bytes.size();
+      }
+    }
+
+    return valid_instructions >= 3 && illegal_count == 0;
+
+  } catch (...) {
+    return false;
+  }
 }
 
 std::unique_ptr<CpuPlugin> Create6502Plugin() {

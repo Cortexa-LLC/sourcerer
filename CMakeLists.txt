@@ -73,6 +73,9 @@ add_library(cpu_plugins
     src/cpu/cpu_registry.cpp
     src/cpu/m6502/cpu_6502.cpp
     src/cpu/m6502/opcodes_6502.cpp
+    src/cpu/m6809/cpu_6809.cpp
+    src/cpu/m6809/opcodes_6809.cpp
+    src/cpu/m6809/indexed_mode.cpp
 )
 target_link_libraries(cpu_plugins PUBLIC sourcerer_core)
 
@@ -80,6 +83,7 @@ target_link_libraries(cpu_plugins PUBLIC sourcerer_core)
 add_library(disk_extractors
     src/disk/disk_registry.cpp
     src/disk/acx_extractor.cpp
+    src/disk/coco_extractor.cpp
     src/disk/raw_file.cpp
 )
 target_link_libraries(disk_extractors PUBLIC sourcerer_core)
@@ -87,18 +91,24 @@ target_link_libraries(disk_extractors PUBLIC sourcerer_core)
 # Output formatters
 add_library(formatters
     src/output/formatter_registry.cpp
+    src/output/data_collector.cpp
+    src/output/address_analyzer.cpp
+    src/output/label_resolver.cpp
     src/output/merlin_formatter.cpp
     src/output/scmasm_formatter.cpp
+    src/output/edtasm_formatter.cpp
 )
 target_link_libraries(formatters PUBLIC sourcerer_core)
 
 # Analysis modules
 add_library(analysis
     src/analysis/code_analyzer.cpp
+    src/analysis/execution_simulator.cpp
     src/analysis/label_generator.cpp
     src/analysis/xref_builder.cpp
     src/analysis/hints_parser.cpp
     src/analysis/equate_generator.cpp
+    src/analysis/pattern_detector.cpp
 )
 target_link_libraries(analysis PUBLIC
     sourcerer_core

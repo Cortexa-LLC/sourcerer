@@ -3,11 +3,16 @@
 
 #include "output/merlin_formatter.h"
 
+#include <chrono>
+#include <ctime>
 #include <iomanip>
 #include <sstream>
 #include <regex>
 
 #include "analysis/equate_generator.h"
+#include "output/data_collector.h"
+#include "output/address_analyzer.h"
+#include "output/label_resolver.h"
 #include "utils/logger.h"
 
 namespace sourcerer {
@@ -22,49 +27,27 @@ std::string MerlinFormatter::Format(
 
   std::ostringstream out;
 
+  // Create components for this formatting session
+  DataCollector data_collector(&binary);
+  AddressAnalyzer address_analyzer(&binary, address_map);
+  LabelResolver label_resolver(address_map, symbol_table);
+
   // Header
   out << FormatHeader(binary);
 
   // Collect all referenced addresses from instructions and data
-  std::set<uint32_t> referenced_addresses;
-  for (const auto& inst : instructions) {
-    if (inst.target_address != 0) {
-      referenced_addresses.insert(inst.target_address);
-    }
-  }
-
-  // Scan data regions for address tables
-  uint32_t scan_addr = binary.load_address();
-  uint32_t scan_end = scan_addr + binary.size();
-  while (scan_addr < scan_end) {
-    if (address_map && address_map->GetType(scan_addr) == core::AddressType::DATA) {
-      // Check if this looks like an address pair
-      const uint8_t* lo = binary.GetPointer(scan_addr);
-      const uint8_t* hi = binary.GetPointer(scan_addr + 1);
-      if (lo && hi) {
-        uint16_t potential_addr = (*lo) | ((*hi) << 8);
-        // If it looks like a valid address, add it
-        if (potential_addr >= 0x0800 || potential_addr < 0x0100) {
-          referenced_addresses.insert(potential_addr);
-        }
-      }
-      scan_addr++;
-    } else {
-      scan_addr++;
-    }
-  }
+  auto referenced_addresses = address_analyzer.CollectReferencedAddresses(instructions);
 
   // Output EQU statements for platform symbols that are referenced
   if (symbol_table) {
     std::set<std::string> output_symbols;  // Track to avoid duplicates
     for (uint32_t ref_addr : referenced_addresses) {
-      if (symbol_table->HasSymbol(ref_addr)) {
-        std::string symbol_name = symbol_table->GetSymbolName(ref_addr);
-        if (output_symbols.find(symbol_name) == output_symbols.end()) {
-          out << symbol_name;
-          out << std::string(std::max(1, OPCODE_COL - static_cast<int>(symbol_name.length())), ' ');
+      if (auto symbol_name = symbol_table->GetSymbolName(ref_addr)) {
+        if (output_symbols.find(*symbol_name) == output_symbols.end()) {
+          out << *symbol_name;
+          out << std::string(std::max(1, OPCODE_COL - static_cast<int>(symbol_name->length())), ' ');
           out << "EQU   $" << FormatAddress(ref_addr, 4) << std::endl;
-          output_symbols.insert(symbol_name);
+          output_symbols.insert(*symbol_name);
         }
       }
     }
@@ -119,10 +102,11 @@ std::string MerlinFormatter::Format(
     // Check if we have an instruction at this address
     if (inst_map.count(addr) > 0) {
       // Check if this instruction has a subroutine label - add separator if so
-      if (address_map && address_map->HasLabel(addr)) {
-        std::string label = address_map->GetLabel(addr);
-        if (IsSubroutineLabel(label)) {
-          out << "*-------------------------------" << std::endl;
+      if (address_map) {
+        if (auto label = address_map->GetLabel(addr)) {
+          if (IsSubroutineLabel(*label)) {
+            out << "*-------------------------------" << std::endl;
+          }
         }
       }
 
@@ -136,69 +120,66 @@ std::string MerlinFormatter::Format(
       uint32_t data_start = addr;
 
       // Check if next few bytes look like a string
-      bool looks_like_string = false;
-      if (addr + 3 < end_addr && address_map) {
-        int printable_count = 0;
-        for (int i = 0; i < 4 && addr + i < end_addr; ++i) {
-          const uint8_t* byte = binary.GetPointer(addr + i);
-          if (byte && ((*byte & 0x7F) >= 0x20 && (*byte & 0x7F) < 0x7F)) {
-            printable_count++;
-          }
-        }
-        looks_like_string = (printable_count >= 3);
-      }
+      auto string_detection = data_collector.DetectString(addr, end_addr, 4);
+      bool looks_like_string = string_detection.looks_like_string;
 
       if (looks_like_string && address_map) {
         // Collect string data
-        while (addr < end_addr &&
-               address_map->GetType(addr) != core::AddressType::CODE &&
-               address_map->GetType(addr) != core::AddressType::UNKNOWN) {
-          const uint8_t* byte = binary.GetPointer(addr);
-          if (!byte) break;
-
-          uint8_t b = *byte;
-          // Stop at null terminator (don't include it in the string)
-          if (b == 0x00) {
-            addr++;  // Skip the null terminator
-            break;
-          }
-          // Stop if not printable (except CR)
-          if (!((b & 0x7F) >= 0x20 && (b & 0x7F) < 0x7F) && b != 0x8D) {
-            break;
-          }
-
-          data_bytes.push_back(b);
-          addr++;
-
-          // Limit string length
-          if (data_bytes.size() >= 128) break;
-        }
-      } else {
-        // Collect binary data (max 8 bytes)
-        while (addr < end_addr &&
-               (!address_map ||
-                (address_map->GetType(addr) != core::AddressType::CODE &&
-                 address_map->GetType(addr) != core::AddressType::UNKNOWN)) &&
-               data_bytes.size() < 8) {
-          const uint8_t* byte = binary.GetPointer(addr);
-          if (byte) {
-            data_bytes.push_back(*byte);
-          }
-          addr++;
-        }
+        auto string_result = data_collector.CollectStringData(addr, end_addr, address_map, 128);
+        data_bytes = string_result.bytes;
+        addr = string_result.next_address;
       }
 
-      // Format data region
+      // Fall back to binary data collection if string collection failed
+      if (data_bytes.empty()) {
+        auto binary_result = data_collector.CollectBinaryData(data_start, end_addr, address_map, 8);
+        data_bytes = binary_result.bytes;
+        addr = binary_result.next_address;
+      }
+
+      // Format data region (includes UNKNOWN as FCB)
       if (!data_bytes.empty()) {
-        out << FormatDataRegion(data_start, data_bytes, address_map, symbol_table, &binary)
+        out << FormatDataRegion(data_start, data_bytes, address_map, symbol_table, &binary, &address_analyzer)
             << std::endl;
       } else {
-        // No data collected (e.g., UNKNOWN type), skip this byte
+        // Should not happen anymore since we collect UNKNOWN too
         addr++;
       }
     } else {
-      // address_map says CODE but no instruction - skip this byte
-      addr++;
+      // address_map says CODE but no instruction at this address
+      // This can happen for orphaned CODE bytes or mid-instruction bytes
+      // Output as FCB/HEX data to ensure complete coverage
+      std::vector<uint8_t> orphan_bytes;
+      uint32_t orphan_start = addr;
+
+      while (addr < end_addr && inst_map.count(addr) == 0 &&
+             orphan_bytes.size() < 8) {
+        // Only collect if it's actually CODE (or no address_map)
+        if (address_map && address_map->GetType(addr) != core::AddressType::CODE) {
+          break;  // Hit a DATA/UNKNOWN byte, stop collecting
+        }
+        // Stop if this address has a label (it needs its own output line)
+        if (addr != orphan_start && address_map && address_map->HasLabel(addr)) {
+          break;
+        }
+        const uint8_t* byte = binary.GetPointer(addr);
+        if (byte) {
+          orphan_bytes.push_back(*byte);
+        }
+        addr++;
+      }
+
+      if (!orphan_bytes.empty()) {
+        // Output label if present (on its own line)
+        if (address_map) {
+          if (auto label = address_map->GetLabel(orphan_start)) {
+            out << *label << std::endl;
+          }
+        }
+        // Don't pass address_map to FormatDataRegion to avoid duplicate label output
+        out << FormatDataRegion(orphan_start, orphan_bytes, nullptr, symbol_table, &binary, &address_analyzer)
+            << std::endl;
+      }
     }
   }
 
@@ -208,19 +189,6 @@ std::string MerlinFormatter::Format(
   return out.str();
 }
 
-// Helper: Extract address from operand string
-// Handles formats like "$C000", "#$FF", "($FDED)", "($40),Y", etc.
-static uint32_t ExtractAddressFromOperand(const std::string& operand) {
-  // Use regex to find hex addresses in various formats
-  std::regex hex_regex(R"(\$([0-9A-Fa-f]+))");
-  std::smatch match;
-  
-  if (std::regex_search(operand, match, hex_regex)) {
-    return std::stoul(match[1].str(), nullptr, 16);
-  }
-  
-  return 0xFFFFFFFF;  // Invalid address
-}
 
 // Helper: Replace address in operand with symbol name
 static std::string SubstituteSymbol(const std::string& operand,
@@ -298,30 +266,34 @@ std::string MerlinFormatter::FormatInstruction(
       }
     }
 
-    uint32_t addr = ExtractAddressFromOperand(operand);
+    uint32_t addr = LabelResolver::ExtractAddressFromOperand(operand);
 
     // Priority 1: Try symbol table first (explicit user-provided symbols)
     if (!substituted && symbol_table && addr != 0xFFFFFFFF) {
-      if (symbol_table->HasSymbol(addr)) {
-        operand = SubstituteSymbol(operand, addr,
-                                    symbol_table->GetSymbolName(addr));
+      if (auto symbol_name = symbol_table->GetSymbolName(addr)) {
+        operand = SubstituteSymbol(operand, addr, *symbol_name);
         substituted = true;
       }
     }
 
     // Priority 2: Check address map for generated labels
+    // Only substitute if the address has an instruction or is at a valid boundary
     if (!substituted && address_map && addr != 0xFFFFFFFF) {
-      if (address_map->HasLabel(addr)) {
-        operand = SubstituteSymbol(operand, addr,
-                                    address_map->GetLabel(addr));
-        substituted = true;
+      if (auto label = address_map->GetLabel(addr)) {
+        if (address_map->IsCode(addr) || address_map->IsData(addr)) {
+          operand = SubstituteSymbol(operand, addr, *label);
+          substituted = true;
+        }
       }
     }
 
     // Priority 3: For branch/jump instructions, use target_address from address_map
+    // Only substitute if the target address has an instruction or is at a valid boundary
     if (!substituted && address_map && inst.target_address != 0) {
-      if (address_map->HasLabel(inst.target_address)) {
-        operand = address_map->GetLabel(inst.target_address);
+      if (auto label = address_map->GetLabel(inst.target_address)) {
+        if (address_map->IsCode(inst.target_address) || address_map->IsData(inst.target_address)) {
+          operand = *label;
+        }
       }
     }
 
@@ -339,19 +311,34 @@ std::string MerlinFormatter::FormatInstruction(
     out << std::string(COMMENT_COL - line_length, ' ');
 
     // Check for user comment from AddressMap
-    if (address_map && address_map->HasComment(inst.address)) {
-      out << "; " << address_map->GetComment(inst.address);
-    } else if (inst.is_branch) {
-      // Add contextual branch comment
-      std::string branch_comment = GenerateBranchComment(inst.mnemonic);
-      if (!branch_comment.empty()) {
-        out << "; " << branch_comment;
-      } else {
-        out << "; $" << FormatAddress(inst.address, 4);
+    bool has_comment = false;
+    if (address_map) {
+      if (auto comment = address_map->GetComment(inst.address)) {
+        out << "; " << *comment;
+        has_comment = true;
       }
-    } else {
-      // Default comment shows address
-      out << "; $" << FormatAddress(inst.address, 4);
+    }
+
+    // Check for ROM routine description for JSR/LBSR/BSR
+    if (!has_comment && inst.is_call && inst.target_address != 0 && symbol_table) {
+      if (auto symbol = symbol_table->GetSymbol(inst.target_address)) {
+        if (!symbol->description.empty() && symbol->type == core::SymbolType::ROM_ROUTINE) {
+          out << "; " << symbol->description;
+          has_comment = true;
+        }
+      }
+    }
+
+    if (!has_comment) {
+      if (inst.is_branch) {
+        // Add contextual branch comment
+        std::string branch_comment = GenerateBranchComment(inst.mnemonic);
+        if (!branch_comment.empty()) {
+          out << "; " << branch_comment;
+        }
+        // No else - don't add useless address comments
+      }
+      // No default address comment - only meaningful comments
     }
   }
 
@@ -376,12 +363,6 @@ std::string MerlinFormatter::FormatData(uint32_t address,
   return out.str();
 }
 
-// Helper: Check if byte is printable ASCII (including high-bit set)
-static bool IsPrintable(uint8_t byte) {
-  uint8_t low = byte & 0x7F;  // Strip high bit
-  return low >= 0x20 && low < 0x7F;
-}
-
 // Helper: Find embedded string within data bytes
 // Returns the start index of a string (at least 4 printable chars), or -1 if none found
 static int FindEmbeddedString(const std::vector<uint8_t>& bytes, size_t start_offset = 0) {
@@ -389,7 +370,7 @@ static int FindEmbeddedString(const std::vector<uint8_t>& bytes, size_t start_of
     // Count consecutive printable characters from this position
     size_t printable_count = 0;
     for (size_t j = i; j < bytes.size() && printable_count < 4; ++j) {
-      if (IsPrintable(bytes[j]) || bytes[j] == 0x8D) {  // Allow CR
+      if (DataCollector::IsPrintable(bytes[j]) || bytes[j] == 0x8D) {  // Allow CR
         printable_count++;
       } else {
         break;
@@ -404,61 +385,13 @@ static int FindEmbeddedString(const std::vector<uint8_t>& bytes, size_t start_of
   return -1;
 }
 
-// Helper: Check if a single 16-bit value looks like an address
-static bool LooksLikeAddress(uint16_t addr,
-                              const core::AddressMap* address_map = nullptr,
-                              const core::Binary* binary = nullptr) {
-  // Priority 1: If we have address_map, check if this address points to CODE or has a label
-  if (address_map) {
-    if (address_map->IsCode(addr) || address_map->HasLabel(addr)) {
-      return true;
-    }
-  }
 
-  // Priority 2: If we have binary info, check if address is within binary range
-  if (binary && binary->IsValidAddress(addr)) {
-    return true;
-  }
-
-  // Priority 3: Check if address is in common ranges
-  // Zero page: $0000-$00FF
-  // User RAM: $0800-$BFFF (Apple II)
-  // ROM: $C000-$FFFF
-  return (addr < 0x0100 || (addr >= 0x0800 && addr <= 0xBFFF) || addr >= 0xC000);
-}
-
-// Helper: Find how many consecutive address pairs we have
-// Returns the number of bytes that form a valid address table (must be even)
-static size_t FindAddressTableLength(const std::vector<uint8_t>& bytes,
-                                      const core::AddressMap* address_map = nullptr,
-                                      const core::Binary* binary = nullptr) {
-  if (bytes.size() < 4) {
-    return 0;  // Need at least 2 addresses (4 bytes)
-  }
-
-  size_t valid_length = 0;
-
-  // Check each pair of bytes as a potential address
-  for (size_t i = 0; i + 1 < bytes.size(); i += 2) {
-    uint16_t addr = bytes[i] | (bytes[i + 1] << 8);
-
-    if (LooksLikeAddress(addr, address_map, binary)) {
-      valid_length += 2;
-    } else {
-      // Stop at first non-address pair
-      break;
-    }
-  }
-
-  // Only consider it a table if we have at least 2 valid addresses (4 bytes)
-  return (valid_length >= 4) ? valid_length : 0;
-}
 
 // Helper: Check if data looks like an address table
 static bool LooksLikeAddressTable(const std::vector<uint8_t>& bytes,
-                                   const core::AddressMap* address_map = nullptr,
-                                   const core::Binary* binary = nullptr) {
-  size_t table_length = FindAddressTableLength(bytes, address_map, binary);
+                                   const AddressAnalyzer* address_analyzer) {
+  auto table_info = address_analyzer->FindAddressTableLengthAndOffset(bytes);
+  size_t table_length = table_info.length;
   // Consider it a table if at least half the data forms valid addresses
   // and we have at least 4 bytes (2 addresses)
   if (table_length < 4 || table_length < bytes.size() / 2) {
@@ -473,7 +406,7 @@ static bool LooksLikeAddressTable(const std::vector<uint8_t>& bytes,
     if ((bytes[i] & 0x80) == 0) {
       all_high_bit = false;
     }
-    if (!IsPrintable(bytes[i])) {
+    if (!DataCollector::IsPrintable(bytes[i])) {
       all_printable = false;
     }
   }
@@ -491,14 +424,24 @@ std::string MerlinFormatter::FormatDataRegion(
     const std::vector<uint8_t>& bytes,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const core::Binary* binary) {
+    const core::Binary* binary,
+    const AddressAnalyzer* address_analyzer) {
 
   std::ostringstream out;
 
   // Add label if this address has one
-  if (address_map && address_map->HasLabel(address)) {
-    std::string label = address_map->GetLabel(address);
-    out << label << std::string(OPCODE_COL - label.length(), ' ');
+  if (address_map) {
+    if (auto label = address_map->GetLabel(address)) {
+      out << *label;
+      if (label->length() < OPCODE_COL) {
+        out << std::string(OPCODE_COL - label->length(), ' ');
+      } else {
+        // Label too long - put directive on next line
+        out << std::endl << std::string(OPCODE_COL, ' ');
+      }
+    } else {
+      out << std::string(OPCODE_COL, ' ');
+    }
   } else {
     out << std::string(OPCODE_COL, ' ');
   }
@@ -514,13 +457,23 @@ std::string MerlinFormatter::FormatDataRegion(
   // Detect data type: Check for address tables FIRST (more specific), then strings, then raw hex
 
   // Check for address table first (but not for inline data)
-  bool is_address_table = !is_inline_data && LooksLikeAddressTable(bytes, address_map, binary);
+  bool is_address_table = !is_inline_data && address_analyzer && LooksLikeAddressTable(bytes, address_analyzer);
 
   // Check for string: either all bytes are printable, OR there's an embedded string
   bool is_pure_string = !is_inline_data && !is_address_table && bytes.size() >= 3;
   bool has_high_bit = false;
   for (size_t i = 0; i < bytes.size() && is_pure_string; ++i) {
-    if (!IsPrintable(bytes[i]) && bytes[i] != 0x8D) {  // Allow CR ($8D)
+    // CRITICAL: Reject high-bit bytes (graphics data, not ASCII)
+    if (bytes[i] >= 0x80) {
+      is_pure_string = false;
+      break;
+    }
+    // CRITICAL: Reject control characters (except CR/LF)
+    if (bytes[i] < 0x20 && bytes[i] != 0x0D && bytes[i] != 0x0A) {
+      is_pure_string = false;
+      break;
+    }
+    if (!DataCollector::IsPrintable(bytes[i]) && bytes[i] != 0x8D) {  // Allow CR ($8D)
       is_pure_string = false;
     }
     if ((bytes[i] & 0x80) != 0) {
@@ -551,7 +504,7 @@ std::string MerlinFormatter::FormatDataRegion(
     // Now format the string portion recursively
     std::vector<uint8_t> string_bytes(bytes.begin() + embedded_string_pos, bytes.end());
     out << std::endl;
-    out << FormatDataRegion(address + embedded_string_pos, string_bytes, address_map, symbol_table, binary);
+    out << FormatDataRegion(address + embedded_string_pos, string_bytes, address_map, symbol_table, binary, address_analyzer);
     // Note: This recursive call will format the string and any remaining data
     return out.str();
   }
@@ -595,17 +548,36 @@ std::string MerlinFormatter::FormatDataRegion(
     out << delimiter;
   } else if (is_address_table) {
     // Format as address table using DA (Define Address) directive
-    // Find the actual length of consecutive valid addresses
-    size_t table_length = FindAddressTableLength(bytes, address_map, binary);
+    // Find the actual length of consecutive valid addresses and offset
+    auto table_info = address_analyzer->FindAddressTableLengthAndOffset(bytes);
+    size_t table_length = table_info.length;
+    size_t table_offset = table_info.offset;
+
+    // If table starts at offset 1, output the first byte separately
+    if (table_offset == 1 && bytes.size() > 0) {
+      out << "HEX   " << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+          << static_cast<int>(bytes[0]);
+      out << std::endl;
+
+      // Recursively format the rest starting from offset 1
+      if (bytes.size() > 1) {
+        std::vector<uint8_t> remaining(bytes.begin() + 1, bytes.end());
+        out << FormatDataRegion(address + 1, remaining, nullptr, symbol_table, binary, address_analyzer);
+      }
+      return out.str();
+    }
 
     if (table_length > 0 && table_length <= bytes.size()) {
       // Format the address table portion
       out << "DA    ";
       for (size_t i = 0; i < table_length; i += 2) {
-        if (i > 0) out << ",";
-        if (i > 0 && i % 16 == 0) {
-          // Max 8 addresses per line
-          out << std::endl << std::string(OPCODE_COL, ' ') << "DA    ";
+        if (i > 0) {
+          if (i % 16 == 0) {
+            // Max 8 addresses per line
+            out << std::endl << std::string(OPCODE_COL, ' ') << "DA    ";
+          } else {
+            out << ",";
+          }
         }
         uint16_t addr = bytes[i] | (bytes[i + 1] << 8);
 
@@ -613,15 +585,23 @@ std::string MerlinFormatter::FormatDataRegion(
         bool found_symbol = false;
 
         // Priority 1: Try symbol table first
-        if (symbol_table && symbol_table->HasSymbol(addr)) {
-          out << symbol_table->GetSymbolName(addr);
-          found_symbol = true;
+        if (symbol_table) {
+          if (auto symbol_name = symbol_table->GetSymbolName(addr)) {
+            out << *symbol_name;
+            found_symbol = true;
+          }
         }
 
         // Priority 2: Check address map for labels
-        if (!found_symbol && address_map && address_map->HasLabel(addr)) {
-          out << address_map->GetLabel(addr);
-          found_symbol = true;
+        // Only substitute if the address has an instruction or is at a valid boundary
+        if (!found_symbol && address_map) {
+          if (auto label = address_map->GetLabel(addr)) {
+            // Verify the address is at a valid code/data boundary
+            if (address_map->IsCode(addr) || address_map->IsData(addr)) {
+              out << *label;
+              found_symbol = true;
+            }
+          }
         }
 
         // Default: output as hex address
@@ -635,19 +615,28 @@ std::string MerlinFormatter::FormatDataRegion(
       if (table_length < bytes.size()) {
         out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
         for (size_t i = table_length; i < bytes.size(); ++i) {
-          if (i > table_length && (i - table_length) % 8 == 0) {
-            out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+          if (i > table_length) {
+            if ((i - table_length) % 8 == 0) {
+              out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+            } else {
+              out << ",";
+            }
           }
           out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
               << static_cast<int>(bytes[i]);
         }
+        // No address comment - keep output clean
       }
     } else {
       // Shouldn't happen, but fall back to HEX if table_length is invalid
       out << "HEX   ";
       for (size_t i = 0; i < bytes.size(); ++i) {
-        if (i > 0 && i % 8 == 0) {
-          out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+        if (i > 0) {
+          if (i % 8 == 0) {
+            out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+          } else {
+            out << ",";
+          }
         }
         out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
             << static_cast<int>(bytes[i]);
@@ -657,19 +646,19 @@ std::string MerlinFormatter::FormatDataRegion(
     // Format as hex bytes (8 per line max)
     out << "HEX   ";
     for (size_t i = 0; i < bytes.size(); ++i) {
-      if (i > 0 && i % 8 == 0) {
-        out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+      if (i > 0) {
+        if (i % 8 == 0) {
+          out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+        } else {
+          out << ",";
+        }
       }
       out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
           << static_cast<int>(bytes[i]);
     }
   }
 
-  // Add comment showing address range
-  out << std::string(5, ' ') << "; $" << FormatAddress(address, 4);
-  if (bytes.size() > 1) {
-    out << "-$" << FormatAddress(address + bytes.size() - 1, 4);
-  }
+  // No address comment - keep output clean
 
   return out.str();
 }
@@ -677,7 +666,25 @@ std::string MerlinFormatter::FormatDataRegion(
 std::string MerlinFormatter::FormatHeader(const core::Binary& binary) {
   std::ostringstream out;
 
+  // Get current time with timezone
+  auto now = std::chrono::system_clock::now();
+  auto time_t_now = std::chrono::system_clock::to_time_t(now);
+  std::tm local_tm;
+
+#ifdef _WIN32
+  localtime_s(&local_tm, &time_t_now);
+#else
+  localtime_r(&time_t_now, &local_tm);
+#endif
+
+  // Format: YYYY-MM-DD HH:MM:SS TZ
+  char time_buf[64];
+  std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S %Z", &local_tm);
+
   out << "*" << std::string(39, '-') << std::endl;
+  out << "* Sourcerer - Multi-CPU Disassembler" << std::endl;
+  out << "* Copyright (C) 2025 Cortexa LLC" << std::endl;
+  out << "* Generated: " << time_buf << std::endl;
   out << "* Disassembly of: " << binary.source_file() << std::endl;
   out << "* Load address: $" << FormatAddress(binary.load_address(), 4) << std::endl;
   out << "* Size: " << binary.size() << " bytes" << std::endl;
@@ -690,7 +697,8 @@ std::string MerlinFormatter::FormatHeader(const core::Binary& binary) {
 }
 
 std::string MerlinFormatter::FormatFooter() {
-  return std::string(OPCODE_COL, ' ') + "CHK";
+  // Don't output CHK directive - it may add extra bytes
+  return "";
 }
 
 std::string MerlinFormatter::FormatAddress(uint32_t address, int width) const {
@@ -702,8 +710,10 @@ std::string MerlinFormatter::FormatAddress(uint32_t address, int width) const {
 
 std::string MerlinFormatter::GetLabel(uint32_t address,
                                       const core::AddressMap* address_map) const {
-  if (address_map && address_map->HasLabel(address)) {
-    return address_map->GetLabel(address);
+  if (address_map) {
+    if (auto label = address_map->GetLabel(address)) {
+      return *label;
+    }
   }
   return "";
 }

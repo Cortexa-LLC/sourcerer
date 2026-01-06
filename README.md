@@ -186,6 +186,28 @@ Output Options:
 
 ## Architecture
 
+### Formatter Design: Composition Pattern
+
+Sourcerer formatters use a **composition pattern** with three high-cohesion components:
+
+- **DataCollector**: Collects data from binary (string detection, data collection)
+- **AddressAnalyzer**: Analyzes addresses (referenced addresses, address tables)
+- **LabelResolver**: Resolves labels and symbols (label substitution, symbol lookup)
+
+Each formatter (Merlin, SCMASM, EDTASM) composes these components and adds format-specific syntax. This provides high cohesion, testability, and maintainability while avoiding the "helper" anti-pattern.
+
+### Symbol System: Dual Name/Symbol Support
+
+The symbol system supports dual `name`/`symbol` fields to preserve historical accuracy while ensuring assembler compatibility:
+
+- **name**: Official documentation name (e.g., "80STOREOFF" from Apple docs)
+- **symbol**: Assembler-safe identifier (e.g., "STORE80OFF" - valid in Merlin)
+- Backwards compatible: `symbol` defaults to `name` if not specified
+
+This allows Apple II symbols to maintain historical accuracy while generating valid assembly code.
+
+### Plugin Architecture
+
 Sourcerer uses a clean plugin architecture:
 
 - **CPU Plugins**: Handle instruction decoding (m6502, m6809, z80)
@@ -193,7 +215,7 @@ Sourcerer uses a clean plugin architecture:
 - **Output Formatters**: Handle assembly syntax (Merlin, SCMASM, etc.)
 - **Analysis Modules**: Code flow, labels, cross-references, hints
 
-See `docs/ARCHITECTURE.md` for details.
+See `docs/ARCHITECTURE.md` for complete details.
 
 ## Adding New CPUs
 
@@ -230,7 +252,7 @@ See LICENSE file for details.
 
 ## Credits
 
-- Inspired by SOURCEROR from Merlin Pro (Roger Wagner Publishing)
+- Inspired by SOURCEROR from Merlin Pro (Roger Wagner Publishing) and [Computerware's Sourcerer](https://colorcomputerarchive.com/repo/Documents/Manuals/Programming/Sourcerer,%20The%20(Computerware).txt)
 - Uses [ACX](https://github.com/AppleCommander/acx) for disk image extraction
 - Uses [CLI11](https://github.com/CLIUtils/CLI11) for command-line parsing
 - Uses [nlohmann/json](https://github.com/nlohmann/json) for JSON parsing

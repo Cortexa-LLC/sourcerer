@@ -1,0 +1,85 @@
+{
+  "platform": "coco",
+  "name": "TRS-80 Color Computer",
+  "description": "Tandy/Radio Shack Color Computer (6809-based)",
+  "cpu": "6809",
+  "version": "1.0",
+
+  "symbol_files": [
+    "symbols/coco_constants.json",
+    "symbols/coco_zeropage.json",
+    "symbols/coco_basic.json",
+    "symbols/coco_extbas.json"
+  ],
+
+  "hint_files": [],
+
+  "inline_data_routines": [],
+
+  "entry_points": {
+    "default": "0x2000",
+    "description": "Default load address for CoCo ML binaries"
+  },
+
+  "memory_map": {
+    "zero_page": {
+      "start": "0x0000",
+      "end": "0x00FF",
+      "description": "Direct page (fast access)"
+    },
+    "stack": {
+      "start": "0x0100",
+      "end": "0x01FF",
+      "description": "System stack"
+    },
+    "user_ram": {
+      "start": "0x0200",
+      "end": "0x7FFF",
+      "description": "User RAM (varies by configuration)"
+    },
+    "extbas_rom": {
+      "start": "0x8000",
+      "end": "0x9FFF",
+      "description": "Extended BASIC ROM (8KB)"
+    },
+    "basic_rom": {
+      "start": "0xA000",
+      "end": "0xBFFF",
+      "description": "Color BASIC ROM (8KB)"
+    },
+    "cartridge_rom": {
+      "start": "0xC000",
+      "end": "0xFEFF",
+      "description": "Cartridge ROM or Disk BASIC"
+    },
+    "io_page": {
+      "start": "0xFF00",
+      "end": "0xFF5F",
+      "description": "Memory-mapped I/O"
+    },
+    "vectors": {
+      "start": "0xFFF0",
+      "end": "0xFFFF",
+      "description": "Interrupt vectors"
+    }
+  },
+
+  "extensions": {
+    "disk": {
+      "description": "Disk BASIC support",
+      "symbol_files": [],
+      "entry_points": {
+        "dos": "0xC000"
+      }
+    }
+  },
+
+  "user_overrides": {
+    "description": "User can create coco.user.json to add custom symbols",
+    "symbol_files": ["symbols/coco.user.json"],
+    "search_paths": [
+      "~/.sourcerer/symbols/",
+      "./symbols/"
+    ]
+  }
+}
