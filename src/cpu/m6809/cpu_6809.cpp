@@ -7,6 +7,7 @@
 #include <sstream>
 #include <vector>
 
+#include "cpu/m6809/cpu_state_6809.h"
 #include "cpu/m6809/indexed_mode.h"
 #include "cpu/m6809/opcodes_6809.h"
 
@@ -222,22 +223,6 @@ std::string Cpu6809::FormatOperand(core::AddressingMode mode,
             oss << "#$" << std::hex << std::uppercase << std::setw(2)
                 << std::setfill('0') << static_cast<int>(data[0]);
             *extra_bytes = 1;
-
-            // Validate: if there's a second byte that looks like it should be immediate data,
-            // but the opcode only takes 8-bit, mark as invalid
-            if (size >= 2) {
-              uint8_t next_byte = data[1];
-              // If next byte looks like continuation of immediate (non-zero, not an opcode)
-              // and current instruction is 8-bit immediate only, this is likely invalid
-              if (next_byte != 0x00 && (next_byte < 0x80 || next_byte > 0xFE)) {
-                // Check if this creates an invalid 16-bit immediate for 8-bit instruction
-                uint16_t would_be_16bit = (static_cast<uint16_t>(data[0]) << 8) | next_byte;
-                if (would_be_16bit > 0xFF && data[0] != 0x00) {
-                  // This looks like 16-bit immediate but opcode only accepts 8-bit
-                  *success = false;
-                }
-              }
-            }
           }
         }
       } else {
@@ -491,6 +476,10 @@ bool Cpu6809::IsLikelyCode(const uint8_t* data, size_t size, uint32_t address,
   } catch (...) {
     return false;
   }
+}
+
+std::unique_ptr<CpuState> Cpu6809::CreateCpuState() const {
+  return std::make_unique<CpuState6809>();
 }
 
 std::unique_ptr<CpuPlugin> Create6809Plugin() {

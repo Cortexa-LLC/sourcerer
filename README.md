@@ -6,6 +6,7 @@ A modern C++ command-line disassembler inspired by Merlin Pro's SOURCEROR, desig
 
 ### Intelligent Analysis
 - **Code Flow Analysis**: Multi-pass analysis follows branches, JSR/RTS, and control flow
+- **Dynamic Execution Simulation**: Evaluates branch conditions to discover conditional code paths
 - **Data Detection**: Distinguishes strings, address tables, and binary data
 - **Smart Label Generation**: Context-aware labels (SUB_xxxx, L_xxxx, DATA_xxxx)
 - **Cross-References**: Track and comment where addresses are referenced
@@ -25,9 +26,9 @@ A modern C++ command-line disassembler inspired by Merlin Pro's SOURCEROR, desig
 - **Clean Formatting**: Follows Merlin/SCMASM conventions
 
 ### Multi-CPU & Format Support
-- **CPUs**: 6502, 65C02 (65816, 6809, Z80 coming soon)
-- **Output Formats**: Merlin, SCMASM 3.1 (ca65, EDTASM+ planned)
-- **Disk Images**: Apple DOS 3.3, ProDOS via ACX.jar integration
+- **CPUs**: 6502, 65C02, 6809 with full execution simulation support (65816, Z80 coming soon)
+- **Output Formats**: Merlin, SCMASM 3.1, EDTASM+ (ca65 planned)
+- **Disk Images**: Apple DOS 3.3, ProDOS, CoCo DSK via native extractors
 - **Modern CLI**: Intuitive command-line with `--platform`, `--symbols`, `--hints`
 
 ## Building
@@ -62,11 +63,11 @@ sudo make install
 
 ### Run Tests
 
-The project includes comprehensive test coverage with 198 tests:
-- Core modules: 49 tests
+The project includes comprehensive test coverage with 200+ tests:
+- Core modules: 18 tests
 - CPU plugins (6502/65C02): 52 tests
-- Analysis modules: 49 tests
-- Output formatters: 48 tests
+- Analysis modules (including execution simulator): 60 tests
+- Output formatters: 40+ tests
 
 ```bash
 # Configure with testing enabled

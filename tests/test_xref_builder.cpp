@@ -136,13 +136,15 @@ TEST_F(XrefBuilderTest, AddXrefComments) {
   EXPECT_TRUE(address_map_->HasComment(0x8010));
   EXPECT_TRUE(address_map_->HasComment(0x8020));
 
-  std::string comment1 = address_map_->GetComment(0x8010);
-  std::string comment2 = address_map_->GetComment(0x8020);
+  auto comment1 = address_map_->GetComment(0x8010);
+  auto comment2 = address_map_->GetComment(0x8020);
 
-  EXPECT_FALSE(comment1.empty());
-  EXPECT_FALSE(comment2.empty());
-  EXPECT_TRUE(comment1.find("8000") != std::string::npos);
-  EXPECT_TRUE(comment2.find("8000") != std::string::npos);
+  ASSERT_TRUE(comment1.has_value());
+  ASSERT_TRUE(comment2.has_value());
+  EXPECT_FALSE(comment1->empty());
+  EXPECT_FALSE(comment2->empty());
+  EXPECT_TRUE(comment1->find("8000") != std::string::npos);
+  EXPECT_TRUE(comment2->find("8000") != std::string::npos);
 }
 
 // Test that AddXrefComments preserves existing comments
@@ -152,11 +154,12 @@ TEST_F(XrefBuilderTest, PreservesExistingComments) {
 
   builder_->AddXrefComments();
 
-  std::string comment = address_map_->GetComment(0x8010);
+  auto comment_opt = address_map_->GetComment(0x8010);
+  ASSERT_TRUE(comment_opt.has_value());
 
   // Should have both the original comment and xref info
-  EXPECT_TRUE(comment.find("My comment") != std::string::npos);
-  EXPECT_TRUE(comment.find("8000") != std::string::npos);
+  EXPECT_TRUE(comment_opt->find("My comment") != std::string::npos);
+  EXPECT_TRUE(comment_opt->find("8000") != std::string::npos);
 }
 
 // Test xrefs sorted in output

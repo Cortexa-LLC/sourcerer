@@ -47,6 +47,8 @@ class Cpu6809 : public CpuPlugin {
   bool IsLikelyCode(const uint8_t* data, size_t size, uint32_t address,
                    size_t scan_length = 16) const override;
 
+  std::unique_ptr<CpuState> CreateCpuState() const override;
+
  private:
   // Format operand string based on addressing mode
   std::string FormatOperand(core::AddressingMode mode, const uint8_t* data,

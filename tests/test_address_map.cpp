@@ -256,13 +256,13 @@ TEST_F(AddressMapTest, AddressBoundaries) {
 
 // Test empty label/comment retrieval
 TEST_F(AddressMapTest, EmptyRetrievals) {
-  // Get label for address without label
+  // Get label for address without label - should return nullopt
   EXPECT_FALSE(addr_map_->HasLabel(0x8000));
-  EXPECT_EQ(addr_map_->GetLabel(0x8000), "");
+  EXPECT_FALSE(addr_map_->GetLabel(0x8000).has_value());
 
-  // Get comment for address without comment
+  // Get comment for address without comment - should return nullopt
   EXPECT_FALSE(addr_map_->HasComment(0x8000));
-  EXPECT_EQ(addr_map_->GetComment(0x8000), "");
+  EXPECT_FALSE(addr_map_->GetComment(0x8000).has_value());
 
   // Get xrefs for address without xrefs
   EXPECT_FALSE(addr_map_->HasXrefs(0x8000));

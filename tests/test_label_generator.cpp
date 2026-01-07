@@ -146,8 +146,9 @@ TEST_F(LabelGeneratorTest, WithSymbolTable) {
   // Should use symbol table name if available
   EXPECT_TRUE(address_map_->HasLabel(0xC000));
   // The label should match or be based on the symbol
-  std::string label = address_map_->GetLabel(0xC000);
-  EXPECT_FALSE(label.empty());
+  auto label_opt = address_map_->GetLabel(0xC000);
+  ASSERT_TRUE(label_opt.has_value());
+  EXPECT_FALSE(label_opt->empty());
 }
 
 // Test edge case: address at 0x0000

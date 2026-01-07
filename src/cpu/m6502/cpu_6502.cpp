@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include "cpu/m6502/cpu_state_6502.h"
 #include "cpu/m6502/opcodes_6502.h"
 #include "utils/logger.h"
 
@@ -325,6 +326,10 @@ bool Cpu6502::IsLikelyCode(const uint8_t* data, size_t size, uint32_t address,
   } catch (...) {
     return false;
   }
+}
+
+std::unique_ptr<CpuState> Cpu6502::CreateCpuState() const {
+  return std::make_unique<CpuState6502>();
 }
 
 std::unique_ptr<CpuPlugin> Create6502Plugin() {

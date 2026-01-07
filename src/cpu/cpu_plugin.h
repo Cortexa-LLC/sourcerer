@@ -15,6 +15,9 @@
 namespace sourcerer {
 namespace cpu {
 
+// Forward declaration
+class CpuState;
+
 // CPU variant types
 enum class CpuVariant {
   MOS_6502,     // Original NMOS 6502
@@ -115,6 +118,10 @@ class CpuPlugin {
     (void)scan_length;
     return false;  // Default: no validation
   }
+
+  // Create a CPU-specific state object for execution simulation
+  // Returns a unique_ptr to a CpuState implementation
+  virtual std::unique_ptr<CpuState> CreateCpuState() const = 0;
 };
 
 // Factory function type for creating CPU plugins

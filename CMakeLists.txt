@@ -72,8 +72,10 @@ target_link_libraries(sourcerer_core PUBLIC
 add_library(cpu_plugins
     src/cpu/cpu_registry.cpp
     src/cpu/m6502/cpu_6502.cpp
+    src/cpu/m6502/cpu_state_6502.cpp
     src/cpu/m6502/opcodes_6502.cpp
     src/cpu/m6809/cpu_6809.cpp
+    src/cpu/m6809/cpu_state_6809.cpp
     src/cpu/m6809/opcodes_6809.cpp
     src/cpu/m6809/indexed_mode.cpp
 )

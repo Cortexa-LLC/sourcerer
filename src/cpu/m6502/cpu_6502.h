@@ -46,6 +46,8 @@ class Cpu6502 : public CpuPlugin {
   bool IsLikelyCode(const uint8_t* data, size_t size, uint32_t address,
                    size_t scan_length = 16) const override;
 
+  std::unique_ptr<CpuState> CreateCpuState() const override;
+
  private:
   CpuVariant variant_;
   bool allow_illegal_;
