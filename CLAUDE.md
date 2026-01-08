@@ -1,6 +1,10 @@
-# Sourcerer - Claude Context
+# Sourcerer - Claude Code Bootstrap
 
-This document provides context for Claude Code sessions working on the Sourcerer disassembler project.
+**Project:** Sourcerer - Multi-CPU Disassembler for Vintage Computer Binaries
+**Repository:** git@github.com:Cortexa-LLC/sourcerer.git
+**Framework Version:** ai-pack 1.0.0 (Foundation)
+
+---
 
 ## Project Overview
 
@@ -11,7 +15,55 @@ This document provides context for Claude Code sessions working on the Sourcerer
 
 **Key Feature**: Smart code flow analysis that distinguishes code from data blocks using recursive traversal, heuristics, and CPU-specific pattern matching.
 
-## Architecture
+---
+
+## Framework Integration
+
+This project uses the **ai-pack framework** for structured AI-assisted development.
+
+### Directory Structure
+
+```
+sourcerer/
+├── .ai-pack/           # Git submodule (read-only shared framework)
+│   ├── gates/          # Quality gates (safety, persistence, verification)
+│   ├── quality/        # Clean code standards
+│   ├── roles/          # Agent role definitions
+│   ├── workflows/      # Task workflow templates
+│   └── templates/      # Task packet templates
+├── .ai/                # Local workspace (project-specific, mutable)
+│   ├── tasks/          # Active task packets (YYYY-MM-DD_task-name/)
+│   └── repo-overrides.md  # Optional project-specific rules
+├── CLAUDE.md           # This file
+└── src/                # Source code (see Architecture below)
+```
+
+**Key Invariants:**
+- ✅ Task packets belong in `.ai/tasks/` (local, mutable)
+- ❌ NEVER put task state in `.ai-pack/` (shared, read-only)
+- ✅ Framework improvements go to ai-pack repo, not ad-hoc edits
+
+---
+
+## Required Reading: Gates and Standards
+
+Before any non-trivial task, read these foundational documents:
+
+### Quality Gates (Must Follow)
+1. **[.ai-pack/gates/00-global-gates.md](.ai-pack/gates/00-global-gates.md)** - Universal rules (safety, quality, communication)
+2. **[.ai-pack/gates/10-persistence.md](.ai-pack/gates/10-persistence.md)** - File operations and state management
+3. **[.ai-pack/gates/20-tool-policy.md](.ai-pack/gates/20-tool-policy.md)** - Tool usage policies
+4. **[.ai-pack/gates/30-verification.md](.ai-pack/gates/30-verification.md)** - Verification requirements
+
+### Engineering Standards
+- **[.ai-pack/quality/engineering-standards.md](.ai-pack/quality/engineering-standards.md)** - Clean code standards index
+- **[.ai-pack/quality/clean-code/](.ai-pack/quality/clean-code/)** - Detailed standards by topic
+
+---
+
+## Sourcerer Architecture
+
+### Source Code Structure
 
 ```
 src/
@@ -55,7 +107,46 @@ CodeAnalyzer analyzer(cpu_plugin, binary);
 - `Cpu6809/Cpu6502`: CPU-specific disassembly and analysis
 - `AsmFormatter`: Output generation
 
-## Current Status
+---
+
+## Technology Stack
+
+**Language:** C++17
+**Build System:** CMake 3.15+
+**Compiler:** Clang (Xcode) / GCC
+**Test Framework:** Google Test
+**Coverage Target:** 80-90%
+
+**Build Commands:**
+```bash
+# Configure
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+# Build
+cmake --build build
+
+# Test
+ctest --test-dir build --output-on-failure
+
+# Coverage (with instrumentation)
+cmake -B build_coverage -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
+cmake --build build_coverage
+./build_coverage/tests/test_analysis
+gcov build_coverage/src/analysis/CMakeFiles/analysis.dir/code_analyzer.cpp.gcno
+```
+
+**Integration Tests:**
+```bash
+# CoCo test (ZAXXON.BIN)
+./test_coco.sh
+
+# Check statistics
+./test_coco.sh | grep -E "(discovered|Code:|Data:)"
+```
+
+---
+
+## Current Development Status
 
 ### Completed Phases
 
@@ -101,19 +192,114 @@ CodeAnalyzer analyzer(cpu_plugin, binary);
 **ZAXXON.BIN** (CoCo 6809 arcade game, 16,646 bytes):
 - ✅ **100% of reachable code discovered**
 - ✅ Execution simulation working for both 6809 and 6502
-- ✅ All 60 analysis tests passing
-- ✅ All 52 6502 tests passing
+- ✅ All 239 tests passing (60 analysis + 52 CPU 6502 + others)
 - ✅ Dynamic branch discovery operational
+- ✅ Code coverage: 45.11% (target: 80-90%)
 
-## Current Status: Ready for Production
+**Current Status:** Production-ready for core features. Code coverage improvement in progress.
 
-The disassembler now features complete multi-CPU support with dynamic analysis capabilities.
+---
 
-### Execution Simulation Architecture
+## Task Management Protocol
+
+### For Non-Trivial Tasks
+
+Every non-trivial task requires a task packet in `.ai/tasks/`:
+
+**1. Create Task Packet**
+
+```bash
+# Create task directory
+TASK_ID=$(date +%Y-%m-%d)_task-name
+mkdir -p .ai/tasks/$TASK_ID
+
+# Copy templates from .ai-pack
+cp .ai-pack/templates/task-packet/00-contract.md .ai/tasks/$TASK_ID/
+cp .ai-pack/templates/task-packet/10-plan.md .ai/tasks/$TASK_ID/
+cp .ai-pack/templates/task-packet/20-work-log.md .ai/tasks/$TASK_ID/
+cp .ai-pack/templates/task-packet/30-review.md .ai/tasks/$TASK_ID/
+cp .ai-pack/templates/task-packet/40-acceptance.md .ai/tasks/$TASK_ID/
+```
+
+**2. Follow Task Lifecycle**
+
+All task packets go through these phases:
+
+1. **Contract** (`00-contract.md`) - Define requirements and acceptance criteria
+2. **Plan** (`10-plan.md`) - Document implementation approach
+3. **Work Log** (`20-work-log.md`) - Track execution progress
+4. **Review** (`30-review.md`) - Quality assurance
+5. **Acceptance** (`40-acceptance.md`) - Sign-off and completion
+
+**3. CRITICAL: Task Packet Location**
+
+✅ **Correct:** `.ai/tasks/YYYY-MM-DD_task-name/`
+❌ **NEVER:** `.ai-pack/` (this is shared framework, not for task state)
+
+---
+
+## Role Enforcement
+
+Choose your role based on the task:
+
+### Orchestrator Role
+**Use when:** Complex multi-step tasks requiring coordination
+
+**Responsibilities:**
+- Break down work into subtasks
+- Delegate to worker agents
+- Monitor progress
+- Coordinate reviews
+
+**Reference:** [.ai-pack/roles/orchestrator.md](.ai-pack/roles/orchestrator.md)
+
+---
+
+### Worker Role
+**Use when:** Implementing specific, well-defined tasks
+
+**Responsibilities:**
+- Write code and tests
+- Follow established patterns
+- Update work log
+- Report progress and blockers
+
+**Reference:** [.ai-pack/roles/worker.md](.ai-pack/roles/worker.md)
+
+---
+
+### Reviewer Role
+**Use when:** Conducting quality assurance
+
+**Responsibilities:**
+- Review code against standards
+- Verify test coverage
+- Check architecture consistency
+- Document findings
+
+**Reference:** [.ai-pack/roles/reviewer.md](.ai-pack/roles/reviewer.md)
+
+---
+
+## Workflow Selection
+
+Choose appropriate workflow for the task type:
+
+| Task Type | Workflow | When to Use |
+|-----------|----------|-------------|
+| General | [standard.md](.ai-pack/workflows/standard.md) | Any task not fitting specialized workflows |
+| New Feature | [feature.md](.ai-pack/workflows/feature.md) | Adding new functionality |
+| Bug Fix | [bugfix.md](.ai-pack/workflows/bugfix.md) | Fixing defects |
+| Refactoring | [refactor.md](.ai-pack/workflows/refactor.md) | Improving code structure |
+| Investigation | [research.md](.ai-pack/workflows/research.md) | Understanding code/architecture |
+
+---
+
+## Execution Simulation Architecture
 
 The `ExecutionSimulator` provides dynamic branch analysis to discover conditional code paths:
 
-#### CPU State Abstraction
+### CPU State Abstraction
 
 ```cpp
 // Abstract CPU state interface
@@ -135,7 +321,7 @@ class CpuState {
 };
 ```
 
-#### Integration with CpuPlugin
+### Integration with CpuPlugin
 
 ```cpp
 class CpuPlugin {
@@ -147,7 +333,7 @@ class CpuPlugin {
 };
 ```
 
-#### How It Works
+### How It Works
 
 1. **Initialization**: ExecutionSimulator creates CPU-specific state via `cpu->CreateCpuState()`
 2. **Simulation Loop**: For each instruction:
@@ -164,42 +350,32 @@ std::set<uint32_t> discovered = sim.SimulateFrom(entry_point, 100);
 // Returns addresses discovered through branch analysis
 ```
 
-## File Locations
+---
 
-### Core Analysis Files
+## Critical File Locations
 
+### Analysis Core
 - `src/analysis/code_analyzer.h` - Main analysis orchestrator
 - `src/analysis/code_analyzer.cpp` - Coordinates all analysis strategies
 - `src/analysis/execution_simulator.h` - Dynamic analysis interface
 - `src/analysis/execution_simulator.cpp` - Execution simulation implementation
 
-### CPU Plugin Files
-
+### CPU Plugins
 - `src/cpu/cpu_plugin.h` - Abstract CPU plugin interface
 - `src/cpu/cpu_state.h` - Abstract CPU state interface
+- `src/cpu/cpu_registry.h` - CPU plugin factory
 - `src/cpu/m6809/cpu_6809.h` - 6809 CPU plugin
 - `src/cpu/m6809/cpu_state_6809.h` - 6809 state implementation
 - `src/cpu/m6502/cpu_6502.h` - 6502 CPU plugin
 - `src/cpu/m6502/cpu_state_6502.h` - 6502 state implementation
 
-### Test Files
-
+### Tests
+- `tests/test_code_analyzer_integration.cpp` - CodeAnalyzer integration tests
 - `tests/test_execution_simulator_enhanced.cpp` - ExecutionSimulator tests
 - `test_coco.sh` - Integration test with ZAXXON.BIN
 - `test_output/zaxxon.asm` - Output verification
 
-## Building and Testing
-
-```bash
-# Build
-cmake --build build
-
-# Run CoCo test (ZAXXON.BIN)
-./test_coco.sh
-
-# Check statistics
-./test_coco.sh | grep -E "(discovered|Code:|Data:)"
-```
+---
 
 ## Common Issues and Solutions
 
@@ -215,21 +391,128 @@ cmake --build build
 ### Issue: Operand validation failures during disassembly
 **Solution:** Ensure immediate mode operands don't incorrectly check next byte (which may be next instruction's opcode)
 
+### Issue: Jump tables detected in CODE regions
+**Solution:** Only scan DATA/UNKNOWN regions for jump table candidates
+
+### Issue: Tests hanging indefinitely
+**Solution:** Check for dangling pointers - ensure CPU plugin lifetime exceeds analyzer lifetime
+
+---
+
+## Common Operations
+
+### Starting a New Task
+
+1. Read gates and standards (see Required Reading above)
+2. Create task packet in `.ai/tasks/`
+3. Fill out `00-contract.md` with requirements
+4. Select appropriate workflow
+5. Assume appropriate role
+6. Execute workflow phases
+
+### Working on Existing Task
+
+1. Read task packet in `.ai/tasks/YYYY-MM-DD_task-name/`
+2. Review current phase
+3. Continue from where left off
+4. Update work log regularly
+
+### Updating Framework
+
+```bash
+# Update shared framework (preserves .ai/tasks/)
+git submodule update --remote .ai-pack
+git add .ai-pack
+git commit -m "Update ai-pack framework"
+```
+
+### Running Tests with Coverage
+
+```bash
+# Build with coverage instrumentation
+cmake -B build_coverage -DCMAKE_CXX_FLAGS="--coverage"
+cmake --build build_coverage
+
+# Run tests
+./build_coverage/tests/test_analysis
+
+# Generate coverage report
+gcov build_coverage/src/analysis/CMakeFiles/analysis.dir/code_analyzer.cpp.gcno
+```
+
+---
+
+## Invariants (Critical)
+
+### ✅ DO
+- Create task packets in `.ai/tasks/` for non-trivial work
+- Follow gates and workflows
+- Update work logs regularly
+- Reference standards when making decisions
+- Run tests before committing
+- Use CMake build system (not standalone g++)
+- Maintain CPU-agnostic design in CodeAnalyzer
+- Keep CPU-specific logic in CPU plugins
+
+### ❌ NEVER
+- Put task packets in `.ai-pack/`
+- Edit `.ai-pack/` files directly (contribute to ai-pack repo instead)
+- Overwrite `.ai/tasks/` during updates
+- Skip gate checkpoints
+- Proceed with failing tests
+- Use magic strings for CPU variants (use CpuVariant enum)
+- Add CPU-specific code to CodeAnalyzer
+- Use `git rebase -i` or `git add -i` (not supported in automation)
+
+---
+
 ## Next Steps
 
+### Immediate Priorities
+- **Code Coverage Improvement**: Current 45.11%, target 80-90%
+  - Phase 1: ✅ CodeAnalyzer integration tests (complete)
+  - Phase 2: EdtasmFormatter tests
+  - Phase 3: CPU plugin edge cases
+  - Phase 4-7: Data detection, reclassification, integration workflows
+
+### Future Phases
 - **Phase 5**: Jump table detection (dispatch tables, indexed jump arrays)
 - **Phase 6**: Advanced features (stack frame analysis, data type inference)
 - **Phase 7**: Clean code refactoring (strategy pattern extraction)
-- **Test**: More CoCo and Apple II binaries
+- **Testing**: More CoCo and Apple II binaries
 - **New CPUs**: Z80, 65816, 68000
 
-## References
+---
 
-- `.clinerules/rules.md` - Coding standards
-- `README.md` - User documentation
-- `docs/ARCHITECTURE.md` - Detailed architecture documentation
-- `docs/EXECUTION_SIMULATOR_REFACTOR.md` - Execution simulator design
-- Phase 3 implementation: Entry point discovery in `code_analyzer.cpp`
-- Phase 4 implementation: Execution simulation in `execution_simulator.cpp`
-- CPU state abstraction: `cpu_state.h`, `cpu_state_6809.h`, `cpu_state_6502.h`
-- SOLID refactoring: CPU plugins with analysis capabilities
+## Quick Reference
+
+**Framework:**
+- Gates: `.ai-pack/gates/`
+- Roles: `.ai-pack/roles/`
+- Workflows: `.ai-pack/workflows/`
+- Templates: `.ai-pack/templates/`
+- Standards: `.ai-pack/quality/`
+
+**Project:**
+- Task Packets: `.ai/tasks/YYYY-MM-DD_task-name/`
+- Overrides: `.ai/repo-overrides.md` (optional)
+- Source: `src/`
+- Tests: `tests/`
+- Build: `build/` (or `build_coverage/`)
+
+---
+
+## Getting Help
+
+- **Framework Documentation:** See `.ai-pack/README.md`
+- **Standards Index:** See `.ai-pack/quality/engineering-standards.md`
+- **Workflow Guides:** See `.ai-pack/workflows/*.md`
+- **Role Definitions:** See `.ai-pack/roles/*.md`
+- **Architecture Details:** See `docs/ARCHITECTURE.md`
+- **Execution Simulator:** See `docs/EXECUTION_SIMULATOR_REFACTOR.md`
+
+---
+
+**Last Updated:** 2026-01-07
+**Framework Version:** ai-pack 1.0.0 (Foundation)
+**Project Status:** Production-ready, coverage improvement in progress
