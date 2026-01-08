@@ -398,22 +398,38 @@ static bool LooksLikeAddressTable(const std::vector<uint8_t>& bytes,
     return false;
   }
 
-  // Additional heuristic: If all bytes have high bits set AND form printable ASCII,
-  // it's likely a high-ASCII string, not an address table
-  bool all_high_bit = true;
+  // Additional heuristic: If bytes form printable ASCII (with or without high bits),
+  // it's likely a string, not an address table
   bool all_printable = true;
   for (size_t i = 0; i < table_length && i < bytes.size(); ++i) {
-    if ((bytes[i] & 0x80) == 0) {
-      all_high_bit = false;
-    }
-    if (!DataCollector::IsPrintable(bytes[i])) {
+    // Allow CR ($8D) as printable for string detection
+    if (!DataCollector::IsPrintable(bytes[i]) && bytes[i] != 0x8D) {
       all_printable = false;
+      break;
     }
   }
 
-  // If all bytes are high-ASCII printable, treat as string not address table
-  if (all_high_bit && all_printable) {
+  // If all bytes are printable ASCII (or CR), treat as string not address table
+  if (all_printable) {
     return false;
+  }
+
+  // Check for repeated addresses - if all addresses are identical, it's likely not
+  // a real address table (e.g., filler bytes like $FF,$FF,...)
+  if (table_length >= 4) {
+    size_t offset = table_info.offset;
+    uint16_t first_addr = bytes[offset] | (bytes[offset + 1] << 8);
+    bool all_same = true;
+    for (size_t i = offset; i + 1 < offset + table_length; i += 2) {
+      uint16_t addr = bytes[i] | (bytes[i + 1] << 8);
+      if (addr != first_addr) {
+        all_same = false;
+        break;
+      }
+    }
+    if (all_same) {
+      return false;  // All addresses identical - not a real table
+    }
   }
 
   return true;
@@ -463,8 +479,8 @@ std::string MerlinFormatter::FormatDataRegion(
   bool is_pure_string = !is_inline_data && !is_address_table && bytes.size() >= 3;
   bool has_high_bit = false;
   for (size_t i = 0; i < bytes.size() && is_pure_string; ++i) {
-    // CRITICAL: Reject high-bit bytes (graphics data, not ASCII)
-    if (bytes[i] >= 0x80) {
+    // CRITICAL: Reject high-bit bytes (graphics data, not ASCII), except CR ($8D)
+    if (bytes[i] >= 0x80 && bytes[i] != 0x8D) {
       is_pure_string = false;
       break;
     }

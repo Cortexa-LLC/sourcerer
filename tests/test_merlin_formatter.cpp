@@ -4,6 +4,7 @@
 #include "output/merlin_formatter.h"
 
 #include <gtest/gtest.h>
+#include "analysis/equate_generator.h"
 
 namespace sourcerer {
 namespace output {
@@ -385,6 +386,516 @@ TEST_F(MerlinFormatterTest, InlineCommentAlignment) {
   std::string output4 = formatter_->FormatInstruction(inst4, address_map_.get());
   size_t comment_pos4 = output4.find(';');
   EXPECT_EQ(comment_pos4, 40) << "Inline comment with label should be at column 40\nLine: " << output4;
+}
+
+// ============================================================================
+// Work Package 2: Enhanced Coverage Tests (Edge Cases & Missing Paths)
+// ============================================================================
+
+// Test equate generation integration
+TEST_F(MerlinFormatterTest, EquateGenerationInFormat) {
+  // Create instructions that use the same immediate value multiple times
+  std::vector<core::Instruction> instructions;
+  for (int i = 0; i < 5; ++i) {
+    core::Instruction inst = MakeInstruction(0x8000 + i * 2, "LDA", "#$42", core::AddressingMode::IMMEDIATE);
+    inst.bytes = {0xA9, 0x42};
+    instructions.push_back(inst);
+  }
+
+  // EquateGenerator with min_usage_count=3
+  analysis::EquateGenerator equate_gen(3);
+  equate_gen.AnalyzeInstructions(instructions);
+
+  core::Binary binary({0xA9, 0x42, 0xA9, 0x42, 0xA9, 0x42, 0xA9, 0x42, 0xA9, 0x42}, 0x8000);
+  std::string output = formatter_->Format(binary, instructions, nullptr, nullptr, &equate_gen);
+
+  // Should have EQU statements for value 0x42
+  EXPECT_TRUE(output.find("EQU") != std::string::npos);
+}
+
+// Test equate substitution in immediate operands
+TEST_F(MerlinFormatterTest, EquateSubstitutionInInstruction) {
+  // Create instructions that use the same value multiple times
+  std::vector<core::Instruction> instructions;
+  for (int i = 0; i < 3; ++i) {
+    core::Instruction inst = MakeInstruction(0x8000 + i * 2, "LDA", "#$42", core::AddressingMode::IMMEDIATE);
+    inst.bytes = {0xA9, 0x42};
+    instructions.push_back(inst);
+  }
+
+  analysis::EquateGenerator equate_gen(2);  // min_usage_count = 2
+  equate_gen.AnalyzeInstructions(instructions);
+
+  core::Instruction inst = MakeInstruction(0x8000, "LDA", "#$42", core::AddressingMode::IMMEDIATE);
+  std::string output = formatter_->FormatInstruction(inst, nullptr, nullptr, &equate_gen);
+
+  // Should substitute equate name (generated name will be IMM_42 or similar)
+  EXPECT_TRUE(output.find("LDA") != std::string::npos);
+  // The actual equate name is auto-generated, so just check it's not the raw hex
+  EXPECT_TRUE(output.find("#") != std::string::npos);
+}
+
+// Test equate without comment
+TEST_F(MerlinFormatterTest, EquateWithoutComment) {
+  // Create instructions using value 0x10 multiple times
+  std::vector<core::Instruction> instructions;
+  for (int i = 0; i < 3; ++i) {
+    core::Instruction inst = MakeInstruction(0x8000 + i * 2, "LDA", "#$10", core::AddressingMode::IMMEDIATE);
+    inst.bytes = {0xA9, 0x10};
+    instructions.push_back(inst);
+  }
+
+  analysis::EquateGenerator equate_gen(2);
+  equate_gen.AnalyzeInstructions(instructions);
+
+  core::Binary binary({0xA9, 0x10, 0xA9, 0x10, 0xA9, 0x10}, 0x8000);
+  std::string output = formatter_->Format(binary, instructions, nullptr, nullptr, &equate_gen);
+
+  // Should have EQU directive
+  EXPECT_TRUE(output.find("EQU") != std::string::npos);
+}
+
+// Test malformed equate value (exception handling)
+TEST_F(MerlinFormatterTest, MalformedEquateValue) {
+  std::vector<core::Instruction> instructions;
+  for (int i = 0; i < 3; ++i) {
+    core::Instruction inst = MakeInstruction(0x8000 + i * 2, "LDA", "#$42", core::AddressingMode::IMMEDIATE);
+    inst.bytes = {0xA9, 0x42};
+    instructions.push_back(inst);
+  }
+
+  analysis::EquateGenerator equate_gen(2);
+  equate_gen.AnalyzeInstructions(instructions);
+
+  // Invalid hex string in operand
+  core::Instruction inst = MakeInstruction(0x8000, "LDA", "#$XYZ", core::AddressingMode::IMMEDIATE);
+  std::string output = formatter_->FormatInstruction(inst, nullptr, nullptr, &equate_gen);
+
+  // Should not crash, should keep original operand
+  EXPECT_TRUE(output.find("LDA") != std::string::npos);
+}
+
+// Test ROM routine description comment
+TEST_F(MerlinFormatterTest, ROMRoutineDescription) {
+  core::SymbolTable symbol_table;
+  core::Symbol rom_routine;
+  rom_routine.name = "COUT";
+  rom_routine.address = 0xFDED;
+  rom_routine.type = core::SymbolType::ROM_ROUTINE;
+  rom_routine.description = "Character output routine";
+  symbol_table.AddSymbol(rom_routine);
+
+  core::Instruction inst = MakeInstruction(0x8000, "JSR", "$FDED", core::AddressingMode::ABSOLUTE);
+  inst.target_address = 0xFDED;
+  inst.is_call = true;
+
+  std::string output = formatter_->FormatInstruction(inst, nullptr, &symbol_table);
+
+  // Should have ROM routine description as comment
+  EXPECT_TRUE(output.find("JSR") != std::string::npos);
+  EXPECT_TRUE(output.find("COUT") != std::string::npos);
+  EXPECT_TRUE(output.find("Character output routine") != std::string::npos);
+}
+
+// Test branch instruction comments for all mnemonics
+TEST_F(MerlinFormatterTest, BranchInstructionComments) {
+  struct BranchTest {
+    std::string mnemonic;
+    std::string expected_comment;
+  };
+
+  std::vector<BranchTest> tests = {
+    {"BCS", "Carry set"},
+    {"BCC", "Carry clear"},
+    {"BEQ", "Equal / zero"},
+    {"BNE", "Not equal / not zero"},
+    {"BMI", "Minus / negative"},
+    {"BPL", "Plus / positive"},
+    {"BVS", "Overflow set"},
+    {"BVC", "Overflow clear"},
+    {"BRA", "Always"},
+  };
+
+  for (const auto& test : tests) {
+    core::Instruction inst = MakeInstruction(0x8000, test.mnemonic, "LABEL", core::AddressingMode::RELATIVE);
+    inst.is_branch = true;
+    std::string output = formatter_->FormatInstruction(inst);
+
+    EXPECT_TRUE(output.find(test.expected_comment) != std::string::npos)
+        << "Mnemonic: " << test.mnemonic << " should have comment: " << test.expected_comment;
+  }
+}
+
+// Test non-branch instruction (should not get branch comment)
+TEST_F(MerlinFormatterTest, NonBranchNoComment) {
+  core::Instruction inst = MakeInstruction(0x8000, "LDA", "#$00", core::AddressingMode::IMMEDIATE);
+  std::string output = formatter_->FormatInstruction(inst);
+
+  // Should not have any branch-related comments
+  EXPECT_TRUE(output.find("Carry") == std::string::npos);
+  EXPECT_TRUE(output.find("zero") == std::string::npos);
+}
+
+// Test IsSubroutineLabel edge cases
+TEST_F(MerlinFormatterTest, SubroutineLabelDetection) {
+  // Test local labels (not subroutines)
+  address_map_->SetLabel(0x8000, ".local");
+  address_map_->SetLabel(0x8001, ":another_local");
+
+  // Test branch labels (not subroutines)
+  address_map_->SetLabel(0x8002, "L_1234");
+
+  // Test data labels (not subroutines)
+  address_map_->SetLabel(0x8003, "DATA_1234");
+
+  // Test zero page labels (not subroutines)
+  address_map_->SetLabel(0x8004, "ZP_10");
+
+  // Test actual subroutine
+  address_map_->SetLabel(0x8005, "SUB_8005");
+
+  core::Binary binary({0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA}, 0x8000);
+  std::vector<core::Instruction> instructions;
+  for (uint32_t addr = 0x8000; addr <= 0x8005; ++addr) {
+    instructions.push_back(MakeInstruction(addr, "NOP"));
+  }
+
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Only SUB_8005 should have separator line
+  // Look for subroutine separator specifically (31 dashes + newline), not header separators (39 dashes)
+  size_t separator_count = 0;
+  size_t pos = 0;
+  while ((pos = output.find("*-------------------------------\n", pos)) != std::string::npos) {
+    separator_count++;
+    pos++;
+  }
+
+  EXPECT_EQ(separator_count, 1) << "Only one subroutine separator should be present";
+}
+
+// Test 4-digit address substitution
+TEST_F(MerlinFormatterTest, FourDigitAddressSubstitution) {
+  address_map_->SetLabel(0x1234, "TARGET");
+  address_map_->SetType(0x1234, core::AddressType::CODE);
+
+  core::Instruction inst = MakeInstruction(0x8000, "JMP", "$1234", core::AddressingMode::ABSOLUTE);
+  inst.target_address = 0x1234;
+
+  std::string output = formatter_->FormatInstruction(inst, address_map_.get());
+
+  // Should substitute 4-digit address with label
+  EXPECT_TRUE(output.find("TARGET") != std::string::npos);
+  EXPECT_TRUE(output.find("$1234") == std::string::npos);
+}
+
+// Test target_address label substitution (priority 3)
+TEST_F(MerlinFormatterTest, TargetAddressLabelSubstitution) {
+  address_map_->SetLabel(0x8010, "LOOP");
+  address_map_->SetType(0x8010, core::AddressType::CODE);
+
+  // Branch instruction with target_address set
+  core::Instruction inst = MakeInstruction(0x8000, "BNE", "$8010", core::AddressingMode::RELATIVE);
+  inst.target_address = 0x8010;
+  inst.is_branch = true;
+
+  std::string output = formatter_->FormatInstruction(inst, address_map_.get());
+
+  // Should use label from target_address
+  EXPECT_TRUE(output.find("LOOP") != std::string::npos);
+}
+
+// Test orphan CODE bytes (no instruction but marked as CODE)
+TEST_F(MerlinFormatterTest, OrphanCODEBytes) {
+  core::Binary binary({0xFF, 0xFF, 0xFF, 0x60}, 0x8000);
+
+  // Mark first 3 bytes as CODE but no instructions
+  address_map_->SetType(0x8000, core::AddressType::CODE);
+  address_map_->SetType(0x8001, core::AddressType::CODE);
+  address_map_->SetType(0x8002, core::AddressType::CODE);
+  address_map_->SetType(0x8003, core::AddressType::CODE);
+  address_map_->SetLabel(0x8000, "ORPHAN");
+
+  // Only one instruction at the end
+  std::vector<core::Instruction> instructions;
+  instructions.push_back(MakeInstruction(0x8003, "RTS"));
+
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should output orphan bytes as HEX data
+  EXPECT_TRUE(output.find("HEX") != std::string::npos);
+  EXPECT_TRUE(output.find("ORPHAN") != std::string::npos);
+  EXPECT_TRUE(output.find("RTS") != std::string::npos);
+}
+
+// Test orphan CODE bytes with mid-instruction label
+TEST_F(MerlinFormatterTest, OrphanCODEBytesWithMidLabel) {
+  core::Binary binary({0xFF, 0xFF, 0xFF}, 0x8000);
+
+  address_map_->SetType(0x8000, core::AddressType::CODE);
+  address_map_->SetType(0x8001, core::AddressType::CODE);
+  address_map_->SetType(0x8002, core::AddressType::CODE);
+  address_map_->SetLabel(0x8000, "START");
+  address_map_->SetLabel(0x8001, "MID");  // Label in middle
+
+  std::vector<core::Instruction> instructions;  // No instructions
+
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should break at MID label
+  EXPECT_TRUE(output.find("START") != std::string::npos);
+  EXPECT_TRUE(output.find("MID") != std::string::npos);
+}
+
+// Test string with carriage return
+TEST_F(MerlinFormatterTest, StringWithCarriageReturn) {
+  // String with embedded CR ($8D)
+  core::Binary binary({'H', 'e', 'l', 'l', 'o', 0x8D, 'W', 'o', 'r', 'l', 'd'}, 0x8000);
+
+  address_map_->SetType(0x8000, core::AddressType::DATA);
+  for (uint32_t i = 0; i <= 10; ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should handle CR specially (output as HEX 8D)
+  EXPECT_TRUE(output.find("HEX   8D") != std::string::npos);
+}
+
+// Test string with delimiter character
+TEST_F(MerlinFormatterTest, StringWithDelimiter) {
+  // String containing apostrophe (will be delimiter)
+  core::Binary binary({'I', 't', '\'', 's'}, 0x8000);
+
+  for (uint32_t i = 0; i < 4; ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should escape delimiter by switching to HEX
+  EXPECT_TRUE(output.find("HEX") != std::string::npos);
+}
+
+// Test address table with symbols
+TEST_F(MerlinFormatterTest, AddressTableWithSymbols) {
+  // Address table: two 16-bit addresses (little-endian)
+  std::vector<uint8_t> table_data = {0x00, 0x90, 0x10, 0x91};  // $9000, $9110
+  core::Binary binary(table_data, 0x8000);
+
+  core::SymbolTable symbol_table;
+  symbol_table.AddSymbol(0x9000, "ROUTINE1");
+  symbol_table.AddSymbol(0x9110, "ROUTINE2");
+
+  for (size_t i = 0; i < table_data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get(), &symbol_table);
+
+  // Should use symbol names in DA directive
+  EXPECT_TRUE(output.find("DA") != std::string::npos);
+  EXPECT_TRUE(output.find("ROUTINE1") != std::string::npos);
+  EXPECT_TRUE(output.find("ROUTINE2") != std::string::npos);
+}
+
+// Test address table with address_map labels
+TEST_F(MerlinFormatterTest, AddressTableWithAddressMapLabels) {
+  // Address table
+  std::vector<uint8_t> table_data = {0x00, 0x90, 0x10, 0x91};
+  core::Binary binary(table_data, 0x8000);
+
+  address_map_->SetLabel(0x9000, "SUB_9000");
+  address_map_->SetType(0x9000, core::AddressType::CODE);
+  address_map_->SetLabel(0x9110, "SUB_9110");
+  address_map_->SetType(0x9110, core::AddressType::CODE);
+
+  for (size_t i = 0; i < table_data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  EXPECT_TRUE(output.find("DA") != std::string::npos);
+  EXPECT_TRUE(output.find("SUB_9000") != std::string::npos);
+  EXPECT_TRUE(output.find("SUB_9110") != std::string::npos);
+}
+
+// Test address table with odd offset
+TEST_F(MerlinFormatterTest, AddressTableWithOddOffset) {
+  // One byte followed by address table
+  std::vector<uint8_t> data = {0xFF, 0x00, 0x90, 0x10, 0x91};
+  core::Binary binary(data, 0x8000);
+
+  for (size_t i = 0; i < data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // DEBUG
+  std::cerr << "=== AddressTableWithOddOffset OUTPUT ===" << std::endl << output << std::endl;
+
+  // Should output first byte separately, then DA
+  EXPECT_TRUE(output.find("HEX   FF") != std::string::npos);
+  EXPECT_TRUE(output.find("DA") != std::string::npos);
+}
+
+// Test address table with leftover bytes
+TEST_F(MerlinFormatterTest, AddressTableWithLeftoverBytes) {
+  // Address table with one extra byte at end
+  std::vector<uint8_t> data = {0x00, 0x90, 0x10, 0x91, 0xFF};
+  core::Binary binary(data, 0x8000);
+
+  for (size_t i = 0; i < data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should have DA followed by HEX for leftover
+  EXPECT_TRUE(output.find("DA") != std::string::npos);
+  EXPECT_TRUE(output.find("HEX   FF") != std::string::npos);
+}
+
+// Test long address table (more than 8 addresses per line)
+TEST_F(MerlinFormatterTest, LongAddressTable) {
+  // 10 addresses (20 bytes)
+  std::vector<uint8_t> data;
+  for (int i = 0; i < 10; ++i) {
+    data.push_back(0x00);
+    data.push_back(0x90 + i);
+  }
+  core::Binary binary(data, 0x8000);
+
+  for (size_t i = 0; i < data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should wrap to multiple lines
+  size_t da_count = 0;
+  size_t pos = 0;
+  while ((pos = output.find("DA", pos)) != std::string::npos) {
+    da_count++;
+    pos += 2;
+  }
+
+  EXPECT_GT(da_count, 1) << "Long address table should wrap to multiple lines";
+}
+
+// Test invalid address table (fallback to HEX)
+TEST_F(MerlinFormatterTest, InvalidAddressTableFallback) {
+  // Random data that doesn't look like addresses
+  std::vector<uint8_t> data = {0x01, 0x02};
+  core::Binary binary(data, 0x8000);
+
+  for (size_t i = 0; i < data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should use HEX directive
+  EXPECT_TRUE(output.find("HEX") != std::string::npos);
+}
+
+// Test inline data (ProDOS MLI parameters)
+TEST_F(MerlinFormatterTest, InlineDataFormatting) {
+  core::Binary binary({0x03, 0x00, 0x90}, 0x8000);
+
+  address_map_->SetType(0x8000, core::AddressType::INLINE_DATA);
+  address_map_->SetType(0x8001, core::AddressType::INLINE_DATA);
+  address_map_->SetType(0x8002, core::AddressType::INLINE_DATA);
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Inline data should never use ASC, always HEX
+  EXPECT_TRUE(output.find("HEX") != std::string::npos);
+  EXPECT_TRUE(output.find("ASC") == std::string::npos);
+}
+
+// Test long hex data (wraps to multiple lines)
+TEST_F(MerlinFormatterTest, LongHexData) {
+  std::vector<uint8_t> data(20, 0xFF);  // 20 bytes of $FF
+  core::Binary binary(data, 0x8000);
+
+  for (size_t i = 0; i < data.size(); ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Should wrap to multiple HEX lines (8 bytes per line)
+  size_t hex_count = 0;
+  size_t pos = 0;
+  while ((pos = output.find("HEX", pos)) != std::string::npos) {
+    hex_count++;
+    pos += 3;
+  }
+
+  EXPECT_GE(hex_count, 2) << "Long data should wrap to multiple HEX lines";
+}
+
+// Test symbol table priority over address_map labels
+TEST_F(MerlinFormatterTest, SymbolTablePriority) {
+  core::SymbolTable symbol_table;
+  symbol_table.AddSymbol(0x9000, "ROM_SYMBOL");
+
+  address_map_->SetLabel(0x9000, "LOCAL_LABEL");
+  address_map_->SetType(0x9000, core::AddressType::CODE);
+
+  core::Instruction inst = MakeInstruction(0x8000, "JMP", "$9000", core::AddressingMode::ABSOLUTE);
+  inst.target_address = 0x9000;
+
+  std::string output = formatter_->FormatInstruction(inst, address_map_.get(), &symbol_table);
+
+  // Symbol table should take priority
+  EXPECT_TRUE(output.find("ROM_SYMBOL") != std::string::npos);
+}
+
+// Test header with empty file type
+TEST_F(MerlinFormatterTest, HeaderWithoutFileType) {
+  core::Binary binary({0x00}, 0x8000);
+  binary.set_source_file("test.bin");
+  // Don't set file_type
+
+  std::string header = formatter_->FormatHeader(binary);
+
+  EXPECT_TRUE(header.find("test.bin") != std::string::npos);
+  EXPECT_TRUE(header.find("$8000") != std::string::npos);
+  // Should not crash when file_type is empty
+}
+
+// Test platform symbols in Format() with references
+TEST_F(MerlinFormatterTest, PlatformSymbolsInFormat) {
+  core::SymbolTable symbol_table;
+  symbol_table.AddSymbol(0xC000, "KEYBOARD");
+
+  core::Binary binary({0xAD, 0x00, 0xC0}, 0x8000);
+  std::vector<core::Instruction> instructions;
+
+  core::Instruction inst = MakeInstruction(0x8000, "LDA", "$C000", core::AddressingMode::ABSOLUTE);
+  inst.target_address = 0xC000;
+  instructions.push_back(inst);
+
+  std::string output = formatter_->Format(binary, instructions, nullptr, &symbol_table);
+
+  // Should have EQU statement for KEYBOARD
+  EXPECT_TRUE(output.find("KEYBOARD") != std::string::npos);
+  EXPECT_TRUE(output.find("EQU   $C000") != std::string::npos);
 }
 
 }  // namespace

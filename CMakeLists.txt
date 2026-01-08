@@ -142,6 +142,17 @@ target_link_libraries(sourcerer PRIVATE
 # Tests
 if(BUILD_TESTING)
     add_subdirectory(tests)
+
+    # Coverage target - runs tests and generates comprehensive coverage report
+    # Requires build with --coverage flag: cmake -DCMAKE_CXX_FLAGS="--coverage"
+    add_custom_target(coverage
+        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/analyze_coverage.py ${CMAKE_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Running tests and generating coverage report..."
+        DEPENDS test_formatters test_analysis test_6502 test_core test_integration
+    )
 endif()
 
 # Installation

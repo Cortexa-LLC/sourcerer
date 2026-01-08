@@ -102,7 +102,12 @@ bool SymbolTable::LoadFromJson(const std::string& json_content) {
 }
 
 void SymbolTable::AddSymbol(const Symbol& symbol) {
-  symbols_[symbol.address] = symbol;
+  Symbol s = symbol;
+  // Default symbol field to name if not set (assembler-safe name)
+  if (s.symbol.empty()) {
+    s.symbol = s.name;
+  }
+  symbols_[s.address] = s;
 }
 
 void SymbolTable::AddSymbol(uint32_t address, const std::string& name,

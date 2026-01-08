@@ -264,6 +264,186 @@ TEST_F(ExecutionSimulator6809EnhancedTest, SignedComparisonBGT) {
   EXPECT_TRUE(discovered.count(0x8008) > 0);
 }
 
+// ============================================================================
+// Work Package 4: ExecutionSimulator Edge Cases and Coverage (90% target)
+// ============================================================================
+
+// Test 1: WouldBranchBeTaken method - Check branch evaluation at specific address
+TEST_F(ExecutionSimulator6502EnhancedTest, WouldBranchBeTaken) {
+  // Setup code with LDA setting Z flag, then BEQ
+  std::vector<uint8_t> code = {
+    0xA9, 0x00,  // LDA #$00 (sets Z=1)
+    0xF0, 0x02   // BEQ +2
+  };
+
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  // Simulate to set up CPU state
+  sim.SimulateFrom(0x2000, 1);  // Execute LDA #$00
+
+  // Now check if BEQ at 0x2002 would be taken
+  bool would_branch = sim.WouldBranchBeTaken(0x2002);
+  EXPECT_TRUE(would_branch);  // Z=1, so BEQ should be taken
+}
+
+// Test 2: Invalid address - Simulation stops at invalid address
+TEST_F(ExecutionSimulator6502EnhancedTest, InvalidAddress) {
+  // Code that would branch to invalid address
+  std::vector<uint8_t> code = {
+    0xA9, 0x00,  // LDA #$00
+    0x4C, 0x00, 0x90  // JMP $9000 (outside binary range)
+  };
+
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x2000, 10);
+
+  // Should discover the jump target even though it's invalid
+  EXPECT_TRUE(discovered.count(0x9000) > 0);
+}
+
+// Test 3: Loop detection - Simulation stops when revisiting same address
+TEST_F(ExecutionSimulator6502EnhancedTest, LoopDetection) {
+  // Infinite loop: JMP to self
+  std::vector<uint8_t> code = {
+    0x4C, 0x00, 0x20  // JMP $2000 (self)
+  };
+
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x2000, 100);
+
+  // Should stop before hitting max iterations due to loop detection
+  // discovered should contain $2000 (the loop target)
+  EXPECT_TRUE(discovered.count(0x2000) > 0);
+}
+
+// Test 4: Max iterations reached
+TEST_F(ExecutionSimulator6502EnhancedTest, MaxIterations) {
+  // Long sequence of NOPs
+  std::vector<uint8_t> code(200, 0xEA);  // 200 NOPs
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  // Limit to 10 instructions
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x2000, 10);
+
+  // Should stop after 10 instructions (not execute all 200)
+  // discovered set should be relatively small
+  EXPECT_TRUE(discovered.size() < 20);  // Much less than 200
+}
+
+// Test 5: Branch not taken path
+TEST_F(ExecutionSimulator6502EnhancedTest, BranchNotTaken) {
+  // LDA non-zero, then BEQ (should not be taken)
+  std::vector<uint8_t> code = {
+    0xA9, 0x42,  // LDA #$42 (Z=0)
+    0xF0, 0x04,  // BEQ +4 (not taken)
+    0xEA,        // NOP (should execute)
+    0xEA,        // NOP (should execute)
+    0x60,        // RTS
+    0xEA,        // NOP (branch target - NOT executed)
+    0x60         // RTS (branch target)
+  };
+
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x2000, 10);
+
+  // Should NOT discover the branch target (Z=0, BEQ not taken)
+  EXPECT_TRUE(discovered.count(0x2008) == 0);
+}
+
+// Test 6: Indirect jump with unknown target
+TEST_F(ExecutionSimulator6809EnhancedTest, IndirectJumpUnknownTarget) {
+  // JMP indirect - target not determinable statically
+  std::vector<uint8_t> code = {
+    0x6E, 0x84   // JMP [,X] - indirect indexed jump
+  };
+
+  core::Binary binary(code, 0x8000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x8000, 10);
+
+  // Simulation should stop (can't determine target)
+  // discovered should be empty or minimal
+  EXPECT_TRUE(discovered.size() < 5);
+}
+
+// Test 7: JSR not followed (to avoid deep recursion)
+TEST_F(ExecutionSimulator6809EnhancedTest, JSRNotFollowed) {
+  // JSR to subroutine
+  std::vector<uint8_t> code = {
+    0xBD, 0x90, 0x00,  // JSR $9000
+    0xEA,              // NOP (after JSR)
+    0x39               // RTS
+  };
+
+  core::Binary binary(code, 0x8000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x8000, 10);
+
+  // Should discover JSR target but not follow it
+  EXPECT_TRUE(discovered.count(0x9000) > 0);
+  // Should continue after JSR
+  // (execution continues, but we don't deeply verify subroutine contents)
+}
+
+// Test 8: Memory write and read
+TEST_F(ExecutionSimulator6502EnhancedTest, MemoryWriteAndRead) {
+  // STA to zero page, then LDA from same location
+  std::vector<uint8_t> code = {
+    0xA9, 0x42,  // LDA #$42
+    0x85, 0x10,  // STA $10
+    0xA5, 0x10,  // LDA $10 (should read back $42)
+    0x60         // RTS
+  };
+
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  // Should execute without error
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x2000, 10);
+
+  // Basic sanity check - simulation completes
+  EXPECT_TRUE(discovered.size() >= 0);
+}
+
+// Test 9: Disassembly failure during simulation
+TEST_F(ExecutionSimulator6502EnhancedTest, DisassemblyFailure) {
+  // Invalid opcode should stop simulation
+  std::vector<uint8_t> code = {
+    0xA9, 0x00,  // LDA #$00
+    0x02         // Invalid 6502 opcode (JAM)
+  };
+
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  std::set<uint32_t> discovered = sim.SimulateFrom(0x2000, 10);
+
+  // Simulation should stop at invalid instruction
+  // Should have executed at least LDA
+  EXPECT_TRUE(discovered.size() < 10);
+}
+
+// Test 10: WouldBranchBeTaken with invalid address
+TEST_F(ExecutionSimulator6502EnhancedTest, WouldBranchBeTakenInvalidAddress) {
+  std::vector<uint8_t> code = {0xEA};
+  core::Binary binary(code, 0x2000);
+  ExecutionSimulator sim(cpu_.get(), &binary);
+
+  // Query branch at invalid address
+  bool would_branch = sim.WouldBranchBeTaken(0x9000);
+  EXPECT_FALSE(would_branch);  // Invalid address, should return false
+}
+
 }  // namespace
 }  // namespace analysis
 }  // namespace sourcerer

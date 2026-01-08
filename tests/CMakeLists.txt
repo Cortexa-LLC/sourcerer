@@ -29,6 +29,18 @@ target_link_libraries(test_6502 PRIVATE
 )
 gtest_discover_tests(test_6502)
 
+# Test executable for 6809 CPU plugin
+add_executable(test_6809
+    test_cpu_6809.cpp
+)
+target_link_libraries(test_6809 PRIVATE
+    cpu_plugins
+    utils
+    GTest::gtest
+    GTest::gtest_main
+)
+gtest_discover_tests(test_6809)
+
 # Test executable for analysis modules
 add_executable(test_analysis
     test_hints_parser.cpp

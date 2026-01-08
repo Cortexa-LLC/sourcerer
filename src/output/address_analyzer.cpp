@@ -142,7 +142,16 @@ AddressTableInfo AddressAnalyzer::FindAddressTableLengthAndOffset(
   if (valid_length_1 > valid_length_0) {
     prefer_offset_1 = true;
   } else if (valid_length_1 == valid_length_0 && valid_length_0 >= 4) {
-    if (bytes[0] < 0x20 && bytes[0] != 0x00) {
+    // Check first address from each offset
+    uint16_t addr0 = bytes[0] | (bytes[1] << 8);
+    uint16_t addr1 = bytes[1] | (bytes[2] << 8);
+
+    // Prefer offset 1 if it gives higher/more typical addresses
+    if (addr1 >= 0x0400 && addr0 < 0x0400) {
+      prefer_offset_1 = true;
+    }
+    // Or if first byte is control/graphics char
+    else if (bytes[0] < 0x20 && bytes[0] != 0x00) {
       prefer_offset_1 = true;
     }
   }
