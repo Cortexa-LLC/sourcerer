@@ -62,28 +62,8 @@ class CodeAnalyzer {
   // Known platform-specific inline data routines (like ProDOS MLI)
   std::map<uint32_t, size_t> known_inline_data_routines_;  // address -> bytes_after_call
 
-  // Queue-based analysis
-  void AnalyzeFromQueue(core::AddressMap* address_map);
-
-  // Process a single address
-  void ProcessAddress(uint32_t address,
-                     core::AddressMap* address_map,
-                     std::queue<uint32_t>* queue,
-                     std::set<uint32_t>* visited);
-
   // Check if address is valid and within binary bounds
   bool IsValidAddress(uint32_t address) const;
-
-  // Check if instruction should stop current path
-  bool ShouldStopPath(const core::Instruction& inst) const;
-
-  // Check if a subroutine uses inline data pattern
-  // (pulls return address, reads data, adjusts it, pushes back)
-  bool IsInlineDataRoutine(uint32_t address, core::AddressMap* address_map);
-
-  // Scan inline data after JSR and return address after data
-  // Returns 0 if no valid terminator found
-  uint32_t ScanInlineData(uint32_t start_address, core::AddressMap* address_map);
 
   // Second pass: Reclassify CODE after computed jumps
   void ReclassifyAfterComputedJumps(core::AddressMap* address_map);

@@ -6,6 +6,36 @@
 
 ---
 
+## ⚠️ CRITICAL: Task Packet Requirement
+
+**BEFORE starting ANY non-trivial task, you MUST:**
+
+1. **Create task packet directory:** `.ai/tasks/YYYY-MM-DD_task-name/`
+2. **Copy ALL 5 templates** from `.ai-pack/templates/task-packet/`
+3. **Fill out 00-contract.md** with requirements and acceptance criteria
+4. **Fill out 10-plan.md** with implementation approach
+5. **Update 20-work-log.md** during implementation
+6. **ONLY THEN** begin implementation
+
+**Non-Trivial = Any task that:**
+- Requires >2 steps
+- Involves code changes (writing tests, modifying C++ code)
+- Takes >30 minutes
+- Needs verification (tests, coverage, build)
+
+**This is MANDATORY. Do not skip this step.**
+
+**Example:**
+```bash
+# For coverage improvement task:
+TASK_ID=$(date +%Y-%m-%d)_coverage-improvement
+mkdir -p .ai/tasks/$TASK_ID
+cp .ai-pack/templates/task-packet/*.md .ai/tasks/$TASK_ID/
+# Then fill out 00-contract.md and 10-plan.md BEFORE starting work
+```
+
+---
+
 ## Project Overview
 
 **Sourcerer** is a modern, multi-CPU disassembler for vintage computer binaries. It supports:
@@ -202,9 +232,9 @@ gcov build_coverage/src/analysis/CMakeFiles/analysis.dir/code_analyzer.cpp.gcno
 
 ## Task Management Protocol
 
-### For Non-Trivial Tasks
+### MANDATORY: Task Packet Creation
 
-Every non-trivial task requires a task packet in `.ai/tasks/`:
+**CRITICAL REQUIREMENT:** Every non-trivial task MUST have a task packet in `.ai/tasks/` created BEFORE implementation begins.
 
 **1. Create Task Packet**
 

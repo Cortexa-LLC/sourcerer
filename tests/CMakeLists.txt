@@ -8,9 +8,11 @@ add_executable(test_core
     test_binary.cpp
     test_instruction.cpp
     test_address_map.cpp
+    test_symbol_table.cpp
 )
 target_link_libraries(test_core PRIVATE
     sourcerer_core
+    utils
     GTest::gtest
     GTest::gtest_main
 )
@@ -48,6 +50,7 @@ add_executable(test_analysis
     test_xref_builder.cpp
     test_execution_simulator_enhanced.cpp
     test_code_analyzer_integration.cpp
+    test_pattern_detector.cpp
 )
 target_link_libraries(test_analysis PRIVATE
     analysis
@@ -62,6 +65,7 @@ gtest_discover_tests(test_analysis)
 add_executable(test_formatters
     test_merlin_formatter.cpp
     test_scmasm_formatter.cpp
+    test_edtasm_formatter.cpp
 )
 target_link_libraries(test_formatters PRIVATE
     formatters

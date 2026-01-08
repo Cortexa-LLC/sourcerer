@@ -42,6 +42,9 @@ class EdtasmFormatter : public Formatter {
 
   std::string FormatFooter() override;
 
+  // Exposed for testing
+  bool IsSubroutineLabel(const std::string& label) const;
+
  private:
   // Column positions for EDTASM+ format
   static constexpr int LABEL_COL = 0;
@@ -55,9 +58,6 @@ class EdtasmFormatter : public Formatter {
   // Helper: Format label for address
   std::string GetLabel(uint32_t address,
                       const core::AddressMap* address_map) const;
-
-  // Helper: Check if label represents a subroutine (needs separator)
-  bool IsSubroutineLabel(const std::string& label) const;
 
   // Helper: Generate contextual comment for branch instructions
   std::string GenerateBranchComment(const std::string& mnemonic) const;

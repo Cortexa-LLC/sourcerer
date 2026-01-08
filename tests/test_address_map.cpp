@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+
 namespace sourcerer {
 namespace core {
 namespace {
@@ -309,6 +311,73 @@ TEST_F(AddressMapTest, ComprehensiveScenario) {
   EXPECT_EQ(addr_map_->GetLabel(0x9000), "DATA_TABLE");
   EXPECT_TRUE(addr_map_->HasXrefs(0x8010));
   EXPECT_TRUE(addr_map_->HasXrefs(0x9000));
+}
+
+// Test RemoveXrefsFrom
+TEST_F(AddressMapTest, RemoveXrefsFrom) {
+  // Add xrefs from multiple sources to same target
+  addr_map_->AddXref(0x8010, 0x8000);  // 8000 references 8010
+  addr_map_->AddXref(0x8010, 0x8020);  // 8020 references 8010
+  addr_map_->AddXref(0x8010, 0x8030);  // 8030 references 8010
+
+  EXPECT_EQ(addr_map_->GetXrefs(0x8010).size(), 3);
+
+  // Remove xrefs from source 0x8020
+  addr_map_->RemoveXrefsFrom(0x8020);
+
+  // Should have 2 xrefs left (from 0x8000 and 0x8030)
+  std::vector<uint32_t> xrefs = addr_map_->GetXrefs(0x8010);
+  EXPECT_EQ(xrefs.size(), 2);
+  EXPECT_TRUE(std::find(xrefs.begin(), xrefs.end(), 0x8000) != xrefs.end());
+  EXPECT_TRUE(std::find(xrefs.begin(), xrefs.end(), 0x8030) != xrefs.end());
+}
+
+// Test RemoveXrefsFrom with non-existent source
+TEST_F(AddressMapTest, RemoveXrefsFromNonExistent) {
+  addr_map_->AddXref(0x8010, 0x8000);
+  addr_map_->AddXref(0x8010, 0x8020);
+
+  // Remove xrefs from non-existent source
+  addr_map_->RemoveXrefsFrom(0x9999);
+
+  // Should still have 2 xrefs
+  EXPECT_EQ(addr_map_->GetXrefs(0x8010).size(), 2);
+}
+
+// Test RemoveXrefsFrom multiple targets
+TEST_F(AddressMapTest, RemoveXrefsFromMultipleTargets) {
+  // Source 0x8000 references both 0x8010 and 0x8020
+  addr_map_->AddXref(0x8010, 0x8000);
+  addr_map_->AddXref(0x8020, 0x8000);
+  addr_map_->AddXref(0x8020, 0x8005);
+
+  // Remove all xrefs from source 0x8000
+  addr_map_->RemoveXrefsFrom(0x8000);
+
+  // 0x8010 should have no xrefs
+  EXPECT_EQ(addr_map_->GetXrefs(0x8010).size(), 0);
+
+  // 0x8020 should have 1 xref (from 0x8005)
+  EXPECT_EQ(addr_map_->GetXrefs(0x8020).size(), 1);
+  EXPECT_EQ(addr_map_->GetXrefs(0x8020)[0], 0x8005);
+}
+
+// Test GetLabel return value
+TEST_F(AddressMapTest, GetLabelReturnValue) {
+  addr_map_->SetLabel(0x8000, "START");
+
+  auto label = addr_map_->GetLabel(0x8000);
+  ASSERT_TRUE(label.has_value());
+  EXPECT_EQ(*label, "START");
+}
+
+// Test GetComment return value
+TEST_F(AddressMapTest, GetCommentReturnValue) {
+  addr_map_->SetComment(0x8000, "Entry point");
+
+  auto comment = addr_map_->GetComment(0x8000);
+  ASSERT_TRUE(comment.has_value());
+  EXPECT_EQ(*comment, "Entry point");
 }
 
 }  // namespace

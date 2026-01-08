@@ -1,10 +1,17 @@
 # Build directories
 build/
+build_cov/
+build_gcov/
 cmake-build-*/
 out/
 
 # Claude Code
 .claude/
+
+# AI Pack - Task packets (ephemeral working state)
+.ai/tasks/
+
+# Keep .ai/repo-overrides.md tracked (project-specific config)
 
 # IDE files
 .vscode/
@@ -55,7 +62,21 @@ compile_commands.json
 *.gcda
 *.gcno
 coverage/
+build_coverage/
 
 # Temp files
 /examples/SOURCEROR/
 *.bak
+*.backup
+test.py
+calc_coverage.py
+SESSION_SUMMARY.md
+
+# Test output
+test_output/
+
+# Environment files
+.env
+
+# Reference materials (large PDFs, copyrighted)
+references/

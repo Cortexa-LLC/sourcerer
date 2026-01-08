@@ -27,7 +27,7 @@ A modern C++ command-line disassembler inspired by Merlin Pro's SOURCEROR, desig
 
 ### Multi-CPU & Format Support
 - **CPUs**: 6502, 65C02, 6809 with full execution simulation support (65816, Z80 coming soon)
-- **Output Formats**: Merlin, SCMASM 3.1, EDTASM+ (ca65 planned)
+- **Output Formats**: Merlin, SCMASM 3.1, EDTASM+
 - **Disk Images**: Apple DOS 3.3, ProDOS, CoCo DSK via native extractors
 - **Modern CLI**: Intuitive command-line with `--platform`, `--symbols`, `--hints`
 
@@ -46,44 +46,51 @@ A modern C++ command-line disassembler inspired by Merlin Pro's SOURCEROR, desig
 # 1. Install dependencies (ACX.jar)
 python3 setup.py
 
-# 2. Create build directory
-mkdir build && cd build
+# 2. Build using Makefile (recommended)
+make build
 
-# 3. Configure and build
-cmake ..
-make -j8
+# Or using CMake directly
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
 
-# 4. Install (optional)
-sudo make install
+# 3. Install (optional)
+cd build && sudo make install
 
 # The executable will be in build/sourcerer (or /usr/local/bin after install)
 ```
+
+**Makefile Targets:**
+- `make build` - Build project
+- `make test` - Build and run all tests
+- `make coverage` - Build with coverage and run tests
+- `make clean` - Clean build artifacts
+- `make help` - Show all available targets
 
 **Windows users:** Replace `make` with `cmake --build . --config Release`
 
 ### Run Tests
 
-The project includes comprehensive test coverage with 200+ tests:
-- Core modules: 18 tests
-- CPU plugins (6502/65C02): 52 tests
-- Analysis modules (including execution simulator): 60 tests
-- Output formatters: 40+ tests
+The project includes comprehensive test coverage with **689 tests** achieving **80.5% code coverage**:
+- Core modules: 95 tests (92.4% coverage)
+- CPU plugins (6502/65C02/6809): 162 tests (80.6% coverage)
+- Analysis modules: 329 tests (75.8% coverage)
+- Output formatters: 103 tests (79.8% coverage)
 
 ```bash
-# Configure with testing enabled
-cmake .. -DBUILD_TESTING=ON
+# Using Makefile (recommended)
+make test           # Build and run all tests
+make coverage       # Build with coverage and run tests
 
-# Build tests
-make -j8
+# Or using CMake directly
+cmake -B build -DBUILD_TESTING=ON
+cmake --build build
+cd build && ctest --output-on-failure
 
-# Run all tests
-ctest --output-on-failure
-
-# Or run specific test suites
-./tests/test_core
-./tests/test_6502
-./tests/test_analysis
-./tests/test_formatters
+# Run specific test suites
+./build/tests/test_core
+./build/tests/test_6502
+./build/tests/test_analysis
+./build/tests/test_formatters
 ```
 
 ## Usage
@@ -118,10 +125,10 @@ COUT     EQU   $FDED
 
          ORG   $8000
 
-         JSR   COUT                     ; $8000
-         JSR   HOME                     ; $8003
-         STA   PROMPT                   ; $8006
-         RTS                            ; $8008
+         JSR   COUT
+         JSR   HOME
+         STA   PROMPT
+         RTS
 
          CHK
 ```
