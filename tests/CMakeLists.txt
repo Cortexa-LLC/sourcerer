@@ -35,6 +35,7 @@ add_executable(test_analysis
     test_label_generator.cpp
     test_xref_builder.cpp
     test_execution_simulator_enhanced.cpp
+    test_code_analyzer_integration.cpp
 )
 target_link_libraries(test_analysis PRIVATE
     analysis

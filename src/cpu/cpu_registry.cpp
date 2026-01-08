@@ -10,6 +10,23 @@
 namespace sourcerer {
 namespace cpu {
 
+std::string CpuVariantToString(CpuVariant variant) {
+  switch (variant) {
+    case CpuVariant::MOS_6502:
+      return "6502";
+    case CpuVariant::WDC_65C02:
+      return "65c02";
+    case CpuVariant::WDC_65816:
+      return "65816";
+    case CpuVariant::MOTOROLA_6809:
+      return "6809";
+    case CpuVariant::ZILOG_Z80:
+      return "z80";
+    default:
+      return "unknown";
+  }
+}
+
 CpuRegistry& CpuRegistry::Instance() {
   static CpuRegistry instance;
   return instance;
@@ -42,6 +59,10 @@ std::unique_ptr<CpuPlugin> CpuRegistry::Create(const std::string& name) const {
   }
   LOG_ERROR("CPU plugin not found: " + name);
   return nullptr;
+}
+
+std::unique_ptr<CpuPlugin> CpuRegistry::Create(CpuVariant variant) const {
+  return Create(CpuVariantToString(variant));
 }
 
 bool CpuRegistry::IsRegistered(const std::string& name) const {

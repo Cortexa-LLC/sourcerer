@@ -14,6 +14,9 @@
 namespace sourcerer {
 namespace cpu {
 
+// Convert CpuVariant enum to registry name string
+std::string CpuVariantToString(CpuVariant variant);
+
 // Registry for CPU plugins
 class CpuRegistry {
  public:
@@ -24,6 +27,9 @@ class CpuRegistry {
 
   // Create a CPU plugin by name
   std::unique_ptr<CpuPlugin> Create(const std::string& name) const;
+
+  // Create a CPU plugin by variant (type-safe)
+  std::unique_ptr<CpuPlugin> Create(CpuVariant variant) const;
 
   // Check if a CPU plugin is registered
   bool IsRegistered(const std::string& name) const;
