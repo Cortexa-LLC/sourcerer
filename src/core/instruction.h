@@ -63,10 +63,10 @@ struct Instruction {
   Instruction();
 
   // Get instruction size
-  size_t Size() const { return bytes.size(); }
+  size_t Size() const noexcept { return bytes.size(); }
 
   // Check if instruction has a target address
-  bool HasTarget() const { return target_address != 0; }
+  bool HasTarget() const noexcept { return target_address != 0; }
 
   // Format instruction as string (mnemonic + operand)
   std::string ToString() const;

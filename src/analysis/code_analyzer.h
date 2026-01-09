@@ -10,6 +10,10 @@
 #include <set>
 #include <vector>
 
+#include "analysis/data_heuristics_engine.h"
+#include "analysis/entry_point_discovery_strategy.h"
+#include "analysis/graphics_detection_strategy.h"
+#include "analysis/strategies/misalignment_resolver.h"
 #include "core/address_map.h"
 #include "core/binary.h"
 #include "core/instruction.h"
@@ -50,6 +54,12 @@ class CodeAnalyzer {
   const core::Binary* binary_;
   std::set<uint32_t> entry_points_;
   size_t max_instructions_ = 100000;  // Safety limit
+
+  // Strategy engines (SOLID: composition over inheritance)
+  std::unique_ptr<DataHeuristicsEngine> data_heuristics_;
+  std::unique_ptr<GraphicsDetectionStrategy> graphics_detection_;
+  std::unique_ptr<MisalignmentResolver> misalignment_resolver_;
+  std::unique_ptr<EntryPointDiscoveryStrategy> entry_point_discovery_;
 
   // Statistics
   size_t instruction_count_ = 0;

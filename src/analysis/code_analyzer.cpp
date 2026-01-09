@@ -15,10 +15,18 @@ namespace sourcerer {
 namespace analysis {
 
 CodeAnalyzer::CodeAnalyzer(cpu::CpuPlugin* cpu, const core::Binary* binary)
-    : cpu_(cpu), binary_(binary) {
+    : cpu_(cpu),
+      binary_(binary),
+      data_heuristics_(std::make_unique<DataHeuristicsEngine>(binary)),
+      graphics_detection_(std::make_unique<GraphicsDetectionStrategy>(binary)),
+      misalignment_resolver_(std::make_unique<MisalignmentResolver>(cpu, binary)),
+      entry_point_discovery_(std::make_unique<EntryPointDiscoveryStrategy>(cpu, binary)) {
   // Register known platform-specific inline data routines
   // ProDOS MLI: JSR $BF00 followed by 1 byte (command) + 2 bytes (param pointer)
   known_inline_data_routines_[0xBF00] = 3;
+
+  // Share instruction cache with misalignment resolver (WP-01 Phase 3)
+  misalignment_resolver_->SetInstructionCache(&instruction_cache_);
 }
 
 void CodeAnalyzer::AddEntryPoint(uint32_t address) {
@@ -180,7 +188,12 @@ uint32_t CodeAnalyzer::FindFirstValidInstruction(uint32_t start_address) const {
 
         valid_count++;
         current += inst.bytes.size();
-      } catch (...) {
+      } catch (const std::out_of_range&) {
+        // Address out of bounds
+        sequence_valid = false;
+        break;
+      } catch (const std::runtime_error&) {
+        // Invalid opcode - not a valid code sequence
         sequence_valid = false;
         break;
       }
@@ -247,7 +260,12 @@ void CodeAnalyzer::ReclassifyAfterComputedJumps(core::AddressMap* address_map) {
     core::Instruction inst;
     try {
       inst = cpu_->Disassemble(data, remaining, addr);
-    } catch (...) {
+    } catch (const std::out_of_range&) {
+      // Address out of bounds - skip to next
+      addr++;
+      continue;
+    } catch (const std::runtime_error&) {
+      // Invalid opcode - skip to next
       addr++;
       continue;
     }
@@ -382,7 +400,10 @@ void CodeAnalyzer::ReclassifyMixedCodeDataRegions(core::AddressMap* address_map)
         // Invalid instruction at CODE address (potential phantom)
         addr++;
       }
-    } catch (...) {
+    } catch (const std::out_of_range&) {
+      // Address out of bounds at CODE address (potential phantom)
+      addr++;
+    } catch (const std::runtime_error&) {
       // Disassembly failed at CODE address (potential phantom)
       addr++;
     }
@@ -599,291 +620,45 @@ void CodeAnalyzer::ReclassifyDataRegions(core::AddressMap* address_map) {
 }
 
 bool CodeAnalyzer::LooksLikeData(uint32_t start_address, uint32_t end_address) const {
-  if (end_address <= start_address) return false;
-
-  uint32_t region_size = end_address - start_address + 1;
-
-  // Very small regions (< 4 bytes) are hard to determine, assume code
-  if (region_size < 4) return false;
-
-  // Calculate percentage of printable ASCII bytes
-  float printable_pct = CalculatePrintablePercentage(start_address, end_address);
-
-  // Check for long sequences of consecutive printable bytes (likely strings)
-  int max_consecutive_printable = 0;
-  int current_consecutive = 0;
-  int string_count = 0;  // Count of distinct string-like sequences
-
-  for (uint32_t addr = start_address; addr <= end_address; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte) break;
-
-    uint8_t low = (*byte) & 0x7F;  // Strip high bit
-    if (low >= 0x20 && low < 0x7F) {
-      current_consecutive++;
-      if (current_consecutive > max_consecutive_printable) {
-        max_consecutive_printable = current_consecutive;
-      }
-    } else {
-      // If we had a string-like sequence, count it
-      if (current_consecutive >= 5) {
-        string_count++;
-      }
-      current_consecutive = 0;
-    }
-  }
-
-  // Count the last sequence if it ended at the boundary
-  if (current_consecutive >= 5) {
-    string_count++;
-  }
-
-  // Strong indicator: 20+ consecutive printable characters (definitely a string)
-  if (max_consecutive_printable >= 20) {
-    return true;
-  }
-
-  // Medium indicator: 80%+ printable AND 10+ consecutive (likely string)
-  if (printable_pct > 0.80f && max_consecutive_printable >= 10) {
-    return true;
-  }
-
-  // Multiple short strings indicator: 2+ sequences of 5+ printable chars
-  if (string_count >= 2 && printable_pct > 0.60f) {
-    return true;
-  }
-
-  // Check for unlikely instruction patterns
-  // Count how many times the same opcode appears consecutively
-  int max_same_opcode = 0;
-  int current_same_opcode = 1;
-  uint8_t prev_opcode = 0;
-
-  for (uint32_t addr = start_address; addr <= end_address; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte) break;
-
-    if (addr == start_address) {
-      prev_opcode = *byte;
-    } else {
-      if (*byte == prev_opcode) {
-        current_same_opcode++;
-        if (current_same_opcode > max_same_opcode) {
-          max_same_opcode = current_same_opcode;
-        }
-      } else {
-        current_same_opcode = 1;
-        prev_opcode = *byte;
-      }
-    }
-  }
-
-  // If we have 4+ consecutive identical bytes, suspicious (likely data table)
-  if (max_same_opcode >= 4) {
-    return true;
-  }
-
-  // Check for null-terminated string pattern
-  // Look for sequences of printable chars followed by 0x00
-  int null_terminated_strings = 0;
-  for (uint32_t addr = start_address; addr < end_address; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte || *byte != 0x00) continue;
-
-    // Found a null byte - check if preceded by printable chars
-    int printable_before = 0;
-    for (int i = 1; i <= 10 && addr >= start_address + i; ++i) {
-      const uint8_t* prev = binary_->GetPointer(addr - i);
-      if (!prev) break;
-      uint8_t low = (*prev) & 0x7F;
-      if (low >= 0x20 && low < 0x7F) {
-        printable_before++;
-      } else {
-        break;
-      }
-    }
-
-    if (printable_before >= 3) {
-      null_terminated_strings++;
-    }
-  }
-
-  // If we have null-terminated strings, likely data
-  if (null_terminated_strings >= 1) {
-    return true;
-  }
-
-  // Check for common data patterns (tables of addresses, etc.)
-  // Look for patterns like: low byte, high byte pairs that look like addresses
-  uint32_t address_like_pairs = 0;
-  for (uint32_t addr = start_address; addr < end_address - 1; addr += 2) {
-    const uint8_t* lo = binary_->GetPointer(addr);
-    const uint8_t* hi = binary_->GetPointer(addr + 1);
-    if (!lo || !hi) continue;
-
-    // Check if this forms a reasonable address (typically $0000-$FFFF)
-    // Common ranges: $0000-$00FF (zero page), $0800-$BFFF (user), $C000-$FFFF (ROM)
-    uint16_t potential_addr = (*lo) | ((*hi) << 8);
-    if (potential_addr >= 0x0800 || potential_addr < 0x0100) {
-      address_like_pairs++;
-    }
-  }
-
-  // If most pairs look like addresses, might be a jump table
-  if (region_size >= 8 && address_like_pairs >= (region_size / 4)) {
-    return true;
-  }
-
-  // Default: assume it's code
-  return false;
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->LooksLikeData(start_address, end_address);
 }
 
 float CodeAnalyzer::CalculatePrintablePercentage(uint32_t start, uint32_t end) const {
-  if (end <= start) return 0.0f;
-
-  int printable_count = 0;
-  int total_count = 0;
-
-  for (uint32_t addr = start; addr <= end; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte) break;
-
-    total_count++;
-    uint8_t low = (*byte) & 0x7F;  // Strip high bit
-    if (low >= 0x20 && low < 0x7F) {
-      printable_count++;
-    }
-  }
-
-  if (total_count == 0) return 0.0f;
-  return static_cast<float>(printable_count) / static_cast<float>(total_count);
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->CalculatePrintablePercentage(start, end);
 }
 
 // NEW: Conservative reclassification helper methods
 int CodeAnalyzer::CountXrefsInRange(core::AddressMap* address_map,
                                     uint32_t start, uint32_t end) const {
-  int count = 0;
-  for (uint32_t addr = start; addr < end; ++addr) {
-    if (address_map->HasXrefs(addr)) {
-      count += address_map->GetXrefs(addr).size();
-    }
-  }
-  return count;
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->CountXrefsInRange(address_map, start, end);
 }
 
 bool CodeAnalyzer::HasLongPrintableSequence(uint32_t start, uint32_t end) const {
-  int max_consecutive = 0;
-  int current_consecutive = 0;
-
-  for (uint32_t addr = start; addr <= end; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte) break;
-
-    uint8_t low = (*byte) & 0x7F;
-    if (low >= 0x20 && low < 0x7F) {
-      current_consecutive++;
-      max_consecutive = std::max(max_consecutive, current_consecutive);
-    } else {
-      current_consecutive = 0;
-    }
-  }
-
-  return max_consecutive >= 24;  // Raised threshold
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->HasLongPrintableSequence(start, end);
 }
 
 bool CodeAnalyzer::HasNullTerminatedStrings(uint32_t start, uint32_t end) const {
-  int null_terminated_strings = 0;
-
-  for (uint32_t addr = start; addr < end; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte || *byte != 0x00) continue;
-
-    // Check if preceded by printable chars
-    int printable_before = 0;
-    for (int i = 1; i <= 10 && addr >= start + i; ++i) {
-      const uint8_t* prev = binary_->GetPointer(addr - i);
-      if (!prev) break;
-      uint8_t low = (*prev) & 0x7F;
-      if (low >= 0x20 && low < 0x7F) {
-        printable_before++;
-      } else {
-        break;
-      }
-    }
-
-    if (printable_before >= 3) {
-      null_terminated_strings++;
-    }
-  }
-
-  return null_terminated_strings >= 1;
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->HasNullTerminatedStrings(start, end);
 }
 
 bool CodeAnalyzer::HasRepeatedBytes(uint32_t start, uint32_t end) const {
-  int max_same = 0;
-  int current_same = 1;
-  uint8_t prev_byte = 0;
-
-  for (uint32_t addr = start; addr <= end; ++addr) {
-    const uint8_t* byte = binary_->GetPointer(addr);
-    if (!byte) break;
-
-    if (addr == start) {
-      prev_byte = *byte;
-    } else {
-      if (*byte == prev_byte) {
-        current_same++;
-        max_same = std::max(max_same, current_same);
-      } else {
-        current_same = 1;
-        prev_byte = *byte;
-      }
-    }
-  }
-
-  return max_same >= 4;
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->HasRepeatedBytes(start, end);
 }
 
 bool CodeAnalyzer::HasAddressLikePairs(uint32_t start, uint32_t end) const {
-  uint32_t region_size = end - start + 1;
-  if (region_size < 8) return false;
-
-  uint32_t address_like_pairs = 0;
-  for (uint32_t addr = start; addr < end - 1; addr += 2) {
-    const uint8_t* lo = binary_->GetPointer(addr);
-    const uint8_t* hi = binary_->GetPointer(addr + 1);
-    if (!lo || !hi) continue;
-
-    uint16_t potential_addr = (*lo) | ((*hi) << 8);
-    if (potential_addr >= 0x0800 || potential_addr < 0x0100) {
-      address_like_pairs++;
-    }
-  }
-
-  return address_like_pairs >= (region_size / 4);
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->HasAddressLikePairs(start, end);
 }
 
 bool CodeAnalyzer::HasRepeatedInstructions(uint32_t start, uint32_t end) const {
-  // Detect repeated identical instruction patterns (like graphics data)
-  // Look for 8+ consecutive identical 2-byte instruction sequences
-  int max_repeat = 0;
-  int current_repeat = 1;
-
-  for (uint32_t addr = start; addr < end - 3; addr += 2) {
-    const uint8_t* curr = binary_->GetPointer(addr);
-    const uint8_t* next = binary_->GetPointer(addr + 2);
-
-    if (!curr || !next) break;
-
-    if (curr[0] == next[0] && curr[1] == next[1]) {
-      current_repeat++;
-      max_repeat = std::max(max_repeat, current_repeat);
-    } else {
-      current_repeat = 1;
-    }
-  }
-
-  return max_repeat >= 8;  // 8+ identical 2-byte patterns = graphics data
+  // Delegate to DataHeuristicsEngine (WP-01 Phase 1)
+  return data_heuristics_->HasRepeatedInstructions(start, end);
 }
 
 bool CodeAnalyzer::HasHighIllegalDensity(uint32_t start, uint32_t end) const {
@@ -903,7 +678,13 @@ bool CodeAnalyzer::HasHighIllegalDensity(uint32_t start, uint32_t end) const {
       }
       addr += std::max(size_t(1), inst.bytes.size());
       total_bytes += std::max(size_t(1), inst.bytes.size());
-    } catch (...) {
+    } catch (const std::out_of_range&) {
+      // Address out of bounds - count as illegal
+      illegal_count++;
+      addr++;
+      total_bytes++;
+    } catch (const std::runtime_error&) {
+      // Invalid opcode - count as illegal
       illegal_count++;
       addr++;
       total_bytes++;
@@ -920,199 +701,49 @@ bool CodeAnalyzer::HasHighIllegalDensity(uint32_t start, uint32_t end) const {
 // Graphics data detection heuristics
 
 float CodeAnalyzer::CalculateEntropy(const uint8_t* data, size_t length) const {
-  if (length == 0) return 0.0f;
-
-  // Count byte frequency
-  int freq[256] = {0};
-  for (size_t i = 0; i < length; ++i) {
-    freq[data[i]]++;
-  }
-
-  // Calculate Shannon entropy
-  float entropy = 0.0f;
-  for (int i = 0; i < 256; ++i) {
-    if (freq[i] > 0) {
-      float prob = static_cast<float>(freq[i]) / static_cast<float>(length);
-      entropy -= prob * std::log2(prob);
-    }
-  }
-
-  return entropy;
+  // Delegate to GraphicsDetectionStrategy (WP-01 Phase 2)
+  return graphics_detection_->CalculateEntropy(data, length);
 }
 
 bool CodeAnalyzer::HasBitmapEntropy(uint32_t start, uint32_t end) const {
-  uint32_t region_size = end - start + 1;
-  if (region_size < 16) return false;
-
-  const uint8_t* data = binary_->GetPointer(start);
-  if (!data) return false;
-
-  float entropy = CalculateEntropy(data, region_size);
-
-  // Graphics bitmap data typically has entropy between 3.5 and 7.0
-  // - Too low (< 3.5): probably code or uniform data
-  // - Good range (3.5-7.0): bitmap graphics, sprite data
-  // - Too high (> 7.0): compressed or encrypted data
-  return (entropy >= 3.5f && entropy <= 7.0f);
+  // Delegate to GraphicsDetectionStrategy (WP-01 Phase 2)
+  return graphics_detection_->HasBitmapEntropy(start, end);
 }
 
 bool CodeAnalyzer::HasByteAlignment(uint32_t start, uint32_t end) const {
-  uint32_t region_size = end - start + 1;
-
-  // Check if region is aligned on common graphics boundaries
-  // Character data: 8-byte aligned (8 rows per character)
-  // Sprite data: Often 8, 16, or 32 byte aligned
-  bool is_8_aligned = ((start % 8) == 0) && ((region_size % 8) == 0);
-  bool is_16_aligned = ((start % 16) == 0) && ((region_size % 16) == 0);
-
-  if (!is_8_aligned && !is_16_aligned) {
-    return false;
-  }
-
-  // Additionally check for repeating patterns at 8-byte intervals
-  // (typical for character/sprite data)
-  if (region_size >= 16) {
-    const uint8_t* data = binary_->GetPointer(start);
-    if (!data) return false;
-
-    int pattern_matches = 0;
-    for (uint32_t offset = 0; offset < 8 && offset < region_size - 8; ++offset) {
-      bool has_pattern = true;
-      for (uint32_t i = offset + 8; i < region_size; i += 8) {
-        if (data[offset] != data[i]) {
-          has_pattern = false;
-          break;
-        }
-      }
-      if (has_pattern) {
-        pattern_matches++;
-      }
-    }
-
-    // If we find repeating patterns, likely graphics
-    if (pattern_matches >= 2) {
-      return true;
-    }
-  }
-
-  return is_8_aligned || is_16_aligned;
+  // Delegate to GraphicsDetectionStrategy (WP-01 Phase 2)
+  return graphics_detection_->HasByteAlignment(start, end);
 }
 
 bool CodeAnalyzer::IsInGraphicsRegion(uint32_t start, uint32_t end) const {
-  // Platform-specific graphics memory regions
-
-  // Apple II Hi-Res graphics pages
-  // Page 1: $2000-$3FFF (8192 bytes)
-  // Page 2: $4000-$5FFF (8192 bytes)
-  if (start >= 0x2000 && end <= 0x3FFF) return true;
-  if (start >= 0x4000 && end <= 0x5FFF) return true;
-
-  // CoCo PMODE graphics pages (typical locations)
-  // PMODE 4: $0E00-$1FFF (when not in all-RAM mode)
-  // High-res graphics typically at $0600-$1FFF or custom locations
-  if (start >= 0x0600 && end <= 0x1FFF) return true;
-
-  // CoCo semi-graphics and character ROM locations are not in binary
-
-  return false;
+  // Delegate to GraphicsDetectionStrategy (WP-01 Phase 2)
+  return graphics_detection_->IsInGraphicsRegion(start, end);
 }
 
 bool CodeAnalyzer::HasSpritePatterns(uint32_t start, uint32_t end) const {
-  uint32_t region_size = end - start + 1;
-  if (region_size < 64) return false;  // Sprites usually >= 8x8 = 64 bytes minimum
-
-  const uint8_t* data = binary_->GetPointer(start);
-  if (!data) return false;
-
-  // Look for patterns typical of sprite/character data:
-  // 1. Blocks of 8 or 16 bytes (sprite rows)
-  // 2. Some bytes all zeros (transparent/background)
-  // 3. Some bytes with bit patterns (pixels)
-
-  int zero_byte_count = 0;
-  int sparse_byte_count = 0;  // Bytes with 1-3 bits set
-
-  for (uint32_t i = 0; i < region_size; ++i) {
-    uint8_t byte = data[i];
-    if (byte == 0x00 || byte == 0xFF) {
-      zero_byte_count++;
-    } else {
-      // Count bits set
-      int bits_set = 0;
-      for (int bit = 0; bit < 8; ++bit) {
-        if (byte & (1 << bit)) bits_set++;
-      }
-
-      if (bits_set >= 1 && bits_set <= 3) {
-        sparse_byte_count++;
-      }
-    }
-  }
-
-  // Sprite data usually has a mix of zero/FF bytes (background) and sparse bytes (pixels)
-  float zero_ratio = static_cast<float>(zero_byte_count) / static_cast<float>(region_size);
-  float sparse_ratio = static_cast<float>(sparse_byte_count) / static_cast<float>(region_size);
-
-  // Typical sprite data: 20-60% background, 10-40% sparse pixels
-  return (zero_ratio >= 0.2f && zero_ratio <= 0.6f) &&
-         (sparse_ratio >= 0.1f && sparse_ratio <= 0.4f);
+  // Delegate to GraphicsDetectionStrategy (WP-01 Phase 2)
+  return graphics_detection_->HasSpritePatterns(start, end);
 }
 
 int CodeAnalyzer::CountDataHeuristics(uint32_t start, uint32_t end) const {
-  int count = 0;
+  // Delegate data heuristics to DataHeuristicsEngine (WP-01 Phase 1)
+  int count = data_heuristics_->CountDataHeuristics(start, end);
 
-  // Heuristic 1: High printable percentage (>90%)
-  float printable_pct = CalculatePrintablePercentage(start, end);
-  if (printable_pct > PRINTABLE_THRESHOLD_HIGH) {
-    count++;
-  }
-
-  // Heuristic 2: Long consecutive printable (24+ chars)
-  if (HasLongPrintableSequence(start, end)) {
-    count++;
-  }
-
-  // Heuristic 3: Null-terminated strings
-  if (HasNullTerminatedStrings(start, end)) {
-    count++;
-  }
-
-  // Heuristic 4: Repeated identical bytes
-  if (HasRepeatedBytes(start, end)) {
-    count++;
-  }
-
-  // Heuristic 5: Address-like byte pairs
-  if (HasAddressLikePairs(start, end)) {
-    count++;
-  }
-
-  // Heuristic 6: Repeated identical instructions (graphics data)
-  if (HasRepeatedInstructions(start, end)) {
-    count++;
-  }
-
-  // Heuristic 7: High illegal opcode density
+  // Add CPU-specific heuristic that requires cpu_ plugin
   if (HasHighIllegalDensity(start, end)) {
     count++;
   }
 
-  // NEW Heuristic 8: Bitmap entropy (graphics data)
+  // Add graphics heuristics (will be moved to GraphicsDetectionStrategy in Phase 2)
   if (HasBitmapEntropy(start, end)) {
     count++;
   }
-
-  // NEW Heuristic 9: Byte alignment patterns (character/sprite data)
   if (HasByteAlignment(start, end)) {
     count++;
   }
-
-  // NEW Heuristic 10: Platform-specific graphics regions
   if (IsInGraphicsRegion(start, end)) {
     count++;
   }
-
-  // NEW Heuristic 11: Sprite/character patterns
   if (HasSpritePatterns(start, end)) {
     count++;
   }
@@ -1166,8 +797,12 @@ void CodeAnalyzer::AnalyzeRecursively(uint32_t address,
     core::Instruction inst;
     try {
       inst = cpu_->Disassemble(data, remaining, current);
-    } catch (...) {
-      // Mark as DATA and stop this path
+    } catch (const std::out_of_range&) {
+      // Address out of bounds - mark as DATA and stop this path
+      address_map->SetType(current, core::AddressType::DATA);
+      break;
+    } catch (const std::runtime_error&) {
+      // Invalid opcode - mark as DATA and stop this path
       address_map->SetType(current, core::AddressType::DATA);
       break;
     }
@@ -1372,249 +1007,52 @@ void CodeAnalyzer::RecursiveAnalyze(core::AddressMap* address_map) {
 
 // Phase 3: Entry Point Discovery Implementation
 bool CodeAnalyzer::IsLikelyCode(uint32_t address, size_t scan_length) const {
-  if (!IsValidAddress(address)) return false;
-
-  // Delegate to CPU plugin (SOLID architecture)
-  const uint8_t* data = binary_->GetPointer(address);
-  size_t remaining = binary_->load_address() + binary_->size() - address;
-
-  return cpu_->IsLikelyCode(data, remaining, address, scan_length);
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  return entry_point_discovery_->IsLikelyCode(address, scan_length);
 }
 
 bool CodeAnalyzer::LooksLikeSubroutineStart(uint32_t address) const {
-  if (!IsValidAddress(address)) return false;
-
-  // Delegate to CPU plugin (SOLID architecture)
-  const uint8_t* data = binary_->GetPointer(address);
-  size_t remaining = binary_->load_address() + binary_->size() - address;
-
-  return cpu_->LooksLikeSubroutineStart(data, remaining, address);
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  return entry_point_discovery_->LooksLikeSubroutineStart(address);
 }
 
 void CodeAnalyzer::ScanInterruptVectors() {
-  // Get CPU-specific interrupt vectors (SOLID architecture)
-  cpu::AnalysisCapabilities caps = cpu_->GetAnalysisCapabilities();
-  if (!caps.has_interrupt_vectors) {
-    return;  // CPU doesn't have interrupt vectors
-  }
-
-  std::vector<cpu::InterruptVector> vectors = cpu_->GetInterruptVectors();
-
-  for (const auto& vec : vectors) {
-    uint32_t vec_addr = vec.address;
-    if (!IsValidAddress(vec_addr) || !IsValidAddress(vec_addr + 1)) continue;
-
-    const uint8_t* data = binary_->GetPointer(vec_addr);
-    size_t size = binary_->load_address() + binary_->size() - vec_addr;
-
-    // Let CPU plugin handle endianness
-    uint32_t target = cpu_->ReadVectorTarget(data, size, 0);
-
-    if (target != 0 && IsValidAddress(target) && IsLikelyCode(target)) {
-      discovered_entry_points_.insert(target);
-      LOG_DEBUG("Discovered " + vec.name + " vector at $" +
-                std::to_string(vec_addr) + " -> $" + std::to_string(target));
-    }
-  }
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  entry_point_discovery_->ScanInterruptVectors(&discovered_entry_points_);
 }
 
 void CodeAnalyzer::ScanForSubroutinePatterns(core::AddressMap* address_map) {
-  // Scan UNKNOWN regions for potential subroutine entry points
-  uint32_t start = binary_->load_address();
-  uint32_t end = start + binary_->size();
-
-  // Sample every N bytes to avoid excessive scanning
-  const int SAMPLE_STRIDE = 4;  // Check every 4 bytes (compromise between coverage and speed)
-
-  for (uint32_t addr = start; addr < end; addr += SAMPLE_STRIDE) {
-    // Only check UNKNOWN regions (not already classified as CODE or DATA)
-    if (address_map->GetType(addr) == core::AddressType::UNKNOWN) {
-      if (LooksLikeSubroutineStart(addr)) {
-        discovered_entry_points_.insert(addr);
-        LOG_DEBUG("Discovered likely subroutine at $" + std::to_string(addr));
-      }
-    }
-  }
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  entry_point_discovery_->ScanForSubroutinePatterns(
+      address_map, &discovered_entry_points_, &lea_targets_);
 }
 
 // CoCo-specific entry point detection
 
 bool CodeAnalyzer::IsCoCoCartridgeSpace(uint32_t address) const {
-  // CoCo cartridge ROM space: $C000-$FEFF
-  // Reset vector at $FFFE-$FFFF
-  return (address >= 0xC000 && address <= 0xFEFF);
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  return entry_point_discovery_->IsCoCoCartridgeSpace(address);
 }
 
 bool CodeAnalyzer::HasCoCoPreamble(uint32_t address) const {
-  // Check for common CoCo machine language program preambles
-  // Many programs start with:
-  // - 2-byte load address (often skipped by loader)
-  // - Then immediate executable code
-  // - Or "DK" signature for Disk BASIC
-
-  if (!IsValidAddress(address) || !IsValidAddress(address + 1)) {
-    return false;
-  }
-
-  const uint8_t* data = binary_->GetPointer(address);
-  if (!data) return false;
-
-  // Check for "DK" signature (Disk BASIC)
-  if (data[0] == 0x44 && data[1] == 0x4B) {
-    return true;
-  }
-
-  // Check for common preamble patterns:
-  // PSHS U,Y,X,DP,D,CC (full register save on entry)
-  // Opcode: $34 followed by register mask
-  if (data[0] == 0x34) {
-    return true;
-  }
-
-  // ORCC #$50 (disable interrupts - common at program start)
-  if (data[0] == 0x1A && data[1] == 0x50) {
-    return true;
-  }
-
-  // LDS #immediate (set stack pointer - very common first instruction)
-  if (data[0] == 0x10 && data[1] == 0xCE) {
-    return true;
-  }
-
-  // JMP extended (redirect to real entry point)
-  if (data[0] == 0x7E) {
-    return true;
-  }
-
-  return false;
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  return entry_point_discovery_->HasCoCoPreamble(address);
 }
 
 void CodeAnalyzer::ScanCoCoCartridgeEntryPoints() {
-  // Cartridge programs typically have entry point at $C000
-  uint32_t cart_entry = 0xC000;
-
-  if (IsValidAddress(cart_entry) && IsCoCoCartridgeSpace(cart_entry)) {
-    if (IsLikelyCode(cart_entry)) {
-      discovered_entry_points_.insert(cart_entry);
-      LOG_DEBUG("Discovered CoCo cartridge entry point at $C000");
-    }
-  }
-
-  // Check if binary is loaded in cartridge space
-  uint32_t load_addr = binary_->load_address();
-  if (IsCoCoCartridgeSpace(load_addr)) {
-    // Cartridge ROM - entry point is typically at start
-    discovered_entry_points_.insert(load_addr);
-    LOG_DEBUG("Binary in CoCo cartridge space, adding load address as entry point");
-  }
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  entry_point_discovery_->ScanCoCoCartridgeEntryPoints(&discovered_entry_points_);
 }
 
 void CodeAnalyzer::ScanCoCoStandardEntryPoints() {
-  uint32_t load_addr = binary_->load_address();
-
-  // Standard CoCo machine language program entry patterns:
-
-  // Pattern 1: Load address + 0 (immediate entry)
-  if (IsLikelyCode(load_addr)) {
-    discovered_entry_points_.insert(load_addr);
-    LOG_DEBUG("CoCo entry point at load address: $" + std::to_string(load_addr));
-  }
-
-  // Pattern 2: Load address + 2 (skip 2-byte preamble/header)
-  if (IsValidAddress(load_addr + 2)) {
-    const uint8_t* data = binary_->GetPointer(load_addr);
-    if (data) {
-      // Check if first 2 bytes look like a preamble
-      // Common: $00 $xx, load address itself, or "EX" signature
-      bool has_preamble = (data[0] == 0x00) ||
-                          (data[0] == 0x45 && data[1] == 0x58) ||  // "EX"
-                          (data[0] == ((load_addr >> 8) & 0xFF));
-
-      if (has_preamble && IsLikelyCode(load_addr + 2)) {
-        discovered_entry_points_.insert(load_addr + 2);
-        LOG_DEBUG("CoCo entry point after 2-byte preamble: $" +
-                  std::to_string(load_addr + 2));
-      }
-    }
-  }
-
-  // Pattern 3: Check for DK header (Disk BASIC format)
-  // Disk BASIC programs often have "DK" at offset 0
-  if (IsValidAddress(load_addr) && IsValidAddress(load_addr + 1)) {
-    const uint8_t* data = binary_->GetPointer(load_addr);
-    if (data && data[0] == 0x44 && data[1] == 0x4B) {  // "DK"
-      // Entry point typically at offset $09
-      if (IsValidAddress(load_addr + 0x09)) {
-        discovered_entry_points_.insert(load_addr + 0x09);
-        LOG_DEBUG("CoCo Disk BASIC format detected, entry at +$09");
-      }
-    }
-  }
-
-  // Pattern 4: Scan for PSHS as subroutine entry markers
-  // Many CoCo programs use PSHS U,Y,X,... as subroutine prologues
-  uint32_t end = load_addr + binary_->size();
-  for (uint32_t addr = load_addr; addr < end - 1; addr += 2) {
-    const uint8_t* data = binary_->GetPointer(addr);
-    if (!data) continue;
-
-    // PSHS with multiple registers (opcode $34, mask with multiple bits set)
-    if (data[0] == 0x34) {
-      uint8_t mask = data[1];
-      int bit_count = 0;
-      for (int i = 0; i < 8; ++i) {
-        if (mask & (1 << i)) bit_count++;
-      }
-
-      // If saving 3+ registers, likely a subroutine entry
-      if (bit_count >= 3 && IsLikelyCode(addr)) {
-        discovered_entry_points_.insert(addr);
-        LOG_DEBUG("CoCo subroutine entry (PSHS) at $" + std::to_string(addr));
-      }
-    }
-  }
-
-  // Pattern 5: Look for addresses in the binary that point to code
-  // (potential jump tables or dispatch tables)
-  for (uint32_t addr = load_addr; addr < end - 1; addr += 2) {
-    const uint8_t* data = binary_->GetPointer(addr);
-    if (!data) continue;
-
-    // Read 16-bit address (6809 is big-endian)
-    uint16_t target = (data[0] << 8) | data[1];
-
-    // Check if this points within the binary and looks like code
-    if (IsValidAddress(target) && IsLikelyCode(target)) {
-      // Additional validation: target should be aligned and not in data region
-      if ((target % 2) == 0) {  // Code typically even-aligned
-        discovered_entry_points_.insert(target);
-        LOG_DEBUG("CoCo potential code pointer at $" + std::to_string(addr) +
-                  " -> $" + std::to_string(target));
-      }
-    }
-  }
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  entry_point_discovery_->ScanCoCoStandardEntryPoints(&discovered_entry_points_);
 }
 
 void CodeAnalyzer::DiscoverEntryPoints(core::AddressMap* address_map) {
-  LOG_INFO("Discovering additional entry points...");
-
-  int initial_count = discovered_entry_points_.size();
-
-  // Scan CPU-specific interrupt vectors (SOLID architecture)
-  ScanInterruptVectors();
-
-  // CoCo-specific entry point detection
-  if (cpu_->GetVariant() == cpu::CpuVariant::MOTOROLA_6809) {
-    ScanCoCoCartridgeEntryPoints();
-    ScanCoCoStandardEntryPoints();
-  }
-
-  // Scan for subroutine patterns in UNKNOWN regions
-  ScanForSubroutinePatterns(address_map);
-
-  int new_count = discovered_entry_points_.size() - initial_count;
-  LOG_INFO("Discovered " + std::to_string(new_count) +
-           " additional entry point(s)");
+  // Delegate to EntryPointDiscoveryStrategy (WP-01 Phase 4)
+  entry_point_discovery_->DiscoverEntryPoints(
+      address_map, &discovered_entry_points_, &lea_targets_);
 }
 
 // Phase 4: Jump Table Detection Implementation
@@ -1864,454 +1302,53 @@ void CodeAnalyzer::ScanForJumpTables(core::AddressMap* address_map) {
 // =============================================================================
 
 bool CodeAnalyzer::IsInstructionBoundary(uint32_t address) const {
-  return instruction_cache_.find(address) != instruction_cache_.end();
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  return misalignment_resolver_->IsInstructionBoundary(address);
 }
 
 bool CodeAnalyzer::DetectMisalignment(uint32_t target_address,
                                      core::AddressMap* address_map) {
-  // Check if target is CODE but NOT at an instruction boundary
-  if (!address_map->IsCode(target_address)) {
-    return false;  // Not CODE, no misalignment
-  }
-
-  if (IsInstructionBoundary(target_address)) {
-    return false;  // Valid boundary, no misalignment
-  }
-
-  // Target is CODE but not at instruction start = misalignment!
-  return true;
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  return misalignment_resolver_->DetectMisalignment(target_address, address_map);
 }
 
 uint32_t CodeAnalyzer::FindPreviousInstructionBoundary(uint32_t address) const {
-  // Search backwards in cache for closest instruction boundary
-  uint32_t closest = 0;
-
-  for (const auto& pair : instruction_cache_) {
-    uint32_t inst_addr = pair.first;
-    const core::Instruction& inst = pair.second;
-
-    // Check if this instruction overlaps with target address
-    uint32_t inst_end = inst_addr + inst.bytes.size();
-    if (inst_addr <= address && address < inst_end) {
-      return inst_addr;  // Found the instruction containing this address
-    }
-  }
-
-  return closest;
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  return misalignment_resolver_->FindPreviousInstructionBoundary(address);
 }
 
 float CodeAnalyzer::CalculateInstructionConfidence(uint32_t address,
                                                    core::AddressMap* address_map) const {
-  float confidence = 0.5f;  // Baseline
-
-  // Try to disassemble a sequence of instructions from this address
-  uint32_t current = address;
-  int valid_sequence = 0;
-  const int SEQUENCE_LENGTH = 5;
-
-  // Track instruction frequency patterns
-  int rare_instruction_count = 0;
-  int common_instruction_count = 0;
-  int suspicious_pattern_count = 0;
-
-  for (int i = 0; i < SEQUENCE_LENGTH; ++i) {
-    if (!IsValidAddress(current)) break;
-
-    const uint8_t* data = binary_->GetPointer(current);
-    size_t remaining = binary_->load_address() + binary_->size() - current;
-    if (!data || remaining == 0) break;
-
-    core::Instruction inst;
-    try {
-      inst = cpu_->Disassemble(data, remaining, current);
-    } catch (...) {
-      break;
-    }
-
-    if (inst.bytes.empty() || inst.is_illegal) break;
-
-    valid_sequence++;
-
-    // ========== INSTRUCTION FREQUENCY ANALYSIS ==========
-
-    // VERY COMMON: Load/Store/Transfer (highest frequency in typical code)
-    if (inst.mnemonic == "LDA" || inst.mnemonic == "LDB" || inst.mnemonic == "LDD" ||
-        inst.mnemonic == "LDX" || inst.mnemonic == "LDY" || inst.mnemonic == "LDU" ||
-        inst.mnemonic == "STA" || inst.mnemonic == "STB" || inst.mnemonic == "STD" ||
-        inst.mnemonic == "STX" || inst.mnemonic == "STY" || inst.mnemonic == "STU" ||
-        inst.mnemonic == "TFR" || inst.mnemonic == "EXG") {
-      confidence += 0.08f;
-      common_instruction_count++;
-    }
-    // VERY COMMON: Arithmetic/Logic
-    else if (inst.mnemonic == "ADDA" || inst.mnemonic == "ADDB" || inst.mnemonic == "ADDD" ||
-             inst.mnemonic == "SUBA" || inst.mnemonic == "SUBB" || inst.mnemonic == "SUBD" ||
-             inst.mnemonic == "CMPA" || inst.mnemonic == "CMPB" || inst.mnemonic == "CMPD" ||
-             inst.mnemonic == "CMPX" || inst.mnemonic == "CMPY" ||
-             inst.mnemonic == "ANDA" || inst.mnemonic == "ANDB" || inst.mnemonic == "ANDCC" ||
-             inst.mnemonic == "ORA" || inst.mnemonic == "ORB" || inst.mnemonic == "ORCC" ||
-             inst.mnemonic == "EORA" || inst.mnemonic == "EORB") {
-      confidence += 0.08f;
-      common_instruction_count++;
-    }
-    // VERY COMMON: Stack operations (especially at subroutine entry/exit)
-    else if (inst.mnemonic == "PSHS" || inst.mnemonic == "PULS" ||
-             inst.mnemonic == "PSHU" || inst.mnemonic == "PULU") {
-      if (i == 0) {
-        confidence += 0.20f;  // VERY likely at branch target
-      } else {
-        confidence += 0.10f;
-      }
-      common_instruction_count++;
-    }
-    // VERY COMMON: Branches and subroutine calls
-    else if (inst.mnemonic == "BEQ" || inst.mnemonic == "BNE" || inst.mnemonic == "BCC" ||
-             inst.mnemonic == "BCS" || inst.mnemonic == "BVC" || inst.mnemonic == "BVS" ||
-             inst.mnemonic == "BPL" || inst.mnemonic == "BMI" || inst.mnemonic == "BGE" ||
-             inst.mnemonic == "BLT" || inst.mnemonic == "BGT" || inst.mnemonic == "BLE" ||
-             inst.mnemonic == "BHI" || inst.mnemonic == "BLS" || inst.mnemonic == "BRA" ||
-             inst.mnemonic == "BSR" || inst.mnemonic == "JSR" || inst.mnemonic == "LBRA" ||
-             inst.mnemonic == "LBSR") {
-      confidence += 0.05f;
-      common_instruction_count++;
-    }
-    // COMMON: Return, increment/decrement, shift/rotate
-    else if (inst.mnemonic == "RTS" || inst.mnemonic == "RTI" ||
-             inst.mnemonic == "INCA" || inst.mnemonic == "INCB" || inst.mnemonic == "INC" ||
-             inst.mnemonic == "DECA" || inst.mnemonic == "DECB" || inst.mnemonic == "DEC" ||
-             inst.mnemonic == "LSLA" || inst.mnemonic == "LSLB" || inst.mnemonic == "LSL" ||
-             inst.mnemonic == "LSRA" || inst.mnemonic == "LSRB" || inst.mnemonic == "LSR" ||
-             inst.mnemonic == "ASRA" || inst.mnemonic == "ASRB" || inst.mnemonic == "ASR" ||
-             inst.mnemonic == "ROLA" || inst.mnemonic == "ROLB" || inst.mnemonic == "ROL" ||
-             inst.mnemonic == "RORA" || inst.mnemonic == "RORB" || inst.mnemonic == "ROR") {
-      confidence += 0.05f;
-      common_instruction_count++;
-    }
-    // COMMON: Test, clear, negate
-    else if (inst.mnemonic == "TSTA" || inst.mnemonic == "TSTB" || inst.mnemonic == "TST" ||
-             inst.mnemonic == "CLRA" || inst.mnemonic == "CLRB" || inst.mnemonic == "CLR" ||
-             inst.mnemonic == "NEGA" || inst.mnemonic == "NEGB" || inst.mnemonic == "NEG" ||
-             inst.mnemonic == "COMA" || inst.mnemonic == "COMB" || inst.mnemonic == "COM") {
-      confidence += 0.05f;
-      common_instruction_count++;
-    }
-    // COMMON: LEA operations (address calculation)
-    else if (inst.mnemonic == "LEAX" || inst.mnemonic == "LEAY" ||
-             inst.mnemonic == "LEAS" || inst.mnemonic == "LEAU") {
-      confidence += 0.05f;
-      common_instruction_count++;
-    }
-    // RARE: Software interrupts (should be infrequent in typical code)
-    else if (inst.mnemonic == "SWI" || inst.mnemonic == "SWI2" || inst.mnemonic == "SWI3") {
-      confidence -= 0.15f;
-      rare_instruction_count++;
-
-      // VERY suspicious if SWI appears early in sequence
-      if (i < 3) {
-        confidence -= 0.15f;  // Extra penalty
-        suspicious_pattern_count++;
-      }
-    }
-    // RARE: Synchronization and wait instructions
-    else if (inst.mnemonic == "SYNC" || inst.mnemonic == "CWAI") {
-      confidence -= 0.10f;
-      rare_instruction_count++;
-    }
-    // RARE: Multiply/divide (less common in typical 6809 code)
-    else if (inst.mnemonic == "MUL" || inst.mnemonic == "DIV") {
-      // Don't penalize, but don't boost either (neutral)
-    }
-    // MODERATE: Other instructions (SEX, DAA, ABX, etc.)
-    else {
-      confidence += 0.02f;  // Small boost for valid instruction
-    }
-
-    // ========== PATTERN ANALYSIS ==========
-
-    // Suspicious: Multiple rare instructions in a row
-    if (rare_instruction_count >= 2) {
-      confidence -= 0.20f;
-      suspicious_pattern_count++;
-    }
-
-    // Good: Multiple common instructions in a row
-    if (common_instruction_count >= 3) {
-      confidence += 0.15f;
-    }
-
-    current += inst.bytes.size();
-  }
-
-  // Confidence boost based on sequence length (longer = better)
-  confidence += (valid_sequence * 0.08f);
-
-  // Penalty for short sequences (might be data that happens to decode)
-  if (valid_sequence < 3) {
-    confidence -= 0.15f;
-  }
-
-  // Check if this address has xrefs (branches pointing to it)
-  const auto& xrefs = address_map->GetXrefs(address);
-  if (!xrefs.empty()) {
-    confidence += 0.25f;  // Strong indicator of valid code target
-  }
-
-  // Cap confidence between 0.0 and 1.5 (allow exceeding 1.0 for very strong signals)
-  if (confidence < 0.0f) confidence = 0.0f;
-  if (confidence > 1.5f) confidence = 1.5f;
-
-  return confidence;
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  return misalignment_resolver_->CalculateInstructionConfidence(address, address_map);
 }
 
 bool CodeAnalyzer::ResolveMisalignment(uint32_t target_address,
                                        uint32_t source_address,
                                        bool is_unconditional_branch,
                                        core::AddressMap* address_map) {
-  // Find the existing instruction that contains target_address
-  uint32_t existing_inst_start = FindPreviousInstructionBoundary(target_address);
-
-  if (existing_inst_start == 0) {
-    // Couldn't find existing instruction, allow target
-    std::stringstream ss_dbg;
-    ss_dbg << std::hex << std::uppercase << "$" << target_address;
-    LOG_DEBUG("No existing instruction found containing " + ss_dbg.str() +
-              ", allowing branch target");
-
-    // Mark target and surrounding bytes as UNKNOWN to force re-analysis
-    // This handles cases where cache was cleared but address_map still has stale CODE markers
-    // Use a larger range (32 bytes) to ensure proper re-analysis
-    for (uint32_t addr = target_address; addr < target_address + 32 && IsValidAddress(addr); ++addr) {
-      if (address_map->GetType(addr) == core::AddressType::CODE) {
-        address_map->SetType(addr, core::AddressType::UNKNOWN);
-        visited_recursive_.erase(addr);
-      }
-    }
-
-    // Add to discovered entry points so next pass will analyze from here
-    discovered_entry_points_.insert(target_address);
-    return true;
-  }
-
-  const core::Instruction& existing_inst = instruction_cache_[existing_inst_start];
-
-  std::stringstream ss;
-  ss << std::hex << std::uppercase;
-
-  LOG_DEBUG("Misalignment detected:");
-  ss.str(""); ss << "$" << source_address;
-  std::string src_hex = ss.str();
-  ss.str(""); ss << "$" << target_address;
-  std::string tgt_hex = ss.str();
-  LOG_DEBUG("  Branch from " + src_hex + " to " + tgt_hex);
-
-  ss.str(""); ss << "$" << existing_inst_start;
-  LOG_DEBUG("  Conflicts with existing instruction at " + ss.str() + ": " +
-            existing_inst.mnemonic + " " + existing_inst.operand);
-
-  // Calculate confidence for both interpretations
-  float target_confidence = CalculateInstructionConfidence(target_address, address_map);
-  float existing_confidence = CalculateInstructionConfidence(existing_inst_start, address_map);
-
-  // Boost target confidence if it's an unconditional branch/jump
-  if (is_unconditional_branch) {
-    target_confidence += 0.2f;
-    LOG_DEBUG("  Unconditional branch - boosting target confidence");
-  }
-
-  // CRITICAL: Check if target starts with PULS/POPS that matches recent PSHS/PSHU
-  // This is a VERY strong signal for error handling paths
-  const uint8_t* target_data = binary_->GetPointer(target_address);
-  if (target_data) {
-    uint8_t target_opcode = target_data[0];
-    // PULS ($35) or PULU ($37)
-    if (target_opcode == 0x35 || target_opcode == 0x37) {
-      // Huge boost - stack cleanup after conditional error path is extremely common
-      target_confidence += 0.4f;
-      LOG_INFO("  Target starts with PULS/PULU (stack cleanup) - strong boost!");
-    }
-  }
-
-  // Check fallthrough from existing instruction
-  uint32_t fallthrough_addr = existing_inst_start + existing_inst.bytes.size();
-  float fallthrough_confidence = 0.0f;
-  if (IsValidAddress(fallthrough_addr)) {
-    fallthrough_confidence = CalculateInstructionConfidence(fallthrough_addr, address_map);
-  }
-
-  LOG_INFO("  Confidence scores:");
-  ss.str(""); ss << "$" << existing_inst_start;
-  LOG_INFO("    Existing instruction at " + ss.str() +
-            ": " + std::to_string(existing_confidence));
-  ss.str(""); ss << "$" << fallthrough_addr;
-  LOG_INFO("    Fallthrough at " + ss.str() +
-            ": " + std::to_string(fallthrough_confidence));
-  ss.str(""); ss << "$" << target_address;
-  LOG_INFO("    Branch target at " + ss.str() +
-            ": " + std::to_string(target_confidence));
-
-  // Decision logic:
-  // If target confidence significantly higher, invalidate existing and use target
-  // If existing confidence higher, keep existing and ignore branch
-  // If tied, prefer branch target (tiebreaker: xref existence is evidence)
-  const float CONFIDENCE_THRESHOLD = 0.15f;
-  const float TIE_MARGIN = 0.05f;  // Within 5% = tied
-
-  bool is_tied = (std::abs(target_confidence - existing_confidence) <= TIE_MARGIN);
-
-  if (target_confidence > existing_confidence + CONFIDENCE_THRESHOLD || is_tied) {
-    LOG_INFO("Resolving misalignment: branch target wins (confidence " +
-             std::to_string(target_confidence) + " vs " +
-             std::to_string(existing_confidence) + ")");
-    ss.str(""); ss << "$" << existing_inst_start;
-    LOG_INFO("  Invalidating instruction at " + ss.str());
-
-    InvalidateConflictingInstructions(target_address, address_map);
-
-    // CRITICAL: Also invalidate the fallthrough path from the conflicting instruction
-    // because it was based on the wrong interpretation
-    uint32_t fallthrough_start = existing_inst_start + existing_inst.bytes.size();
-    if (fallthrough_start < target_address) {
-      // Mark everything from fallthrough to target as UNKNOWN for re-analysis
-      for (uint32_t addr = fallthrough_start; addr < target_address; ++addr) {
-        address_map->SetType(addr, core::AddressType::UNKNOWN);
-        visited_recursive_.erase(addr);  // Allow re-analysis
-      }
-    }
-
-    // Add to discovered entry points so next pass will analyze from here
-    discovered_entry_points_.insert(target_address);
-
-    return true;  // Follow the branch target
-  } else {
-    LOG_DEBUG("Keeping existing instruction (confidence " +
-              std::to_string(existing_confidence) + " vs " +
-              std::to_string(target_confidence) + ")");
-    return false;  // Keep existing, don't follow branch
-  }
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  return misalignment_resolver_->ResolveMisalignment(
+      target_address, source_address, is_unconditional_branch, address_map,
+      &discovered_entry_points_, &visited_recursive_);
 }
 
 void CodeAnalyzer::ClearVisitedRange(uint32_t start, uint32_t end) {
-  // Remove visited markers for addresses in range
-  for (uint32_t addr = start; addr < end; ++addr) {
-    visited_recursive_.erase(addr);
-  }
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  misalignment_resolver_->ClearVisitedRange(start, end, &visited_recursive_);
 }
 
 void CodeAnalyzer::InvalidateConflictingInstructions(uint32_t target_address,
                                                      core::AddressMap* address_map) {
-  // Find all instructions that overlap with target_address
-  std::vector<uint32_t> to_invalidate;
-
-  for (const auto& pair : instruction_cache_) {
-    uint32_t inst_addr = pair.first;
-    const core::Instruction& inst = pair.second;
-    uint32_t inst_end = inst_addr + inst.bytes.size();
-
-    // Check if this instruction overlaps with target
-    if (inst_addr < target_address && target_address < inst_end) {
-      to_invalidate.push_back(inst_addr);
-    }
-  }
-
-  // Remove from cache, mark bytes as UNKNOWN, clear visited markers AND xrefs
-  for (uint32_t addr : to_invalidate) {
-    const core::Instruction& inst = instruction_cache_[addr];
-
-    std::stringstream ss_inv;
-    ss_inv << std::hex << std::uppercase << "$" << addr;
-    LOG_DEBUG("Invalidating instruction at " + ss_inv.str() +
-              ": " + inst.mnemonic + " " + inst.operand);
-
-    // Mark bytes as DATA (not UNKNOWN) to prevent re-analysis as CODE
-    // These bytes were part of an invalid instruction that conflicted with a branch target
-    for (size_t i = 0; i < inst.bytes.size(); ++i) {
-      uint32_t byte_addr = addr + i;
-      address_map->SetType(byte_addr, core::AddressType::DATA);
-
-      // CRITICAL: Clear visited marker so target address can be re-analyzed
-      visited_recursive_.erase(byte_addr);
-    }
-
-    // CRITICAL: Remove any xrefs created by this instruction
-    // If the instruction is invalid, its branch targets are also invalid
-    address_map->RemoveXrefsFrom(addr);
-
-    instruction_cache_.erase(addr);
-  }
-
-  // Clear visited marker for target address itself
-  visited_recursive_.erase(target_address);
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  misalignment_resolver_->InvalidateConflictingInstructions(
+      target_address, address_map, &visited_recursive_);
 }
 
 bool CodeAnalyzer::DetectAndResolvePostPassMisalignments(core::AddressMap* address_map) {
-  // After a complete pass, check all xrefs to see if any point to the middle of instructions
-  bool resolved_any = false;
-
-  // Collect all xref targets
-  std::set<uint32_t> xref_targets;
-  uint32_t start = binary_->load_address();
-  uint32_t end = start + binary_->size();
-
-  for (uint32_t addr = start; addr < end; ++addr) {
-    const auto& xrefs = address_map->GetXrefs(addr);
-    if (!xrefs.empty()) {
-      xref_targets.insert(addr);
-    }
-  }
-
-  // Check each xref target to see if it's in the middle of an instruction
-  for (uint32_t target : xref_targets) {
-    if (!address_map->IsCode(target)) {
-      continue;  // Not in CODE region, skip
-    }
-
-    // Check if this is an instruction boundary
-    if (IsInstructionBoundary(target)) {
-      continue;  // Valid boundary, no problem
-    }
-
-    // This xref points into the middle of an instruction - misalignment!
-    const auto& xrefs = address_map->GetXrefs(target);
-    if (xrefs.empty()) continue;  // Shouldn't happen, but check anyway
-
-    // Get the source of the xref (first one)
-    uint32_t source = *xrefs.begin();
-
-    // Check if source is an unconditional branch/jump
-    const uint8_t* source_data = binary_->GetPointer(source);
-    if (!source_data) continue;
-
-    size_t source_remaining = end - source;
-    core::Instruction source_inst;
-    try {
-      source_inst = cpu_->Disassemble(source_data, source_remaining, source);
-    } catch (...) {
-      continue;
-    }
-
-    bool is_unconditional = (source_inst.mnemonic == "BRA" ||
-                             source_inst.mnemonic == "LBRA" ||
-                             source_inst.mnemonic == "JMP" ||
-                             source_inst.mnemonic == "JSR" ||
-                             source_inst.mnemonic == "LBSR");
-
-    std::stringstream ss_post;
-    ss_post << std::hex << std::uppercase;
-    ss_post << "$" << target;
-    std::string target_hex = ss_post.str();
-    ss_post.str(""); ss_post << "$" << source;
-    std::string source_hex = ss_post.str();
-    LOG_INFO("Post-pass misalignment detected at " + target_hex +
-             " (xref from " + source_hex + ")");
-
-    // Try to resolve
-    if (ResolveMisalignment(target, source, is_unconditional, address_map)) {
-      LOG_INFO("  Resolved - will re-analyze");
-      resolved_any = true;
-    }
-  }
-
-  return resolved_any;
+  // Delegate to MisalignmentResolver (WP-01 Phase 3)
+  return misalignment_resolver_->DetectAndResolvePostPassMisalignments(
+      address_map, &discovered_entry_points_, &visited_recursive_);
 }
 
 void CodeAnalyzer::DynamicAnalysis(core::AddressMap* address_map) {

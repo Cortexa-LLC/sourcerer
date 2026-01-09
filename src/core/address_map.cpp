@@ -12,7 +12,7 @@ void AddressMap::SetType(uint32_t address, AddressType type) {
   address_types_[address] = type;
 }
 
-AddressType AddressMap::GetType(uint32_t address) const {
+AddressType AddressMap::GetType(uint32_t address) const noexcept {
   auto it = address_types_.find(address);
   if (it != address_types_.end()) {
     return it->second;
@@ -20,12 +20,12 @@ AddressType AddressMap::GetType(uint32_t address) const {
   return AddressType::UNKNOWN;
 }
 
-bool AddressMap::IsCode(uint32_t address) const {
+bool AddressMap::IsCode(uint32_t address) const noexcept {
   AddressType type = GetType(address);
   return type == AddressType::CODE || type == AddressType::HINT_CODE;
 }
 
-bool AddressMap::IsData(uint32_t address) const {
+bool AddressMap::IsData(uint32_t address) const noexcept {
   AddressType type = GetType(address);
   return type == AddressType::DATA || type == AddressType::INLINE_DATA ||
          type == AddressType::HINT_DATA;
@@ -35,7 +35,7 @@ void AddressMap::SetLabel(uint32_t address, const std::string& label) {
   labels_[address] = label;
 }
 
-bool AddressMap::HasLabel(uint32_t address) const {
+bool AddressMap::HasLabel(uint32_t address) const noexcept {
   return labels_.find(address) != labels_.end();
 }
 
@@ -60,7 +60,7 @@ void AddressMap::AppendComment(uint32_t address, const std::string& comment) {
   }
 }
 
-bool AddressMap::HasComment(uint32_t address) const {
+bool AddressMap::HasComment(uint32_t address) const noexcept {
   return comments_.find(address) != comments_.end();
 }
 
@@ -98,7 +98,7 @@ std::vector<uint32_t> AddressMap::GetXrefs(uint32_t target) const {
   return result;
 }
 
-bool AddressMap::HasXrefs(uint32_t target) const {
+bool AddressMap::HasXrefs(uint32_t target) const noexcept {
   return xrefs_.find(target) != xrefs_.end();
 }
 

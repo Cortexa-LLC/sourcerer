@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "core/equate_provider.h"
 #include "output/formatter.h"
 
 namespace sourcerer {
@@ -30,13 +31,13 @@ class BaseFormatter : public Formatter {
                     const std::vector<core::Instruction>& instructions,
                     const core::AddressMap* address_map = nullptr,
                     const core::SymbolTable* symbol_table = nullptr,
-                    const analysis::EquateGenerator* equate_gen = nullptr) final;
+                    const core::IEquateProvider* equate_provider = nullptr) final;
 
   std::string FormatInstruction(
       const core::Instruction& inst,
       const core::AddressMap* address_map = nullptr,
       const core::SymbolTable* symbol_table = nullptr,
-      const analysis::EquateGenerator* equate_gen = nullptr) final;
+      const core::IEquateProvider* equate_provider = nullptr) final;
 
   std::string FormatData(uint32_t address,
                         const std::vector<uint8_t>& bytes) final;
@@ -60,15 +61,15 @@ class BaseFormatter : public Formatter {
   virtual std::string GetCommentPrefix() const = 0;    // "; ", ""
 
   // Column positions
-  virtual int GetLabelColumn() const { return 0; }
+  virtual int GetLabelColumn() const noexcept { return 0; }
   virtual int GetOpcodeColumn() const = 0;
-  virtual int GetOperandColumn() const { return GetOpcodeColumn() + 6; }
+  virtual int GetOperandColumn() const noexcept { return GetOpcodeColumn() + 6; }
   virtual int GetCommentColumn() const = 0;
 
   // Hook methods - optional overrides for format-specific behavior
   virtual std::string FormatHeaderContent(const core::Binary& binary);
   virtual std::string FormatFooterContent();
-  virtual bool RequiresLineNumbers() const { return false; }
+  virtual bool RequiresLineNumbers() const noexcept { return false; }
   virtual std::string AddLineNumbers(const std::string& text) const;
 
   // Format-specific customization points
@@ -93,16 +94,16 @@ class BaseFormatter : public Formatter {
   std::string FormatEquates(
       const std::set<uint32_t>& referenced_addresses,
       const core::SymbolTable* symbol_table,
-      const analysis::EquateGenerator* equate_gen);
+      const core::IEquateProvider* equate_provider);
 
   // Address formatting
-  std::string FormatAddress(uint32_t address, int width) const;
+  std::string FormatAddress(uint32_t address, int width) const noexcept;
 
   // Label resolution
   std::string GetLabel(uint32_t address,
                       const core::AddressMap* address_map) const;
 
-  bool IsSubroutineLabel(const std::string& label) const;
+  bool IsSubroutineLabel(const std::string& label) const noexcept;
 
   // Data formatting helpers
   std::string FormatStringData(uint32_t address,
@@ -125,7 +126,7 @@ class BaseFormatter : public Formatter {
                              size_t size,
                              const core::AddressMap* address_map) const;
 
-  bool IsStringData(const uint8_t* data, size_t size) const;
+  bool IsStringData(const uint8_t* data, size_t size) const noexcept;
 
   // Instruction comment generation
   std::string GenerateInstructionComment(
@@ -142,7 +143,7 @@ class BaseFormatter : public Formatter {
   std::string GetPlatformHint(const std::string& operand,
                               const core::SymbolTable* symbol_table) const;
 
-  bool IsPlatformRegister(const std::string& symbol) const;
+  bool IsPlatformRegister(const std::string& symbol) const noexcept;
 
   // Format a complete data region (CODE/DATA interleaving)
   std::string FormatDataRegion(uint32_t address,

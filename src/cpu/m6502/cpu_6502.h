@@ -19,12 +19,12 @@ namespace m6502 {
 class Cpu6502 : public CpuPlugin {
  public:
   explicit Cpu6502(CpuVariant variant = CpuVariant::MOS_6502);
-  ~Cpu6502() override = default;
+  ~Cpu6502() noexcept override = default;
 
   // CpuPlugin interface implementation
   std::string Name() const override;
   std::vector<std::string> Aliases() const override;
-  CpuVariant GetVariant() const override { return variant_; }
+  CpuVariant GetVariant() const noexcept override { return variant_; }
 
   core::Instruction Disassemble(const uint8_t* data, size_t size,
                                 uint32_t address) const override;
@@ -32,15 +32,15 @@ class Cpu6502 : public CpuPlugin {
   size_t GetInstructionSize(const uint8_t* data, size_t size,
                             uint32_t address) override;
 
-  bool Supports16Bit() const override { return false; }  // True for 65816
-  uint32_t MaxAddress() const override { return 0xFFFF; }
-  uint32_t AddressMask() const override { return 0xFFFF; }
+  bool Supports16Bit() const noexcept override { return false; }  // True for 65816
+  uint32_t MaxAddress() const noexcept override { return 0xFFFF; }
+  uint32_t AddressMask() const noexcept override { return 0xFFFF; }
 
   // CPU-specific analysis methods (SOLID architecture)
-  AnalysisCapabilities GetAnalysisCapabilities() const override;
+  AnalysisCapabilities GetAnalysisCapabilities() const noexcept override;
   std::vector<InterruptVector> GetInterruptVectors() const override;
   uint32_t ReadVectorTarget(const uint8_t* data, size_t size,
-                            uint32_t vector_address) const override;
+                            uint32_t vector_address) const noexcept override;
   bool LooksLikeSubroutineStart(const uint8_t* data, size_t size,
                                 uint32_t address) const override;
   bool IsLikelyCode(const uint8_t* data, size_t size, uint32_t address,
@@ -60,7 +60,7 @@ class Cpu6502 : public CpuPlugin {
                            uint32_t* target_address) const;
 
   // Helper to read 16-bit value (little-endian)
-  uint16_t Read16(const uint8_t* data, size_t offset) const;
+  uint16_t Read16(const uint8_t* data, size_t offset) const noexcept;
 };
 
 // Factory functions

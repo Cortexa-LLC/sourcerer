@@ -16,8 +16,8 @@ struct BinarySegment {
   std::vector<uint8_t> data;
   uint32_t load_address;
 
-  uint32_t size() const { return static_cast<uint32_t>(data.size()); }
-  uint32_t end_address() const { return load_address + size(); }
+  uint32_t size() const noexcept { return static_cast<uint32_t>(data.size()); }
+  uint32_t end_address() const noexcept { return load_address + size(); }
 };
 
 // Represents a binary program loaded into memory
@@ -31,22 +31,22 @@ class Binary {
   static Binary LoadFromFile(const std::string& path, uint32_t load_address);
 
   // Accessors
-  const std::vector<uint8_t>& data() const { return data_; }
-  uint32_t load_address() const { return load_address_; }
-  uint32_t size() const { return static_cast<uint32_t>(data_.size()); }
-  const std::string& source_file() const { return source_file_; }
-  const std::string& file_type() const { return file_type_; }
+  const std::vector<uint8_t>& data() const noexcept { return data_; }
+  uint32_t load_address() const noexcept { return load_address_; }
+  uint32_t size() const noexcept { return static_cast<uint32_t>(data_.size()); }
+  const std::string& source_file() const noexcept { return source_file_; }
+  const std::string& file_type() const noexcept { return file_type_; }
 
   // Multi-segment accessors
-  bool is_multi_segment() const { return !segments_.empty(); }
-  const std::vector<BinarySegment>& segments() const { return segments_; }
-  uint32_t entry_point() const { return entry_point_; }
+  bool is_multi_segment() const noexcept { return !segments_.empty(); }
+  const std::vector<BinarySegment>& segments() const noexcept { return segments_; }
+  uint32_t entry_point() const noexcept { return entry_point_; }
 
   // Mutators
-  void set_load_address(uint32_t address) { load_address_ = address; }
+  void set_load_address(uint32_t address) noexcept { load_address_ = address; }
   void set_source_file(const std::string& file) { source_file_ = file; }
   void set_file_type(const std::string& type) { file_type_ = type; }
-  void set_entry_point(uint32_t address) { entry_point_ = address; }
+  void set_entry_point(uint32_t address) noexcept { entry_point_ = address; }
   void add_segment(const BinarySegment& segment) { segments_.push_back(segment); }
 
   // Check if address is valid within this binary

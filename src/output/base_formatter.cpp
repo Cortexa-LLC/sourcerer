@@ -11,7 +11,6 @@
 #include <set>
 #include <sstream>
 
-#include "analysis/equate_generator.h"
 #include "output/address_analyzer.h"
 #include "output/data_collector.h"
 #include "output/label_resolver.h"
@@ -29,7 +28,7 @@ std::string BaseFormatter::Format(
     const std::vector<core::Instruction>& instructions,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* equate_gen) {
+    const core::IEquateProvider* equate_provider) {
 
   std::ostringstream out;
 
@@ -45,7 +44,7 @@ std::string BaseFormatter::Format(
   auto referenced_addresses = address_analyzer_->CollectReferencedAddresses(instructions);
 
   // Output EQU statements
-  out << FormatEquates(referenced_addresses, symbol_table, equate_gen);
+  out << FormatEquates(referenced_addresses, symbol_table, equate_provider);
 
   // ORG directive
   out << std::string(GetOpcodeColumn(), ' ') << GetOrgDirective() << "   ";
@@ -69,7 +68,7 @@ std::string BaseFormatter::Format(
     if (it != inst_map.end()) {
       // Output the instruction
       const core::Instruction& inst = it->second;
-      out << FormatInstruction(inst, address_map, symbol_table, equate_gen);
+      out << FormatInstruction(inst, address_map, symbol_table, equate_provider);
       out << std::endl;
       address += inst.bytes.size();
     } else if (address_map && address_map->GetType(address) != core::AddressType::CODE) {
@@ -119,7 +118,7 @@ std::string BaseFormatter::FormatInstruction(
     const core::Instruction& inst,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* /* equate_gen */) {
+    const core::IEquateProvider* /* equate_provider */) {
 
   std::ostringstream out;
 
@@ -300,7 +299,7 @@ std::string BaseFormatter::GenerateSemanticCommentCustom(
 std::string BaseFormatter::FormatEquates(
     const std::set<uint32_t>& referenced_addresses,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* equate_gen) {
+    const core::IEquateProvider* equate_provider) {
 
   std::ostringstream out;
 
@@ -323,8 +322,8 @@ std::string BaseFormatter::FormatEquates(
   }
 
   // Output EQU statements for generated equates
-  if (equate_gen) {
-    const auto& equates = equate_gen->GetEquates();
+  if (equate_provider) {
+    const auto& equates = equate_provider->GetEquates();
     if (!equates.empty()) {
       for (const auto& pair : equates) {
         uint8_t value = pair.first;
@@ -335,7 +334,7 @@ std::string BaseFormatter::FormatEquates(
             << std::setfill('0') << static_cast<int>(value);
 
         // Add comment if available
-        std::string comment = equate_gen->GetEquateComment(value);
+        std::string comment = equate_provider->GetEquateComment(value);
         if (!comment.empty()) {
           int line_length = name.length() + (GetOpcodeColumn() - name.length()) + 9;  // "EQU   $XX"
           if (line_length < GetCommentColumn()) {
@@ -373,7 +372,7 @@ void BaseFormatter::WriteMultiLineComment(std::ostream& out,
   }
 }
 
-std::string BaseFormatter::FormatAddress(uint32_t address, int width) const {
+std::string BaseFormatter::FormatAddress(uint32_t address, int width) const noexcept {
   std::ostringstream out;
   out << std::hex << std::uppercase
       << std::setw(width) << std::setfill('0')
@@ -394,7 +393,7 @@ std::string BaseFormatter::GetLabel(uint32_t address,
   return "";
 }
 
-bool BaseFormatter::IsSubroutineLabel(const std::string& label) const {
+bool BaseFormatter::IsSubroutineLabel(const std::string& label) const noexcept {
   // Convention: labels starting with "SUB" or "FN" or "FUNC" are subroutines
   return label.find("SUB") == 0 || label.find("FN") == 0 || label.find("FUNC") == 0;
 }
@@ -468,7 +467,7 @@ std::string BaseFormatter::FormatDataRegion(
   return out.str();
 }
 
-bool BaseFormatter::IsStringData(const uint8_t* data, size_t size) const {
+bool BaseFormatter::IsStringData(const uint8_t* data, size_t size) const noexcept {
   if (size < 4) return false;
 
   // Check if at least 4 consecutive printable ASCII characters
@@ -673,7 +672,7 @@ std::string BaseFormatter::GetPlatformHint(
   return "";
 }
 
-bool BaseFormatter::IsPlatformRegister(const std::string& symbol) const {
+bool BaseFormatter::IsPlatformRegister(const std::string& symbol) const noexcept {
   // Common platform register patterns
   return symbol.find("PIA") == 0 ||
          symbol.find("VIA") == 0 ||

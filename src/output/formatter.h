@@ -11,15 +11,11 @@
 #include "core/address_map.h"
 #include "core/binary.h"
 #include "core/disasm_context.h"
+#include "core/equate_provider.h"
 #include "core/instruction.h"
 #include "core/symbol_table.h"
 
 namespace sourcerer {
-
-// Forward declarations
-namespace analysis {
-class EquateGenerator;
-}
 
 namespace output {
 
@@ -36,14 +32,14 @@ class Formatter {
                             const std::vector<core::Instruction>& instructions,
                             const core::AddressMap* address_map = nullptr,
                             const core::SymbolTable* symbol_table = nullptr,
-                            const analysis::EquateGenerator* equate_gen = nullptr) = 0;
+                            const core::IEquateProvider* equate_provider = nullptr) = 0;
 
   // Format individual instruction
   virtual std::string FormatInstruction(
       const core::Instruction& inst,
       const core::AddressMap* address_map = nullptr,
       const core::SymbolTable* symbol_table = nullptr,
-      const analysis::EquateGenerator* equate_gen = nullptr) = 0;
+      const core::IEquateProvider* equate_provider = nullptr) = 0;
 
   // Format data bytes
   virtual std::string FormatData(uint32_t address,

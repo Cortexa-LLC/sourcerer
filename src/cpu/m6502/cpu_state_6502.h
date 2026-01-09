@@ -28,31 +28,31 @@ class CpuState6502 : public CpuState {
   uint8_t P = 0;
 
   // Status register flags
-  bool flag_C() const { return (P & 0x01) != 0; }  // Carry
-  bool flag_Z() const { return (P & 0x02) != 0; }  // Zero
-  bool flag_I() const { return (P & 0x04) != 0; }  // Interrupt disable
-  bool flag_D() const { return (P & 0x08) != 0; }  // Decimal mode
-  bool flag_B() const { return (P & 0x10) != 0; }  // Break command
-  bool flag_V() const { return (P & 0x40) != 0; }  // Overflow
-  bool flag_N() const { return (P & 0x80) != 0; }  // Negative
+  bool flag_C() const noexcept { return (P & 0x01) != 0; }  // Carry
+  bool flag_Z() const noexcept { return (P & 0x02) != 0; }  // Zero
+  bool flag_I() const noexcept { return (P & 0x04) != 0; }  // Interrupt disable
+  bool flag_D() const noexcept { return (P & 0x08) != 0; }  // Decimal mode
+  bool flag_B() const noexcept { return (P & 0x10) != 0; }  // Break command
+  bool flag_V() const noexcept { return (P & 0x40) != 0; }  // Overflow
+  bool flag_N() const noexcept { return (P & 0x80) != 0; }  // Negative
 
-  void set_flag_C(bool v) { if (v) P |= 0x01; else P &= ~0x01; }
-  void set_flag_Z(bool v) { if (v) P |= 0x02; else P &= ~0x02; }
-  void set_flag_I(bool v) { if (v) P |= 0x04; else P &= ~0x04; }
-  void set_flag_D(bool v) { if (v) P |= 0x08; else P &= ~0x08; }
-  void set_flag_V(bool v) { if (v) P |= 0x40; else P &= ~0x40; }
-  void set_flag_N(bool v) { if (v) P |= 0x80; else P &= ~0x80; }
+  void set_flag_C(bool v) noexcept { if (v) P |= 0x01; else P &= ~0x01; }
+  void set_flag_Z(bool v) noexcept { if (v) P |= 0x02; else P &= ~0x02; }
+  void set_flag_I(bool v) noexcept { if (v) P |= 0x04; else P &= ~0x04; }
+  void set_flag_D(bool v) noexcept { if (v) P |= 0x08; else P &= ~0x08; }
+  void set_flag_V(bool v) noexcept { if (v) P |= 0x40; else P &= ~0x40; }
+  void set_flag_N(bool v) noexcept { if (v) P |= 0x80; else P &= ~0x80; }
 
   // CpuState interface implementation
-  void Reset() override {
+  void Reset() noexcept override {
     A = X = Y = 0;
     SP = 0xFF;  // Stack starts at $01FF
     PC = 0;
     P = 0x20;   // Bit 5 always set
   }
 
-  uint32_t GetPC() const override { return PC; }
-  void SetPC(uint32_t pc) override { PC = static_cast<uint16_t>(pc); }
+  uint32_t GetPC() const noexcept override { return PC; }
+  void SetPC(uint32_t pc) noexcept override { PC = static_cast<uint16_t>(pc); }
 
   bool EvaluateBranchCondition(const std::string& mnemonic) override;
 
@@ -62,7 +62,7 @@ class CpuState6502 : public CpuState {
 
  private:
   // Helper methods for instruction execution
-  void UpdateNZ(uint8_t value) {
+  void UpdateNZ(uint8_t value) noexcept {
     set_flag_Z(value == 0);
     set_flag_N((value & 0x80) != 0);
   }

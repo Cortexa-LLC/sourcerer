@@ -55,7 +55,11 @@ std::set<uint32_t> ExecutionSimulator::SimulateFrom(uint32_t start_address,
     core::Instruction inst;
     try {
       inst = cpu_->Disassemble(data, remaining, current_pc);
-    } catch (...) {
+    } catch (const std::out_of_range&) {
+      // Address out of bounds - stop simulation
+      break;
+    } catch (const std::runtime_error&) {
+      // Invalid opcode or disassembly error - stop simulation
       break;
     }
 
@@ -93,7 +97,11 @@ bool ExecutionSimulator::WouldBranchBeTaken(uint32_t branch_address) {
   core::Instruction inst;
   try {
     inst = cpu_->Disassemble(data, remaining, branch_address);
-  } catch (...) {
+  } catch (const std::out_of_range&) {
+    // Address out of bounds
+    return false;
+  } catch (const std::runtime_error&) {
+    // Invalid opcode or disassembly error
     return false;
   }
 

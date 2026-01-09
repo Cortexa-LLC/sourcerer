@@ -31,18 +31,18 @@ class AddressMap {
 
   // Type tracking
   void SetType(uint32_t address, AddressType type);
-  AddressType GetType(uint32_t address) const;
-  bool IsCode(uint32_t address) const;
-  bool IsData(uint32_t address) const;
+  AddressType GetType(uint32_t address) const noexcept;
+  bool IsCode(uint32_t address) const noexcept;
+  bool IsData(uint32_t address) const noexcept;
 
   // Label management (C++ Core Guidelines F.20: prefer return values)
   void SetLabel(uint32_t address, const std::string& label);
   [[nodiscard]] std::optional<std::string> GetLabel(uint32_t address) const;
 
   // Legacy API for backwards compatibility (deprecated)
-  bool HasLabel(uint32_t address) const;
+  bool HasLabel(uint32_t address) const noexcept;
 
-  const std::map<uint32_t, std::string>& GetAllLabels() const { return labels_; }
+  const std::map<uint32_t, std::string>& GetAllLabels() const noexcept { return labels_; }
 
   // Comment management (C++ Core Guidelines F.20: prefer return values)
   void SetComment(uint32_t address, const std::string& comment);
@@ -50,18 +50,18 @@ class AddressMap {
   [[nodiscard]] std::optional<std::string> GetComment(uint32_t address) const;
 
   // Legacy API for backwards compatibility (deprecated)
-  bool HasComment(uint32_t address) const;
+  bool HasComment(uint32_t address) const noexcept;
 
   // Cross-reference tracking
   void AddXref(uint32_t target, uint32_t source);
   void RemoveXrefsFrom(uint32_t source);  // Remove all xrefs originating from source
   std::vector<uint32_t> GetXrefs(uint32_t target) const;
-  bool HasXrefs(uint32_t target) const;
-  const std::multimap<uint32_t, uint32_t>& GetAllXrefs() const { return xrefs_; }
+  bool HasXrefs(uint32_t target) const noexcept;
+  const std::multimap<uint32_t, uint32_t>& GetAllXrefs() const noexcept { return xrefs_; }
 
   // Entry points
   void AddEntryPoint(uint32_t address);
-  const std::set<uint32_t>& GetEntryPoints() const { return entry_points_; }
+  const std::set<uint32_t>& GetEntryPoints() const noexcept { return entry_points_; }
 
   // Clear all data
   void Clear();

@@ -309,7 +309,7 @@ std::string Cpu6809::FormatOperand(core::AddressingMode mode,
   return oss.str();
 }
 
-uint16_t Cpu6809::Read16(const uint8_t* data, size_t offset) const {
+uint16_t Cpu6809::Read16(const uint8_t* data, size_t offset) const noexcept {
   // 6809 uses big-endian byte order
   return (static_cast<uint16_t>(data[offset]) << 8) | data[offset + 1];
 }
@@ -369,7 +369,7 @@ std::string Cpu6809::DecodeRegisterPair(uint8_t post_byte, bool* valid) const {
 }
 
 // CPU-specific analysis methods (SOLID architecture)
-AnalysisCapabilities Cpu6809::GetAnalysisCapabilities() const {
+AnalysisCapabilities Cpu6809::GetAnalysisCapabilities() const noexcept {
   AnalysisCapabilities caps;
   caps.has_interrupt_vectors = true;
   caps.has_subroutines = true;
@@ -391,7 +391,7 @@ std::vector<InterruptVector> Cpu6809::GetInterruptVectors() const {
 }
 
 uint32_t Cpu6809::ReadVectorTarget(const uint8_t* data, size_t size,
-                                   uint32_t vector_address) const {
+                                   uint32_t vector_address) const noexcept {
   // Need 2 bytes for vector (big-endian 16-bit address)
   if (size < 2) return 0;
   if (vector_address > size - 2) return 0;

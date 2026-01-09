@@ -8,34 +8,31 @@
 #include <string>
 #include <vector>
 
+#include "core/equate_provider.h"
 #include "core/instruction.h"
 
 namespace sourcerer {
 namespace analysis {
 
-// Generates equates (named constants) for commonly used immediate values
-class EquateGenerator {
+/**
+ * Concrete implementation of IEquateProvider.
+ * Generates equates from instruction analysis by tracking immediate value usage frequency.
+ */
+class EquateGenerator : public core::IEquateProvider {
  public:
   EquateGenerator() : min_usage_count_(3) {}
   explicit EquateGenerator(int min_usage_count)
       : min_usage_count_(min_usage_count) {}
+  ~EquateGenerator() override = default;
 
-  // Analyze instructions to find commonly used immediate values
+  // IEquateProvider interface implementation
+  bool HasEquate(uint8_t value) const override;
+  std::string GetEquateName(uint8_t value) const override;
+  const std::map<uint8_t, std::string>& GetEquates() const override { return equates_; }
+  std::string GetEquateComment(uint8_t value) const override;
+
+  // EquateGenerator-specific methods (not in interface)
   void AnalyzeInstructions(const std::vector<core::Instruction>& instructions);
-
-  // Check if a value has an equate
-  bool HasEquate(uint8_t value) const;
-
-  // Get equate name for a value
-  std::string GetEquateName(uint8_t value) const;
-
-  // Get all equates (value -> name mapping)
-  const std::map<uint8_t, std::string>& GetEquates() const { return equates_; }
-
-  // Get equate comment for a value
-  std::string GetEquateComment(uint8_t value) const;
-
-  // Get usage count for a value
   int GetUsageCount(uint8_t value) const;
 
  private:

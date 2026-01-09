@@ -27,13 +27,13 @@ class ScmasmFormatter : public Formatter {
                     const std::vector<core::Instruction>& instructions,
                     const core::AddressMap* address_map = nullptr,
                     const core::SymbolTable* symbol_table = nullptr,
-                    const analysis::EquateGenerator* equate_gen = nullptr) override;
+                    const core::IEquateProvider* equate_gen = nullptr) override;
 
   std::string FormatInstruction(
       const core::Instruction& inst,
       const core::AddressMap* address_map = nullptr,
       const core::SymbolTable* symbol_table = nullptr,
-      const analysis::EquateGenerator* equate_gen = nullptr) override;
+      const core::IEquateProvider* equate_gen = nullptr) override;
 
   std::string FormatData(uint32_t address,
                         const std::vector<uint8_t>& bytes) override;

@@ -212,12 +212,12 @@ std::string Cpu6502::FormatOperand(core::AddressingMode mode,
   return oss.str();
 }
 
-uint16_t Cpu6502::Read16(const uint8_t* data, size_t offset) const {
+uint16_t Cpu6502::Read16(const uint8_t* data, size_t offset) const noexcept {
   return data[offset] | (data[offset + 1] << 8);
 }
 
 // CPU-specific analysis methods (SOLID architecture)
-AnalysisCapabilities Cpu6502::GetAnalysisCapabilities() const {
+AnalysisCapabilities Cpu6502::GetAnalysisCapabilities() const noexcept {
   AnalysisCapabilities caps;
   caps.has_interrupt_vectors = true;
   caps.has_subroutines = true;
@@ -235,7 +235,7 @@ std::vector<InterruptVector> Cpu6502::GetInterruptVectors() const {
 }
 
 uint32_t Cpu6502::ReadVectorTarget(const uint8_t* data, size_t size,
-                                   uint32_t vector_address) const {
+                                   uint32_t vector_address) const noexcept {
   // Need 2 bytes for vector (little-endian 16-bit address)
   if (size < 2) return 0;
   if (vector_address > size - 2) return 0;

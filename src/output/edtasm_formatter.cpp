@@ -10,7 +10,6 @@
 #include <sstream>
 #include <set>
 
-#include "analysis/equate_generator.h"
 #include "output/data_collector.h"
 #include "output/address_analyzer.h"
 #include "output/label_resolver.h"
@@ -24,7 +23,7 @@ std::string EdtasmFormatter::Format(
     const std::vector<core::Instruction>& instructions,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* equate_gen) {
+    const core::IEquateProvider* equate_gen) {
 
   std::ostringstream out;
 
@@ -209,7 +208,7 @@ std::string EdtasmFormatter::FormatInstruction(
     const core::Instruction& inst,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* equate_gen) {
+    const core::IEquateProvider* equate_gen) {
 
   (void)equate_gen;  // May be used for equate substitution
 

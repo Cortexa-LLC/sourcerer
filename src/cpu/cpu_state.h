@@ -21,14 +21,14 @@ namespace cpu {
 // Each CPU plugin provides its own concrete implementation
 class CpuState {
  public:
-  virtual ~CpuState() = default;
+  virtual ~CpuState() noexcept = default;
 
   // Reset CPU state to initial values
-  virtual void Reset() = 0;
+  virtual void Reset() noexcept = 0;
 
   // Program counter access
-  virtual uint32_t GetPC() const = 0;
-  virtual void SetPC(uint32_t pc) = 0;
+  virtual uint32_t GetPC() const noexcept = 0;
+  virtual void SetPC(uint32_t pc) noexcept = 0;
 
   // Evaluate branch condition based on current state
   // Returns true if branch would be taken, false otherwise

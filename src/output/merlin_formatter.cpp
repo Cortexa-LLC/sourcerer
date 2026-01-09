@@ -9,7 +9,6 @@
 #include <sstream>
 #include <regex>
 
-#include "analysis/equate_generator.h"
 #include "output/data_collector.h"
 #include "output/address_analyzer.h"
 #include "output/label_resolver.h"
@@ -23,7 +22,7 @@ std::string MerlinFormatter::Format(
     const std::vector<core::Instruction>& instructions,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* equate_gen) {
+    const core::IEquateProvider* equate_gen) {
 
   std::ostringstream out;
 
@@ -222,7 +221,7 @@ std::string MerlinFormatter::FormatInstruction(
     const core::Instruction& inst,
     const core::AddressMap* address_map,
     const core::SymbolTable* symbol_table,
-    const analysis::EquateGenerator* equate_gen) {
+    const core::IEquateProvider* equate_gen) {
   
   std::ostringstream out;
 

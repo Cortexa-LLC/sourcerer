@@ -105,12 +105,16 @@ target_link_libraries(formatters PUBLIC sourcerer_core)
 # Analysis modules
 add_library(analysis
     src/analysis/code_analyzer.cpp
+    src/analysis/data_heuristics_engine.cpp
+    src/analysis/graphics_detection_strategy.cpp
+    src/analysis/entry_point_discovery_strategy.cpp
     src/analysis/execution_simulator.cpp
     src/analysis/label_generator.cpp
     src/analysis/xref_builder.cpp
     src/analysis/hints_parser.cpp
     src/analysis/equate_generator.cpp
     src/analysis/pattern_detector.cpp
+    src/analysis/strategies/misalignment_resolver.cpp
 )
 target_link_libraries(analysis PUBLIC
     sourcerer_core

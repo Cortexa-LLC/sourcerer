@@ -49,12 +49,12 @@ struct AnalysisCapabilities {
 // Abstract CPU plugin interface
 class CpuPlugin {
  public:
-  virtual ~CpuPlugin() = default;
+  virtual ~CpuPlugin() noexcept = default;
 
   // Plugin identification
   virtual std::string Name() const = 0;
   virtual std::vector<std::string> Aliases() const = 0;
-  virtual CpuVariant GetVariant() const = 0;
+  virtual CpuVariant GetVariant() const noexcept = 0;
 
   // Disassemble one instruction at the given address
   // Returns the disassembled instruction
@@ -66,16 +66,16 @@ class CpuPlugin {
                                     uint32_t address) = 0;
 
   // CPU capabilities
-  virtual bool Supports16Bit() const { return false; }
-  virtual uint32_t MaxAddress() const { return 0xFFFF; }
-  virtual uint32_t AddressMask() const { return 0xFFFF; }
+  virtual bool Supports16Bit() const noexcept { return false; }
+  virtual uint32_t MaxAddress() const noexcept { return 0xFFFF; }
+  virtual uint32_t AddressMask() const noexcept { return 0xFFFF; }
 
   // NEW: CPU-specific code analysis methods (SOLID architecture)
   // These methods allow CPU plugins to provide CPU-specific analysis hints
   // without the analyzer needing to know about specific CPU architectures
 
   // Get analysis capabilities for this CPU
-  virtual AnalysisCapabilities GetAnalysisCapabilities() const {
+  virtual AnalysisCapabilities GetAnalysisCapabilities() const noexcept {
     return AnalysisCapabilities();
   }
 
@@ -89,7 +89,7 @@ class CpuPlugin {
   // Handles CPU-specific endianness and vector format
   // Returns 0 if address is invalid or vector is not readable
   virtual uint32_t ReadVectorTarget(const uint8_t* data, size_t size,
-                                    uint32_t vector_address) const {
+                                    uint32_t vector_address) const noexcept {
     (void)data;
     (void)size;
     (void)vector_address;
