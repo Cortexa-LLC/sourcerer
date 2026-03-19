@@ -15,6 +15,7 @@ StringDetectionResult DataCollector::DetectString(
   result.looks_like_string = false;
   result.has_high_bit = false;
   result.has_control_char = false;
+  result.is_high_bit_ascii = false;
   result.printable_count = 0;
 
   if (!binary_) {
@@ -28,6 +29,8 @@ StringDetectionResult DataCollector::DetectString(
 
   size_t check_len = std::min(lookahead, available);
 
+  // Classify all bytes in the lookahead window
+  bool all_have_high_bit = true;
   for (size_t i = 0; i < check_len; ++i) {
     const uint8_t* byte_ptr = binary_->GetPointer(address + i);
     if (!byte_ptr) {
@@ -36,27 +39,37 @@ StringDetectionResult DataCollector::DetectString(
 
     uint8_t byte = *byte_ptr;
 
-    // Reject high-bit bytes (graphics data, not ASCII)
-    if (byte >= 0x80) {
+    if (byte < 0x80) {
+      all_have_high_bit = false;
+    } else {
       result.has_high_bit = true;
-      return result;  // Immediately reject
     }
 
-    // Reject control characters (except CR/LF)
+    // Control characters (except CR/LF) — only possible for low bytes
     if (byte < 0x20 && byte != 0x0D && byte != 0x0A) {
       result.has_control_char = true;
-      return result;  // Immediately reject
     }
 
+    // IsPrintable strips bit 7, so this works for both regular and high-bit bytes
     if (IsPrintable(byte)) {
       result.printable_count++;
     }
   }
 
-  // Need at least 3 printable characters
-  result.looks_like_string = (result.printable_count >= 3 &&
-                              !result.has_high_bit &&
-                              !result.has_control_char);
+  // Standard ASCII: no high-bit bytes, no control chars, enough printable chars
+  if (!result.has_high_bit && !result.has_control_char && result.printable_count >= 3) {
+    result.looks_like_string = true;
+    return result;
+  }
+
+  // Apple II high-bit ASCII: ALL bytes have bit 7 set and are printable after stripping.
+  // Example: $A0=$20(space), $C1=$41('A'), $AA=$2A('*')
+  if (all_have_high_bit &&
+      result.printable_count == static_cast<int>(check_len)) {
+    result.is_high_bit_ascii = true;
+    result.looks_like_string = true;
+    return result;
+  }
 
   return result;
 }

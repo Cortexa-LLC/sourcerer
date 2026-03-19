@@ -369,6 +369,25 @@ std::string ScmasmFormatter::FormatDataRegion(uint32_t address,
     }
   }
 
+  // Apple II high-bit ASCII: all bytes have bit 7 set and printable low 7 bits.
+  // Emit a decoded comment so the string is human-readable.
+  if (bytes.size() >= 3) {
+    bool is_apple2_ascii = true;
+    for (uint8_t b : bytes) {
+      if (b < 0x80 || !DataCollector::IsPrintable(b)) {
+        is_apple2_ascii = false;
+        break;
+      }
+    }
+    if (is_apple2_ascii) {
+      std::string decoded;
+      for (uint8_t b : bytes) {
+        decoded += static_cast<char>(b & 0x7F);
+      }
+      out << std::string(OPCODE_COL, ' ') << "; \"" << decoded << "\"" << std::endl;
+    }
+  }
+
   // Emit as .HS (hex string) lines, 8 bytes per line.
   // xasm++ SCMASM .DA without a '#' prefix emits 16-bit words, not bytes.
   // .HS takes pairs of hex digits and emits one byte per pair — the correct

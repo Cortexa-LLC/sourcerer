@@ -18,6 +18,7 @@ struct StringDetectionResult {
   bool looks_like_string;
   bool has_high_bit;
   bool has_control_char;
+  bool is_high_bit_ascii;  // All bytes have bit 7 set, printable as Apple II ASCII
   int printable_count;
 };
 
