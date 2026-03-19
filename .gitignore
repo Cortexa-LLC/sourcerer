@@ -10,6 +10,7 @@ out/
 
 # AI Pack - Task packets (ephemeral working state)
 .ai/tasks/
+.ai/archive/
 
 # Keep .ai/repo-overrides.md tracked (project-specific config)
 
@@ -80,3 +81,7 @@ test_output/
 
 # Reference materials (large PDFs, copyrighted)
 references/
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
