@@ -1,0 +1,128 @@
+{
+  "platform": "apple2_prodos_fx",
+  "description": "ProDOS FX system variables and MLI entry points",
+  "version": "1.0",
+  "source": "ProDOS FX boot source, ProDOS 8 Technical Reference Manual",
+  "symbols": [
+    {
+      "address": "0xBF00",
+      "name": "MLI",
+      "type": "rom_routine",
+      "description": "ProDOS MLI entry point (JSR $BF00)"
+    },
+    {
+      "address": "0xBF10",
+      "name": "DATETIME",
+      "type": "rom_routine",
+      "description": "ProDOS update date/time"
+    },
+    {
+      "address": "0xBF20",
+      "name": "SYSERR",
+      "type": "rom_routine",
+      "description": "ProDOS system error handler"
+    },
+    {
+      "address": "0xBF30",
+      "name": "SYSFLAGS",
+      "type": "system_variable",
+      "description": "ProDOS system flags"
+    },
+    {
+      "address": "0xBE00",
+      "name": "DEVNUM",
+      "type": "system_variable",
+      "description": "Most recent device number accessed"
+    },
+    {
+      "address": "0xBE30",
+      "name": "DEVCNT",
+      "type": "system_variable",
+      "description": "Number of on-line devices minus 1"
+    },
+    {
+      "address": "0xBE31",
+      "name": "DEVLST",
+      "type": "system_variable",
+      "description": "Device list (up to 14 entries)"
+    },
+    {
+      "address": "0xBE50",
+      "name": "PFIXPTR",
+      "type": "system_variable",
+      "description": "Prefix buffer pointer"
+    },
+    {
+      "address": "0xBE52",
+      "name": "TSLOT",
+      "type": "system_variable",
+      "description": "Startup device slot number"
+    },
+    {
+      "address": "0xBE53",
+      "name": "TDRIVE",
+      "type": "system_variable",
+      "description": "Startup device drive number"
+    },
+    {
+      "address": "0xBE90",
+      "name": "DATELO",
+      "type": "system_variable",
+      "description": "Current date low byte"
+    },
+    {
+      "address": "0xBE92",
+      "name": "TIMELO",
+      "type": "system_variable",
+      "description": "Current time low byte"
+    },
+    {
+      "address": "0xBEFF",
+      "name": "SYSVER",
+      "type": "system_variable",
+      "description": "ProDOS version number"
+    },
+    {
+      "address": "0xBFD8",
+      "name": "MLIACTV",
+      "type": "system_variable",
+      "description": "MLI active flag (non-zero if MLI in use)"
+    },
+    {
+      "address": "0xBFD9",
+      "name": "MLICMD",
+      "type": "system_variable",
+      "description": "Current MLI command number"
+    },
+    {
+      "address": "0xBFDA",
+      "name": "PARAMS",
+      "type": "system_variable",
+      "description": "MLI parameter list pointer (2 bytes)"
+    },
+    {
+      "address": "0xBFE3",
+      "name": "IVERSION",
+      "type": "system_variable",
+      "description": "Interrupt handler version"
+    },
+    {
+      "address": "0xBFE4",
+      "name": "INTENTRY",
+      "type": "system_variable",
+      "description": "Interrupt polling routine pointer"
+    },
+    {
+      "address": "0xBFF0",
+      "name": "BMAPBIT",
+      "type": "system_variable",
+      "description": "Volume bitmap block pointer"
+    },
+    {
+      "address": "0xBFF4",
+      "name": "TOTBLKS",
+      "type": "system_variable",
+      "description": "Total blocks on current volume (2 bytes)"
+    }
+  ]
+}

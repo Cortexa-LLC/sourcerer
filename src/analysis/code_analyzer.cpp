@@ -1351,7 +1351,7 @@ bool CodeAnalyzer::DetectAndResolvePostPassMisalignments(core::AddressMap* addre
       address_map, &discovered_entry_points_, &visited_recursive_);
 }
 
-void CodeAnalyzer::DynamicAnalysis(core::AddressMap* address_map) {
+void CodeAnalyzer::DynamicAnalysis(core::AddressMap* /*address_map*/) {
   LOG_INFO("Starting dynamic analysis (execution simulation)...");
 
   ExecutionSimulator simulator(cpu_, binary_);

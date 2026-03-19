@@ -664,6 +664,50 @@ TEST_F(MerlinFormatterTest, StringWithCarriageReturn) {
   EXPECT_TRUE(output.find("HEX   8D") != std::string::npos);
 }
 
+// Test plain ASCII string (bit 7 clear) emits HEX, not ASC.
+// Merlin ASC always sets bit 7 on every byte, so ASC '...' would produce
+// wrong (high-bit) output for bytes in the range $20-$7E.
+TEST_F(MerlinFormatterTest, PlainAsciiStringEmitsHex) {
+  // "SOS " — all bytes bit 7 clear ($53 $4F $53 $20)
+  core::Binary binary({'S', 'O', 'S', ' '}, 0x8000);
+
+  address_map_->SetType(0x8000, core::AddressType::DATA);
+  for (uint32_t i = 0; i < 4; ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  // Must emit HEX for byte-exact reconstruction; ASC would set bit 7.
+  EXPECT_TRUE(output.find("HEX") != std::string::npos)
+      << "Plain ASCII string should emit HEX, got: " << output;
+  EXPECT_EQ(output.find("ASC"), std::string::npos)
+      << "Plain ASCII string must NOT emit ASC (bit 7 would be set), got: " << output;
+  // Verify the actual hex values appear
+  EXPECT_TRUE(output.find("53") != std::string::npos)
+      << "Expected hex byte 53 ('S') in output: " << output;
+}
+
+// Test that a longer plain ASCII string emits HEX across multiple bytes.
+TEST_F(MerlinFormatterTest, LongPlainAsciiStringEmitsHex) {
+  // "HELLO WORLD" — 11 bytes, all bit 7 clear
+  core::Binary binary({'H','E','L','L','O',' ','W','O','R','L','D'}, 0x8000);
+
+  address_map_->SetType(0x8000, core::AddressType::DATA);
+  for (uint32_t i = 0; i < 11; ++i) {
+    address_map_->SetType(0x8000 + i, core::AddressType::DATA);
+  }
+
+  std::vector<core::Instruction> instructions;
+  std::string output = formatter_->Format(binary, instructions, address_map_.get());
+
+  EXPECT_TRUE(output.find("HEX") != std::string::npos)
+      << "Plain ASCII string should emit HEX, got: " << output;
+  EXPECT_EQ(output.find("ASC"), std::string::npos)
+      << "Plain ASCII string must NOT emit ASC, got: " << output;
+}
+
 // Test string with delimiter character
 TEST_F(MerlinFormatterTest, StringWithDelimiter) {
   // String containing apostrophe (will be delimiter)

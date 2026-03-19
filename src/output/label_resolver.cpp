@@ -81,10 +81,13 @@ LabelSubstitutionResult LabelResolver::SubstituteLabel(const std::string& operan
   }
 
   // Priority 2: Check address map for generated labels
-  // Only substitute if the address has an instruction or is at a valid boundary
+  // Substitute if the address is code, data, or has xrefs (known branch target).
+  // The misalignment resolver may leave valid branch targets as UNKNOWN type;
+  // the presence of xrefs confirms the address is a legitimate label site.
   if (address_map_) {
     if (auto label = address_map_->GetLabel(addr)) {
-      if (address_map_->IsCode(addr) || address_map_->IsData(addr)) {
+      if (address_map_->IsCode(addr) || address_map_->IsData(addr) ||
+          address_map_->HasXrefs(addr)) {
         result.operand = ReplaceAddressInOperand(result.operand, addr, *label);
         result.substituted = true;
       }

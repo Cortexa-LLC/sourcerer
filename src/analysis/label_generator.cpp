@@ -21,6 +21,35 @@ void LabelGenerator::GenerateLabels(const std::vector<core::Instruction>* instru
 
   // Clear used labels set
   used_labels_.clear();
+  formatter_reachable_.clear();
+
+  // Simulate the formatter's sequential walk to find which instruction start
+  // addresses it will actually visit.  Because DisassembleCodeRegions adds
+  // instructions at EVERY code byte (walking by 1), the instructions vector
+  // contains overlapping entries.  Only addresses the formatter reaches by
+  // advancing from one instruction's end to the next are valid label sites.
+  if (instructions && binary_) {
+    std::map<uint32_t, size_t> inst_sizes;
+    for (const auto& inst : *instructions) {
+      // Keep the longest instruction at each address (most conservative)
+      auto it = inst_sizes.find(inst.address);
+      if (it == inst_sizes.end() || inst.bytes.size() > it->second) {
+        inst_sizes[inst.address] = inst.bytes.size();
+      }
+    }
+
+    uint32_t walk = binary_->load_address();
+    uint32_t walk_end = binary_->load_address() + binary_->size();
+    while (walk < walk_end) {
+      auto it = inst_sizes.find(walk);
+      if (it != inst_sizes.end()) {
+        formatter_reachable_.insert(walk);
+        walk += it->second;
+      } else {
+        walk++;
+      }
+    }
+  }
 
   // Build subroutine map if instructions provided (for local labels)
   if (instructions) {
@@ -356,31 +385,30 @@ bool LabelGenerator::IsValidLabelAddress(uint32_t address, const std::vector<cor
     return true;
   }
 
-  // CODE addresses must have an instruction starting at that exact address
+  // CODE addresses are valid only if the formatter will actually visit them.
+  // DisassembleCodeRegions adds instructions at every code byte (walking by 1),
+  // producing overlapping entries.  formatter_reachable_ contains the subset of
+  // addresses that the formatter's sequential walk (advancing by instruction size)
+  // will actually reach — only those addresses get label definition lines.
   if (type == core::AddressType::CODE) {
-    if (!instructions) {
-      // No instructions provided - assume valid (conservative)
-      return true;
+    if (!formatter_reachable_.empty()) {
+      return formatter_reachable_.count(address) > 0;
     }
 
-    // Check if there's an instruction starting at this address
-    for (const auto& inst : *instructions) {
-      if (inst.address == address) {
-        return true;  // Valid instruction boundary
-      }
-      // If this address is in the middle of an instruction, it's invalid
-      if (inst.address < address && address < inst.address + inst.bytes.size()) {
-        return false;  // Address is in middle of instruction
-      }
-    }
-
-    // No instruction found at this address - could be orphaned CODE byte
-    // Check if it's at least marked as CODE
-    return address_map_->IsCode(address);
+    // formatter_reachable_ not computed (no instructions or binary) — fall back
+    // to conservative: allow all CODE addresses.
+    return true;
   }
 
   // UNKNOWN or other types - allow if zero page or ROM (external symbols)
   if (address < 0x100 || address >= 0xC000) {
+    return true;
+  }
+
+  // Allow UNKNOWN addresses that have xrefs — these are confirmed branch/jump targets
+  // whose type was reset to UNKNOWN by the misalignment resolver.  The xref itself
+  // is strong evidence that the address is a valid instruction boundary.
+  if (address_map_->HasXrefs(address)) {
     return true;
   }
 

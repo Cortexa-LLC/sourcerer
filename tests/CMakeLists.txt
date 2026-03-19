@@ -10,10 +10,10 @@ add_executable(test_core
     test_address_map.cpp
     test_symbol_table.cpp
 )
+target_compile_options(test_core PRIVATE -Wno-sign-compare)
 target_link_libraries(test_core PRIVATE
     sourcerer_core
     utils
-    GTest::gtest
     GTest::gtest_main
 )
 gtest_discover_tests(test_core)
@@ -23,10 +23,10 @@ add_executable(test_6502
     test_cpu_6502.cpp
     test_opcodes_6502.cpp
 )
+target_compile_options(test_6502 PRIVATE -Wno-sign-compare)
 target_link_libraries(test_6502 PRIVATE
     cpu_plugins
     utils
-    GTest::gtest
     GTest::gtest_main
 )
 gtest_discover_tests(test_6502)
@@ -35,10 +35,10 @@ gtest_discover_tests(test_6502)
 add_executable(test_6809
     test_cpu_6809.cpp
 )
+target_compile_options(test_6809 PRIVATE -Wno-sign-compare)
 target_link_libraries(test_6809 PRIVATE
     cpu_plugins
     utils
-    GTest::gtest
     GTest::gtest_main
 )
 gtest_discover_tests(test_6809)
@@ -52,11 +52,11 @@ add_executable(test_analysis
     test_code_analyzer_integration.cpp
     test_pattern_detector.cpp
 )
+target_compile_options(test_analysis PRIVATE -Wno-sign-compare)
 target_link_libraries(test_analysis PRIVATE
     analysis
     cpu_plugins
     utils
-    GTest::gtest
     GTest::gtest_main
 )
 gtest_discover_tests(test_analysis)
@@ -67,11 +67,11 @@ add_executable(test_formatters
     test_scmasm_formatter.cpp
     test_edtasm_formatter.cpp
 )
+target_compile_options(test_formatters PRIVATE -Wno-sign-compare)
 target_link_libraries(test_formatters PRIVATE
     formatters
     analysis
     utils
-    GTest::gtest
     GTest::gtest_main
 )
 gtest_discover_tests(test_formatters)
@@ -80,14 +80,13 @@ gtest_discover_tests(test_formatters)
 add_executable(test_integration
     test_integration.cpp
 )
+target_compile_options(test_integration PRIVATE -Wno-sign-compare)
 target_link_libraries(test_integration PRIVATE
-    sourcerer_core
     cpu_plugins
     disk_extractors
     formatters
     analysis
     utils
-    GTest::gtest
     GTest::gtest_main
 )
 gtest_discover_tests(test_integration)

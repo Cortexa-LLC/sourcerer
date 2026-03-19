@@ -276,10 +276,11 @@ std::string MerlinFormatter::FormatInstruction(
     }
 
     // Priority 2: Check address map for generated labels
-    // Only substitute if the address has an instruction or is at a valid boundary
+    // Substitute if address is code, data, or has xrefs (known branch target).
     if (!substituted && address_map && addr != 0xFFFFFFFF) {
       if (auto label = address_map->GetLabel(addr)) {
-        if (address_map->IsCode(addr) || address_map->IsData(addr)) {
+        if (address_map->IsCode(addr) || address_map->IsData(addr) ||
+            address_map->HasXrefs(addr)) {
           operand = SubstituteSymbol(operand, addr, *label);
           substituted = true;
         }
@@ -287,10 +288,12 @@ std::string MerlinFormatter::FormatInstruction(
     }
 
     // Priority 3: For branch/jump instructions, use target_address from address_map
-    // Only substitute if the target address has an instruction or is at a valid boundary
+    // Allow substitution for code, data, or any address with xrefs.
     if (!substituted && address_map && inst.target_address != 0) {
       if (auto label = address_map->GetLabel(inst.target_address)) {
-        if (address_map->IsCode(inst.target_address) || address_map->IsData(inst.target_address)) {
+        if (address_map->IsCode(inst.target_address) ||
+            address_map->IsData(inst.target_address) ||
+            address_map->HasXrefs(inst.target_address)) {
           operand = *label;
         }
       }
@@ -525,42 +528,67 @@ std::string MerlinFormatter::FormatDataRegion(
   }
 
   if (is_pure_string) {
-    // Choose delimiter based on high bit status
-    // Delimiter < 0x27 (like ") → high bit SET (negative ASCII)
-    // Delimiter >= 0x27 (like ') → high bit CLEAR (positive ASCII)
-    char delimiter = has_high_bit ? '"' : '\'';
-
-    // Format as ASCII string
-    out << "ASC   " << delimiter;
-    for (size_t i = 0; i < bytes.size(); ++i) {
-      uint8_t byte = bytes[i];
-      if (byte == 0x00) break;  // Null terminator
-
-      if (byte == 0x8D) {
-        // Carriage return - close string and output as HEX
-        if (i > 0) out << delimiter;
-        out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   8D";
-        if (i + 1 < bytes.size()) {
-          out << std::endl << std::string(OPCODE_COL, ' ') << "ASC   " << delimiter;
+    if (!has_high_bit) {
+      // Plain ASCII bytes (bit 7 clear, $20-$7E): emit as HEX.
+      // Merlin ASC always sets bit 7 on every byte, so ASC '...' would
+      // produce wrong (high-bit) output for plain ASCII data.
+      size_t byte_count = 0;
+      bool first_on_line = true;
+      for (size_t i = 0; i < bytes.size(); ++i) {
+        uint8_t byte = bytes[i];
+        if (byte == 0x00) break;  // Null terminator
+        if (first_on_line) {
+          if (byte_count > 0) out << std::endl;
+          out << std::string(OPCODE_COL, ' ') << "HEX   ";
+          first_on_line = false;
+        } else {
+          out << ",";
         }
-      } else {
-        char ch = static_cast<char>(byte & 0x7F);  // Strip high bit for display
-        if (ch == delimiter) {
-          // Can't escape in Merlin - need to switch delimiters or use HEX
-          // For simplicity, close string, output byte as HEX, reopen string
-          out << delimiter;
-          out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
-          out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
-              << static_cast<int>(byte);
+        out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(byte);
+        ++byte_count;
+        if (byte_count % 8 == 0) {
+          first_on_line = true;
+        }
+      }
+    } else {
+      // High-bit bytes present (e.g. CR $8D): use ASC " delimiter.
+      // Merlin ASC sets bit 7 on every byte, so "..." is correct for
+      // high-bit text ($A0–$FE). CR ($8D) is emitted separately as HEX 8D.
+      char delimiter = '"';
+
+      // Format as ASCII string
+      out << "ASC   " << delimiter;
+      for (size_t i = 0; i < bytes.size(); ++i) {
+        uint8_t byte = bytes[i];
+        if (byte == 0x00) break;  // Null terminator
+
+        if (byte == 0x8D) {
+          // Carriage return - close string and output as HEX
+          if (i > 0) out << delimiter;
+          out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   8D";
           if (i + 1 < bytes.size()) {
             out << std::endl << std::string(OPCODE_COL, ' ') << "ASC   " << delimiter;
           }
         } else {
-          out << ch;
+          char ch = static_cast<char>(byte & 0x7F);  // Strip high bit for display
+          if (ch == delimiter) {
+            // Can't escape in Merlin - need to switch delimiters or use HEX
+            // For simplicity, close string, output byte as HEX, reopen string
+            out << delimiter;
+            out << std::endl << std::string(OPCODE_COL, ' ') << "HEX   ";
+            out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+                << static_cast<int>(byte);
+            if (i + 1 < bytes.size()) {
+              out << std::endl << std::string(OPCODE_COL, ' ') << "ASC   " << delimiter;
+            }
+          } else {
+            out << ch;
+          }
         }
       }
+      out << delimiter;
     }
-    out << delimiter;
   } else if (is_address_table) {
     // Format as address table using DA (Define Address) directive
     // Find the actual length of consecutive valid addresses and offset
@@ -608,11 +636,11 @@ std::string MerlinFormatter::FormatDataRegion(
         }
 
         // Priority 2: Check address map for labels
-        // Only substitute if the address has an instruction or is at a valid boundary
+        // Substitute if address is code, data, or has xrefs (known branch target).
         if (!found_symbol && address_map) {
           if (auto label = address_map->GetLabel(addr)) {
-            // Verify the address is at a valid code/data boundary
-            if (address_map->IsCode(addr) || address_map->IsData(addr)) {
+            if (address_map->IsCode(addr) || address_map->IsData(addr) ||
+                address_map->HasXrefs(addr)) {
               out << *label;
               found_symbol = true;
             }

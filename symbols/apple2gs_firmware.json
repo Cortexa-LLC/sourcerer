@@ -1,0 +1,200 @@
+{
+  "platform": "apple2gs_firmware",
+  "description": "Apple IIgs hardware I/O registers and firmware entry points",
+  "version": "1.0",
+  "source": "Apple IIgs Hardware Reference, IIgs Firmware Reference, SOS BOOT 1.1",
+  "symbols": [
+    {
+      "address": "0xC033",
+      "name": "RAMRDOFF",
+      "type": "io_port",
+      "description": "IIgs: read main memory (write)"
+    },
+    {
+      "address": "0xC034",
+      "name": "RAMRDON",
+      "type": "io_port",
+      "description": "IIgs: read auxiliary memory (write)"
+    },
+    {
+      "address": "0xC035",
+      "name": "RAMWRTOFF",
+      "type": "io_port",
+      "description": "IIgs: write main memory (write)"
+    },
+    {
+      "address": "0xC036",
+      "name": "RAMWRTON",
+      "type": "io_port",
+      "description": "IIgs: write auxiliary memory (write)"
+    },
+    {
+      "address": "0xC038",
+      "name": "BUTN0",
+      "type": "io_port",
+      "description": "IIgs: open-apple button state (read)"
+    },
+    {
+      "address": "0xC039",
+      "name": "BUTN1",
+      "type": "io_port",
+      "description": "IIgs: closed-apple button state (read)"
+    },
+    {
+      "address": "0xC03A",
+      "name": "BUTN2",
+      "type": "io_port",
+      "description": "IIgs: option button state (read)"
+    },
+    {
+      "address": "0xC03B",
+      "name": "VGCINT",
+      "type": "io_port",
+      "description": "IIgs: VGC interrupt register"
+    },
+    {
+      "address": "0xC03C",
+      "name": "MOUSEDATA",
+      "type": "io_port",
+      "description": "IIgs: mouse data register"
+    },
+    {
+      "address": "0xC03D",
+      "name": "PADDLES",
+      "type": "io_port",
+      "description": "IIgs: paddle/joystick control"
+    },
+    {
+      "address": "0xC03E",
+      "name": "STATEREG",
+      "type": "io_port",
+      "description": "IIgs: internal state register"
+    },
+    {
+      "address": "0xC041",
+      "name": "MSTRSEL",
+      "type": "io_port",
+      "description": "IIgs: master interrupt control"
+    },
+    {
+      "address": "0xC044",
+      "name": "EMULATOR",
+      "type": "io_port",
+      "description": "IIgs: emulation mode register"
+    },
+    {
+      "address": "0xC046",
+      "name": "GSWITCH",
+      "type": "io_port",
+      "description": "IIgs: global language switch"
+    },
+    {
+      "address": "0xC047",
+      "name": "DISKREG",
+      "type": "io_port",
+      "description": "IIgs: disk interface register"
+    },
+    {
+      "address": "0xC068",
+      "name": "STATEREG2",
+      "type": "io_port",
+      "description": "IIgs: shadow register"
+    },
+    {
+      "address": "0xC069",
+      "name": "CYAREG",
+      "type": "io_port",
+      "description": "IIgs: CYA register (mega II)"
+    },
+    {
+      "address": "0xC07E",
+      "name": "IOUDISON",
+      "type": "io_port",
+      "description": "IIgs: enable IOU access for soft switches C05x (write)"
+    },
+    {
+      "address": "0xC07F",
+      "name": "IOUDISOFF",
+      "type": "io_port",
+      "description": "IIgs: disable IOU access for soft switches C05x (write)"
+    },
+    {
+      "address": "0xC08A",
+      "name": "ROMLK",
+      "type": "io_port",
+      "description": "IIgs: lock ROM bank 1 in (BIT $C08A to read bank 1)"
+    },
+    {
+      "address": "0xE0",
+      "name": "SOS.E0",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 0"
+    },
+    {
+      "address": "0xE1",
+      "name": "SOS.E1",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 1"
+    },
+    {
+      "address": "0xE2",
+      "name": "SOS.E2",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 2"
+    },
+    {
+      "address": "0xE3",
+      "name": "SOS.E3",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 3"
+    },
+    {
+      "address": "0xE4",
+      "name": "SOS.E4",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 4"
+    },
+    {
+      "address": "0xE5",
+      "name": "SOS.E5",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 5"
+    },
+    {
+      "address": "0xE6",
+      "name": "SOS.E6",
+      "type": "system_variable",
+      "description": "SOS BOOT: zero-page work area byte 6"
+    },
+    {
+      "address": "0xFFCA",
+      "name": "NEWIRQ",
+      "type": "rom_routine",
+      "description": "IIgs firmware: install interrupt handler"
+    },
+    {
+      "address": "0xFFDF",
+      "name": "FASTMODE",
+      "type": "rom_routine",
+      "description": "IIgs firmware: switch to fast (2.8 MHz) mode"
+    },
+    {
+      "address": "0xFFEF",
+      "name": "CFGFLAG",
+      "type": "rom_routine",
+      "description": "IIgs firmware: read/write configuration flags"
+    },
+    {
+      "address": "0xFFFC",
+      "name": "RESET_VEC",
+      "type": "system_variable",
+      "description": "IIgs: RESET vector (2 bytes)"
+    },
+    {
+      "address": "0xFFFE",
+      "name": "IRQ_VEC",
+      "type": "system_variable",
+      "description": "IIgs: IRQ/BRK vector (2 bytes)"
+    }
+  ]
+}

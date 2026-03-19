@@ -384,6 +384,7 @@ TEST_F(SCMASMFormatterTest, CPUVariantDirective) {
 }
 
 // Test that inline (end-of-line) comments are aligned to COMMENT_COL (40 for SCMASM)
+// Comments use "; " prefix so the ';' is at column 40 and text starts at column 42.
 TEST_F(SCMASMFormatterTest, InlineCommentAlignment) {
   // Add a user comment to test alignment
   address_map_->SetComment(0x8000, "Test comment");
@@ -391,9 +392,8 @@ TEST_F(SCMASMFormatterTest, InlineCommentAlignment) {
   // Short instruction: NOP with comment
   core::Instruction inst1 = MakeInstruction(0x8000, "NOP");
   std::string output1 = formatter_->FormatInstruction(inst1, address_map_.get());
-  // SCMASM format doesn't use ; prefix
-  size_t comment_pos1 = output1.find("Test comment");
-  EXPECT_EQ(comment_pos1, 40) << "Inline comment for 'NOP' should be at column 40\nLine: " << output1;
+  size_t semicolon_pos1 = output1.find("; Test comment");
+  EXPECT_EQ(semicolon_pos1, 40) << "'; ' prefix for 'NOP' should be at column 40\nLine: " << output1;
 
   // Add comment for next test
   address_map_->SetComment(0x8002, "Another comment");
@@ -401,8 +401,8 @@ TEST_F(SCMASMFormatterTest, InlineCommentAlignment) {
   // Medium instruction: LDA #$FF with comment
   core::Instruction inst2 = MakeInstruction(0x8002, "LDA", "#$FF", core::AddressingMode::IMMEDIATE);
   std::string output2 = formatter_->FormatInstruction(inst2, address_map_.get());
-  size_t comment_pos2 = output2.find("Another comment");
-  EXPECT_EQ(comment_pos2, 40) << "Inline comment for 'LDA #$FF' should be at column 40\nLine: " << output2;
+  size_t semicolon_pos2 = output2.find("; Another comment");
+  EXPECT_EQ(semicolon_pos2, 40) << "'; ' prefix for 'LDA #$FF' should be at column 40\nLine: " << output2;
 
   // Add comment for next test
   address_map_->SetComment(0x8004, "Long instruction comment");
@@ -410,16 +410,16 @@ TEST_F(SCMASMFormatterTest, InlineCommentAlignment) {
   // Longer instruction: LDA $1234,X with comment
   core::Instruction inst3 = MakeInstruction(0x8004, "LDA", "$1234,X", core::AddressingMode::ABSOLUTE_X);
   std::string output3 = formatter_->FormatInstruction(inst3, address_map_.get());
-  size_t comment_pos3 = output3.find("Long instruction comment");
-  EXPECT_EQ(comment_pos3, 40) << "Inline comment for 'LDA $1234,X' should be at column 40\nLine: " << output3;
+  size_t semicolon_pos3 = output3.find("; Long instruction comment");
+  EXPECT_EQ(semicolon_pos3, 40) << "'; ' prefix for 'LDA $1234,X' should be at column 40\nLine: " << output3;
 
   // With local label and comment
   address_map_->SetLabel(0x8006, ".1");
   address_map_->SetComment(0x8006, "Entry point");
   core::Instruction inst4 = MakeInstruction(0x8006, "RTS");
   std::string output4 = formatter_->FormatInstruction(inst4, address_map_.get());
-  size_t comment_pos4 = output4.find("Entry point");
-  EXPECT_EQ(comment_pos4, 40) << "Inline comment with local label should be at column 40\nLine: " << output4;
+  size_t semicolon_pos4 = output4.find("; Entry point");
+  EXPECT_EQ(semicolon_pos4, 40) << "'; ' prefix with local label should be at column 40\nLine: " << output4;
 }
 
 }  // namespace

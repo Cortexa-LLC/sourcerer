@@ -1,0 +1,140 @@
+{
+  "platform": "apple2plus",
+  "description": "Apple II+ System Monitor ROM Routines ($F800-$FFFF)",
+  "version": "1.0",
+  "source": "Apple II Reference Manual, Apple II+ ROM listing",
+  "symbols": [
+    {
+      "address": "0xF819",
+      "name": "TABV",
+      "type": "rom_routine",
+      "description": "Move cursor to line in A"
+    },
+    {
+      "address": "0xF864",
+      "name": "PRHEX",
+      "type": "rom_routine",
+      "description": "Print A as 2-digit hex (low nibble)"
+    },
+    {
+      "address": "0xFAA6",
+      "name": "BASIC",
+      "type": "rom_routine",
+      "description": "Warm-start Applesoft BASIC"
+    },
+    {
+      "address": "0xFB40",
+      "name": "CLREOP",
+      "type": "rom_routine",
+      "description": "Clear from cursor to end of page"
+    },
+    {
+      "address": "0xFB4B",
+      "name": "GBASCALC",
+      "type": "rom_routine",
+      "description": "Calculate GR base address"
+    },
+    {
+      "address": "0xFBBF",
+      "name": "BELL",
+      "type": "rom_routine",
+      "description": "Sound bell"
+    },
+    {
+      "address": "0xFBC1",
+      "name": "BASCALC",
+      "type": "rom_routine",
+      "description": "Calculate text base address (A=line#)"
+    },
+    {
+      "address": "0xFC22",
+      "name": "VTAB",
+      "type": "rom_routine",
+      "description": "Move cursor to line in CV ($25)"
+    },
+    {
+      "address": "0xFC42",
+      "name": "CLREOL",
+      "type": "rom_routine",
+      "description": "Clear from cursor to end of line"
+    },
+    {
+      "address": "0xFC58",
+      "name": "HOME",
+      "type": "rom_routine",
+      "description": "Clear screen and home cursor"
+    },
+    {
+      "address": "0xFCA8",
+      "name": "WAIT",
+      "type": "rom_routine",
+      "description": "Delay 0.5*(26+27*A+5*A*A) microseconds"
+    },
+    {
+      "address": "0xFD0C",
+      "name": "RDKEY",
+      "type": "rom_routine",
+      "description": "Read character from input device (via KSW)"
+    },
+    {
+      "address": "0xFD1B",
+      "name": "KEYIN",
+      "type": "rom_routine",
+      "description": "Read character from keyboard"
+    },
+    {
+      "address": "0xFD6A",
+      "name": "GETLN",
+      "type": "rom_routine",
+      "description": "Read line from input to buffer at $0200"
+    },
+    {
+      "address": "0xFDDA",
+      "name": "PRBYTE",
+      "type": "rom_routine",
+      "description": "Print byte in A as 2 hex digits"
+    },
+    {
+      "address": "0xFDED",
+      "name": "COUT",
+      "type": "rom_routine",
+      "description": "Character output to device (via CSW)"
+    },
+    {
+      "address": "0xFDF0",
+      "name": "COUT1",
+      "type": "rom_routine",
+      "description": "Character output to video screen"
+    },
+    {
+      "address": "0xFE89",
+      "name": "SETKBD",
+      "type": "rom_routine",
+      "description": "Set input device to keyboard"
+    },
+    {
+      "address": "0xFE93",
+      "name": "SETVID",
+      "type": "rom_routine",
+      "description": "Set output device to screen"
+    },
+    {
+      "address": "0xFF3A",
+      "name": "MONITOR",
+      "type": "rom_routine",
+      "description": "Enter system monitor"
+    },
+    {
+      "address": "0xFF69",
+      "name": "MONZ",
+      "type": "rom_routine",
+      "description": "Enter system monitor (alternate entry)"
+    },
+    {
+      "address": "0xFFE3",
+      "name": "USRADR",
+      "type": "rom_routine",
+      "description": "User-defined routine vector"
+    }
+  ]
+}

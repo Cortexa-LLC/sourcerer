@@ -47,6 +47,27 @@
       "description": "DOS 3.3 operating system support",
       "symbol_files": ["symbols/dos33.json"],
       "hint_files": []
+    },
+    "apple2plus": {
+      "description": "Apple II+ system monitor ROM routines (different addresses from IIe)",
+      "symbol_files": [
+        "symbols/apple2plus_monitor.json"
+      ],
+      "hint_files": []
+    },
+    "prodosfx": {
+      "description": "ProDOS FX boot block support (ProDOS system variables and MLI entry points)",
+      "symbol_files": [
+        "symbols/apple2_prodos_fx.json"
+      ],
+      "hint_files": []
+    },
+    "apple2gs": {
+      "description": "Apple IIgs hardware registers and firmware entry points",
+      "symbol_files": [
+        "symbols/apple2gs_firmware.json"
+      ],
+      "hint_files": []
     }
   },
   

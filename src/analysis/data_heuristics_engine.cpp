@@ -302,8 +302,8 @@ bool DataHeuristicsEngine::HasRepeatedInstructions(uint32_t start,
   return max_repeat >= 8;  // 8+ identical 2-byte patterns = graphics data
 }
 
-bool DataHeuristicsEngine::HasHighIllegalDensity(uint32_t start,
-                                                  uint32_t end) const {
+bool DataHeuristicsEngine::HasHighIllegalDensity(uint32_t /*start*/,
+                                                  uint32_t /*end*/) const {
   // Note: This method requires cpu_ which we don't have in this engine
   // This will be handled by CodeAnalyzer directly for now
   // TODO: Consider passing CpuPlugin to constructor if needed

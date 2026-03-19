@@ -98,7 +98,30 @@ std::string ScmasmFormatter::Format(
   uint32_t addr = binary.load_address();
   uint32_t end_addr = addr + binary.size();
 
+  // Find start of trailing zero bytes so we can emit .BS instead of BRK instructions
+  uint32_t trailing_zeros_start = end_addr;
+  {
+    uint32_t last_nonzero = binary.load_address();
+    for (uint32_t a = binary.load_address(); a < end_addr; ++a) {
+      const uint8_t* b = binary.GetPointer(a);
+      if (b && *b != 0) {
+        last_nonzero = a;
+      }
+    }
+    if (last_nonzero + 1 < end_addr) {
+      trailing_zeros_start = last_nonzero + 1;
+    }
+  }
+
   while (addr < end_addr) {
+    // Trailing zeros: emit .BS n instead of individual BRK instructions
+    if (addr == trailing_zeros_start) {
+      uint32_t zero_count = end_addr - addr;
+      out << std::string(OPCODE_COL, ' ') << ".BS   "
+          << "$" << FormatAddress(zero_count, 4) << std::endl;
+      break;
+    }
+
     // Check if we have an instruction at this address
     if (inst_map.count(addr) > 0) {
       // Check if this instruction has a subroutine label - add separator if so
@@ -253,10 +276,12 @@ std::string ScmasmFormatter::FormatInstruction(
     }
 
     // Priority 3: For branch/jump instructions, use target_address from address_map
-    // Only substitute if the target address has an instruction or is at a valid boundary
+    // Allow substitution for code, data, or any address with xrefs (known branch target).
     if (!substituted && address_map && inst.target_address != 0) {
       if (auto label = address_map->GetLabel(inst.target_address)) {
-        if (address_map->IsCode(inst.target_address) || address_map->IsData(inst.target_address)) {
+        if (address_map->IsCode(inst.target_address) ||
+            address_map->IsData(inst.target_address) ||
+            address_map->HasXrefs(inst.target_address)) {
           operand = *label;
         }
       }
@@ -279,7 +304,7 @@ std::string ScmasmFormatter::FormatInstruction(
     bool has_comment = false;
     if (address_map) {
       if (auto comment = address_map->GetComment(inst.address)) {
-        out << *comment;
+        out << "; " << *comment;
         has_comment = true;
       }
     }
@@ -288,7 +313,7 @@ std::string ScmasmFormatter::FormatInstruction(
     if (!has_comment && inst.is_call && inst.target_address != 0 && symbol_table) {
       if (auto symbol = symbol_table->GetSymbol(inst.target_address)) {
         if (!symbol->description.empty() && symbol->type == core::SymbolType::ROM_ROUTINE) {
-          out << symbol->description;  // SCMASM doesn't use ; prefix
+          out << "; " << symbol->description;
           has_comment = true;
         }
       }
@@ -299,7 +324,7 @@ std::string ScmasmFormatter::FormatInstruction(
         // Add contextual branch comment
         std::string branch_comment = GenerateBranchComment(inst.mnemonic);
         if (!branch_comment.empty()) {
-          out << branch_comment;
+          out << "; " << branch_comment;
         }
         // No else - don't add useless address comments
       }
@@ -344,48 +369,26 @@ std::string ScmasmFormatter::FormatDataRegion(uint32_t address,
     }
   }
 
-  // Check for string: either all bytes are printable, OR there's an embedded string
-  bool is_pure_string = bytes.size() >= 3;
-  for (size_t i = 0; i < bytes.size() && is_pure_string; ++i) {
-    // CRITICAL: Reject high-bit bytes (graphics data, not ASCII)
-    if (bytes[i] >= 0x80) {
-      is_pure_string = false;
-      break;
-    }
-    // CRITICAL: Reject control characters (except CR/LF)
-    if (bytes[i] < 0x20 && bytes[i] != 0x0D && bytes[i] != 0x0A) {
-      is_pure_string = false;
-      break;
-    }
-    if (!DataCollector::IsPrintable(bytes[i]) && bytes[i] != 0x8D) {  // Allow CR ($8D)
-      is_pure_string = false;
-    }
-  }
-
-  if (is_pure_string) {
-    // Output as string with ASC directive
-    out << std::string(OPCODE_COL, ' ') << "ASC   \"";
-    for (uint8_t byte : bytes) {
-      if (byte == '"') {
-        out << "\\\"";  // Escape quotes
-      } else if (byte == '\\') {
-        out << "\\\\";  // Escape backslashes
-      } else if (DataCollector::IsPrintable(byte)) {
-        out << static_cast<char>(byte);
-      } else if (byte == 0x0D || byte == 0x0A) {
-        out << "\\n";  // CR/LF as newline
-      } else {
-        // Shouldn't happen if is_pure_string logic is correct
-        out << "?";
+  // Emit as .HS (hex string) lines, 8 bytes per line.
+  // xasm++ SCMASM .DA without a '#' prefix emits 16-bit words, not bytes.
+  // .HS takes pairs of hex digits and emits one byte per pair — the correct
+  // directive for raw byte data.
+  const size_t kBytesPerLine = 8;
+  for (size_t start = 0; start < bytes.size(); start += kBytesPerLine) {
+    if (start > 0) {
+      out << std::endl;
+      // If there's a label at an intermediate address, emit it first.
+      if (address_map) {
+        uint32_t mid_addr = address + static_cast<uint32_t>(start);
+        if (auto lbl = address_map->GetLabel(mid_addr)) {
+          out << *lbl << std::endl;
+        }
       }
     }
-    out << "\"";
-  } else {
-    // Output as hex bytes with .DA directive
-    out << std::string(OPCODE_COL, ' ') << ".DA   ";
-    for (size_t i = 0; i < bytes.size(); ++i) {
-      if (i > 0) out << ",";
-      out << "$" << std::hex << std::uppercase
+    out << std::string(OPCODE_COL, ' ') << ".HS   ";
+    size_t end = std::min(start + kBytesPerLine, bytes.size());
+    for (size_t i = start; i < end; ++i) {
+      out << std::hex << std::uppercase
           << std::setw(2) << std::setfill('0')
           << static_cast<int>(bytes[i]);
     }

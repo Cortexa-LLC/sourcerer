@@ -319,7 +319,7 @@ core::Binary LoadBinary(const utils::CliOptions& options) {
                                                  options.disk_file_name);
     
     // Override load address if specified
-    if (options.load_address != 0) {
+    if (options.has_load_address) {
       binary.set_load_address(options.load_address);
       LOG_INFO("Load address overridden to $" + std::to_string(options.load_address));
     }
@@ -331,7 +331,7 @@ core::Binary LoadBinary(const utils::CliOptions& options) {
     LOG_INFO("Loading raw binary: " + options.input_file);
     
     uint32_t load_addr = options.load_address;
-    if (load_addr == 0) {
+    if (!options.has_load_address) {
       load_addr = 0x8000;  // Default for Apple II
       LOG_INFO("Using default load address: $8000");
     }

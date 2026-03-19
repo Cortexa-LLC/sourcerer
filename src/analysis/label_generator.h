@@ -81,6 +81,11 @@ class LabelGenerator {
 
   // Local label counters per subroutine
   std::map<uint32_t, int> local_label_counters_;
+
+  // Set of instruction start addresses that the formatter will actually visit.
+  // Computed by simulating the sequential formatter walk through the binary.
+  // Only these addresses are valid label sites for CODE-typed addresses.
+  std::set<uint32_t> formatter_reachable_;
 };
 
 }  // namespace analysis
