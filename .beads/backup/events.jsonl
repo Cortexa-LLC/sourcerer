@@ -6,3 +6,4 @@
 {"actor":"Bryan Woodruff","comment":null,"created_at":"2026-03-19T15:52:18Z","event_type":"created","id":6,"issue_id":"sourcerer-uah","new_value":"","old_value":""}
 {"actor":"Bryan Woodruff","comment":null,"created_at":"2026-03-19T15:54:08Z","event_type":"closed","id":7,"issue_id":"sourcerer-uah","new_value":"Expanding scope — recreating with full requirements","old_value":""}
 {"actor":"Bryan Woodruff","comment":null,"created_at":"2026-03-19T16:00:20Z","event_type":"created","id":8,"issue_id":"sourcerer-a6f","new_value":"","old_value":""}
+{"actor":"Bryan Woodruff","comment":null,"created_at":"2026-03-19T16:56:51Z","event_type":"closed","id":9,"issue_id":"sourcerer-a6f","new_value":"Recreating with correct task packet path","old_value":""}
