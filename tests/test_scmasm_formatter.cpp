@@ -439,7 +439,7 @@ static std::string FormatDataBytes(const std::vector<uint8_t>& bytes,
   return fmt->Format(binary, {}, &am);
 }
 
-// Plain ASCII → .AS "text"
+// Plain ASCII (0x20-0x7E, bit 7 clear) → .AS 'text' (delimiter >= 0x27 keeps bit 7 clear)
 TEST_F(SCMASMFormatterTest, PlainAsciiEmitsAS) {
   // "HELLO" = 48 45 4C 4C 4F
   std::vector<uint8_t> bytes = {'H', 'E', 'L', 'L', 'O'};
@@ -450,9 +450,13 @@ TEST_F(SCMASMFormatterTest, PlainAsciiEmitsAS) {
   EXPECT_EQ(out.find(".HS"), std::string::npos)
       << "Plain ASCII should NOT use .HS, got:\n" << out;
   EXPECT_EQ(out.find(".AT"), std::string::npos);
+  // Delimiter must be >= 0x27 (e.g. ' or /) to keep bit 7 clear in SCMASM.
+  EXPECT_TRUE(out.find(".AS   'HELLO'") != std::string::npos
+           || out.find(".AS   /HELLO/") != std::string::npos)
+      << "Plain ASCII should use a clear-bit delimiter (>= 0x27), got:\n" << out;
 }
 
-// High-bit terminated → .AT "text"
+// High-bit terminated (.AT) → delimiter >= 0x27 keeps prefix clear; .AT sets last byte.
 TEST_F(SCMASMFormatterTest, HighBitTerminatedEmitsAT) {
   // "HELL" + 'O' with high bit = 48 45 4C 4C CF
   std::vector<uint8_t> bytes = {'H', 'E', 'L', 'L', 'O' | 0x80};
@@ -462,19 +466,27 @@ TEST_F(SCMASMFormatterTest, HighBitTerminatedEmitsAT) {
   EXPECT_TRUE(out.find("HELLO") != std::string::npos);
   EXPECT_EQ(out.find(".HS"), std::string::npos)
       << "High-bit terminated should NOT use .HS, got:\n" << out;
+  // Delimiter must be >= 0x27 so prefix bytes keep bit 7 clear.
+  EXPECT_TRUE(out.find(".AT   'HELLO'") != std::string::npos
+           || out.find(".AT   /HELLO/") != std::string::npos)
+      << "AT directive should use a clear-bit delimiter, got:\n" << out;
 }
 
-// Apple II high-bit ASCII (all bytes >= 0x80, printable when masked) → .HS + comment
-TEST_F(SCMASMFormatterTest, AppleHighBitAsciiEmitsHSWithComment) {
+// Apple II high-bit ASCII (all bytes 0xA0-0xFE) → .AS "decoded" (delimiter < 0x27 sets bit 7).
+TEST_F(SCMASMFormatterTest, AppleHighBitAsciiEmitsASWithHighBitDelimiter) {
   // "HELLO" with all bytes having bit 7 set: C8 C5 CC CC CF
   std::vector<uint8_t> bytes = {'H'|0x80, 'E'|0x80, 'L'|0x80, 'L'|0x80, 'O'|0x80};
   std::string out = FormatDataBytes(bytes);
-  EXPECT_TRUE(out.find(".HS") != std::string::npos)
-      << "All-high-bit ASCII should use .HS, got:\n" << out;
-  // Should have a decoded comment
+  EXPECT_TRUE(out.find(".AS") != std::string::npos)
+      << "All-high-bit ASCII should use .AS with a high-bit delimiter, got:\n" << out;
+  // Decoded text (bit 7 stripped) should appear in the output.
   EXPECT_TRUE(out.find("HELLO") != std::string::npos)
-      << "Should have decoded comment, got:\n" << out;
-  EXPECT_EQ(out.find(".AS"), std::string::npos);
+      << "Decoded text should be present, got:\n" << out;
+  // Delimiter must be < 0x27 (e.g. '"' = 0x22) so the assembler sets bit 7.
+  EXPECT_TRUE(out.find(".AS   \"HELLO\"") != std::string::npos)
+      << "High-bit ASCII should use double-quote delimiter, got:\n" << out;
+  EXPECT_EQ(out.find(".HS"), std::string::npos)
+      << "Should NOT use .HS when clean string directive is available, got:\n" << out;
   EXPECT_EQ(out.find(".AT"), std::string::npos);
 }
 
@@ -488,26 +500,27 @@ TEST_F(SCMASMFormatterTest, BinaryDataEmitsHS) {
   EXPECT_EQ(out.find(".AT"), std::string::npos);
 }
 
-// String containing double-quote uses single-quote delimiter
-TEST_F(SCMASMFormatterTest, StringWithDoubleQuoteUsesAltDelimiter) {
-  // SAY "HI" -> 53 41 59 20 22 48 49 22
+// Plain ASCII string containing '"' falls back to a different clear delimiter (e.g. /).
+// Old test name was StringWithDoubleQuoteUsesAltDelimiter — but '"' is now a HIGH-BIT
+// delimiter in SCMASM, so a plain ASCII string with '"' must use '/' or similar.
+TEST_F(SCMASMFormatterTest, PlainStringWithDoubleQuoteUsesClearAltDelimiter) {
+  // SAY "HI" -> 53 41 59 20 22 48 49 22  (plain ASCII, contains '"')
   std::vector<uint8_t> bytes = {'S','A','Y',' ','"','H','I','"'};
   std::string out = FormatDataBytes(bytes);
   EXPECT_TRUE(out.find(".AS") != std::string::npos)
-      << "String with \" should still use .AS (with ' delimiter), got:\n" << out;
-  // Should use single-quote delimiter
-  EXPECT_TRUE(out.find(".AS   '") != std::string::npos
-           || out.find(".AS '") != std::string::npos)
-      << "Should use single-quote delimiter, got:\n" << out;
+      << "Plain ASCII with '\"' should still use .AS, got:\n" << out;
+  // Must NOT use '"' as delimiter (that would set bit 7), must use clear delimiter.
+  EXPECT_EQ(out.find(".AS   \""), std::string::npos)
+      << "Must NOT use '\"' delimiter for plain ASCII, got:\n" << out;
 }
 
-// String containing both delimiters falls back to .HS
-TEST_F(SCMASMFormatterTest, StringWithBothDelimitersFallsBackToHS) {
-  // it's "fine" -> 69 74 27 73 20 22 66 69 6E 65 22
-  std::vector<uint8_t> bytes = {'i','t','\'','s',' ','"','f','i','n','e','"'};
+// String containing all clear-bit delimiter candidates falls back to .HS.
+TEST_F(SCMASMFormatterTest, StringWithAllClearDelimitersFallsBackToHS) {
+  // Construct a string that contains all candidates: ' / ( ) * + - . @ ~ | `
+  std::vector<uint8_t> bytes = {'\'','/','(',')','+','-','.','@','~','|','`','*'};
   std::string out = FormatDataBytes(bytes);
   EXPECT_TRUE(out.find(".HS") != std::string::npos)
-      << "String with both delimiters should fall back to .HS, got:\n" << out;
+      << "String with all clear delimiters should fall back to .HS, got:\n" << out;
   EXPECT_EQ(out.find(".AS"), std::string::npos);
 }
 

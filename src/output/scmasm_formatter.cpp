@@ -424,11 +424,30 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
     if (b < 0x80 || !DataCollector::IsPrintable(b)) { all_highbit = false; break; }
   }
 
-  // --- Helper: pick a delimiter that doesn't appear in the text ---
-  auto pick_delim = [](const std::string& text) -> char {
-    if (text.find('"') == std::string::npos)  return '"';
-    if (text.find('\'') == std::string::npos) return '\'';
-    return '\0';  // Both present — caller should fall back to .HS
+  // --- SCMASM delimiter semantics ---
+  // The delimiter's ASCII value determines whether bit 7 is set on the stored bytes:
+  //   delimiter ASCII < 0x27  (e.g. '"' = 0x22)  → bit 7 SET   on all bytes
+  //   delimiter ASCII >= 0x27 (e.g. "'" = 0x27, '/' = 0x2F) → bit 7 CLEAR on all bytes
+  //
+  // So for plain ASCII (bit 7 clear) use a delimiter >= 0x27 (prefer "'").
+  // For high-bit Apple II ASCII (bit 7 set) use a delimiter < 0x27 (prefer '"').
+
+  // Pick a delimiter with ASCII >= 0x27 (keeps bit 7 CLEAR) not in text.
+  auto pick_delim_clear = [](const std::string& text) -> char {
+    const char candidates[] = {'\'', '/', '(', ')', '*', '+', '-', '.', '@', '~', '|', '`'};
+    for (char c : candidates) {
+      if (text.find(c) == std::string::npos) return c;
+    }
+    return '\0';  // All candidates present — fall back to .HS
+  };
+
+  // Pick a delimiter with ASCII < 0x27 (sets bit 7) not in decoded text.
+  auto pick_delim_highbit = [](const std::string& text) -> char {
+    const char candidates[] = {'"', '!', '#', '$', '%', '&'};
+    for (char c : candidates) {
+      if (text.find(c) == std::string::npos) return c;
+    }
+    return '\0';  // Fall back to .HS
   };
 
   // .HS — raw hex bytes, 8 per line, with mid-chunk label injection.
@@ -462,28 +481,45 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
 
   // --- Emit ---
 
+  // Plain ASCII (0x20-0x7E, bit 7 clear): use delimiter >= 0x27 to keep bit 7 clear.
   if (all_plain) {
     std::string text;
     for (uint8_t b : bytes) text += static_cast<char>(b);
-    char d = pick_delim(text);
+    char d = pick_delim_clear(text);
     if (d != '\0') {
       out << std::string(OPCODE_COL, ' ') << ".AS   " << d << text << d;
       return out.str();
     }
-    // Fall through to .HS if both delimiters appear in the text.
+    // Fall through to .HS if no usable delimiter.
   }
 
+  // AT-terminated: plain prefix + last byte has bit 7; use delimiter >= 0x27.
   if (at_terminated) {
-    // Strip high bit from last char for the quoted text.
     std::string text;
     for (size_t i = 0; i + 1 < bytes.size(); ++i) text += static_cast<char>(bytes[i]);
     text += static_cast<char>(bytes.back() & 0x7F);
-    char d = pick_delim(text);
+    char d = pick_delim_clear(text);
     if (d != '\0') {
       out << std::string(OPCODE_COL, ' ') << ".AT   " << d << text << d;
       return out.str();
     }
     // Fall through to .HS.
+  }
+
+  // Apple II high-bit ASCII (all bytes 0xA0-0xFE): use .AS with delimiter < 0x27
+  // so the assembler sets bit 7 on every byte of the decoded text.
+  if (all_highbit && bytes.size() >= 3) {
+    std::string decoded;
+    for (uint8_t b : bytes) decoded += static_cast<char>(b & 0x7F);
+    char d = pick_delim_highbit(decoded);
+    if (d != '\0') {
+      out << std::string(OPCODE_COL, ' ') << ".AS   " << d << decoded << d;
+      return out.str();
+    }
+    // No usable high-bit delimiter — fall through to .HS with decoded comment.
+    out << std::string(OPCODE_COL, ' ') << "; \"" << decoded << "\"" << std::endl;
+    emit_hs(0);
+    return out.str();
   }
 
   // Plain-ASCII prefix split: if the buffer starts with >= 4 printable bytes
@@ -496,7 +532,7 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
     }
     if (prefix_len >= 4) {
       std::string prefix_text(bytes.begin(), bytes.begin() + static_cast<ptrdiff_t>(prefix_len));
-      char d = pick_delim(prefix_text);
+      char d = pick_delim_clear(prefix_text);
       if (d != '\0') {
         out << std::string(OPCODE_COL, ' ') << ".AS   " << d << prefix_text << d;
         if (prefix_len < bytes.size()) {
@@ -506,14 +542,6 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
         return out.str();
       }
     }
-  }
-
-  // Apple II high-bit ASCII: no clean directive exists — emit .HS with a
-  // human-readable decoded comment above the hex line(s).
-  if (all_highbit && bytes.size() >= 3) {
-    std::string decoded;
-    for (uint8_t b : bytes) decoded += static_cast<char>(b & 0x7F);
-    out << std::string(OPCODE_COL, ' ') << "; \"" << decoded << "\"" << std::endl;
   }
 
   emit_hs(0);
