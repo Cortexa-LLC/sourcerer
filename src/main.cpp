@@ -108,6 +108,13 @@ std::vector<core::Instruction> DisassembleWithAnalysis(
     }
   }
 
+  // Forward any entry points already in the address map (e.g. from hints files).
+  // ApplyHints() calls address_map->AddEntryPoint() for each hints entry_point,
+  // but the analyzer doesn't query those back unless we do so explicitly here.
+  for (uint32_t hint_ep : address_map->GetEntryPoints()) {
+    analyzer.AddEntryPoint(hint_ep);
+  }
+
   // Analyze
   analyzer.Analyze(address_map);
   
