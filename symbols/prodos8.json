@@ -11,9 +11,21 @@
     },
     {
       "address": "0xBE00",
-      "name": "DEVNUM",
-      "type": "system_variable",
-      "description": "Most recent device accessed"
+      "name": "PRODOS_WARMSTART",
+      "type": "rom_routine",
+      "description": "ProDOS warm-start entry (Table 5-12: RESET vector = $BE00, reconnects ProDOS)"
+    },
+    {
+      "address": "0xBE03",
+      "name": "PRODOS_AMPERSAND",
+      "type": "rom_routine",
+      "description": "ProDOS external entry for & command strings (Table 5-12)"
+    },
+    {
+      "address": "0xBFEB",
+      "name": "PRODOS_IRQ",
+      "type": "rom_routine",
+      "description": "ProDOS interrupt handler (Table 5-12: IRQ vector = $BFEB)"
     },
     {
       "address": "0xBE30",
@@ -80,6 +92,54 @@
       "name": "KVERSION",
       "type": "system_variable",
       "description": "ProDOS kernel version"
+    },
+    {
+      "address": "0x03D0",
+      "name": "PRODOS_P3WARM",
+      "type": "system_variable",
+      "description": "Page 3: JMP to ProDOS warm-start ($BE00) - use '3D0G' to reconnect ProDOS (Table 5-11)"
+    },
+    {
+      "address": "0x03D3",
+      "name": "PRODOS_P3WARM2",
+      "type": "system_variable",
+      "description": "Page 3: JMP to ProDOS warm-start (alternate, Table 5-11)"
+    },
+    {
+      "address": "0x03F0",
+      "name": "BRK_VEC",
+      "type": "system_variable",
+      "description": "Page 3: BRK vector - points to $FA59 (BRKRTN) (Table 5-12)"
+    },
+    {
+      "address": "0x03F2",
+      "name": "RESET_VEC",
+      "type": "system_variable",
+      "description": "Page 3: RESET vector - ProDOS sets to $BE00 warm-start (Table 5-12)"
+    },
+    {
+      "address": "0x03F5",
+      "name": "AMPER_VEC",
+      "type": "system_variable",
+      "description": "Page 3: Applesoft & command vector - ProDOS sets to JMP $BE03 (Table 5-12)"
+    },
+    {
+      "address": "0x03F8",
+      "name": "USER_VEC",
+      "type": "system_variable",
+      "description": "Page 3: USER vector - ProDOS sets to JMP $BE00 warm-start (Table 5-12)"
+    },
+    {
+      "address": "0x03FB",
+      "name": "NMI_VEC",
+      "type": "system_variable",
+      "description": "Page 3: NMI vector - ProDOS sets to JMP $FF59 monitor cold-start (Table 5-12)"
+    },
+    {
+      "address": "0x03FE",
+      "name": "IRQ_VEC",
+      "type": "system_variable",
+      "description": "Page 3: IRQ vector - ProDOS sets to $BFEB interrupt handler (Table 5-12)"
     }
   ]
 }

@@ -26,7 +26,55 @@
       "address": "0x03D9",
       "name": "DOS_RWTS",
       "type": "system_variable",
-      "description": "JMP to DOS 3.3 RWTS (Read/Write Track/Sector)"
+      "description": "JMP to DOS 3.3 RWTS (Read/Write Track/Sector) (Table 5-1)"
+    },
+    {
+      "address": "0x03DC",
+      "name": "DOS_FM_PARAM",
+      "type": "system_variable",
+      "description": "Load A(hi):Y(lo) with DOS 3.3 file manager parameter list address (Table 5-1)"
+    },
+    {
+      "address": "0x03E3",
+      "name": "DOS_RWTS_IOB",
+      "type": "system_variable",
+      "description": "Load A(hi):Y(lo) with DOS 3.3 RWTS IOB parameter list address (Table 5-1)"
+    },
+    {
+      "address": "0x03EA",
+      "name": "DOS_RECONNECT",
+      "type": "system_variable",
+      "description": "DOS 3.3 reconnect - accept new I/O links without destroying DOS state (Table 5-1)"
+    },
+    {
+      "address": "0x03F0",
+      "name": "BRK_VEC",
+      "type": "system_variable",
+      "description": "Page 3: BRK vector - DOS 3.3 initializes to $FA59 (Table 5-2)"
+    },
+    {
+      "address": "0x03F2",
+      "name": "RESET_VEC",
+      "type": "system_variable",
+      "description": "Page 3: RESET vector - DOS 3.3 initializes to $9DBF (Table 5-2)"
+    },
+    {
+      "address": "0x03F8",
+      "name": "USER_VEC",
+      "type": "system_variable",
+      "description": "Page 3: USER vector - DOS 3.3 initializes to JMP $FF65 (Table 5-2)"
+    },
+    {
+      "address": "0x03FB",
+      "name": "NMI_VEC",
+      "type": "system_variable",
+      "description": "Page 3: NMI vector - DOS 3.3 initializes to JMP $FF65 (Table 5-2)"
+    },
+    {
+      "address": "0x03FE",
+      "name": "IRQ_VEC",
+      "type": "system_variable",
+      "description": "Page 3: IRQ vector - DOS 3.3 initializes to $FF65 (Table 5-2)"
     },
     {
       "address": "0x9600",

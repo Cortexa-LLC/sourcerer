@@ -2,7 +2,7 @@
   "platform": "apple2e",
   "description": "Apple IIe System Monitor ROM Routines ($F800-$FFFF)",
   "version": "1.0",
-  "source": "Inside the Apple IIe by Gary B. Little - Table 3-3",
+  "source": "Inside the Apple IIe by Gary B. Little - Chapter 3, Tables 3-3, 5-2, 5-12",
   "symbols": [
     {
       "address": "0xF940",
@@ -89,10 +89,22 @@
       "description": "Read line from input to buffer at $200"
     },
     {
+      "address": "0xFD8E",
+      "name": "CROUT",
+      "type": "rom_routine",
+      "description": "Output carriage return character"
+    },
+    {
       "address": "0xFDDA",
+      "name": "PRBYTE",
+      "type": "rom_routine",
+      "description": "Print byte in A as 2 hex digits"
+    },
+    {
+      "address": "0xFDE3",
       "name": "PRHEX",
       "type": "rom_routine",
-      "description": "Print hex digit (A=value 0-15)"
+      "description": "Print low nibble of A as hex digit"
     },
     {
       "address": "0xFDED",
@@ -108,15 +120,15 @@
     },
     {
       "address": "0xFE89",
-      "name": "CROUT",
+      "name": "SETKBD",
       "type": "rom_routine",
-      "description": "Output carriage return"
+      "description": "Set keyboard input hook (KSW) to address in A(hi):Y(lo)"
     },
     {
       "address": "0xFE93",
-      "name": "PRBYTE",
+      "name": "SETVID",
       "type": "rom_routine",
-      "description": "Print byte in A as 2 hex digits"
+      "description": "Set video output hook (CSW) to address in A(hi):Y(lo)"
     },
     {
       "address": "0xFF3A",
@@ -125,10 +137,22 @@
       "description": "Enter system monitor"
     },
     {
-      "address": "0xFF69",
+      "address": "0xFF59",
       "name": "MONZ",
       "type": "rom_routine",
-      "description": "Enter system monitor (alternate entry)"
+      "description": "System monitor cold-start entry point (Ch.3: 'cold-start entry is at $FF59')"
+    },
+    {
+      "address": "0xFF65",
+      "name": "WARM",
+      "type": "rom_routine",
+      "description": "System monitor warm-start entry point (Tables 5-2, 5-12: USER/NMI/IRQ vector = $FF65)"
+    },
+    {
+      "address": "0xFA59",
+      "name": "BRKRTN",
+      "type": "rom_routine",
+      "description": "BRK interrupt handler - displays 6502 registers (Tables 5-2, 5-12: BRK vector = $FA59)"
     }
   ]
 }

@@ -1,80 +1,75 @@
 {
   "platform": "apple2e",
-  "description": "Apple II Zero Page Memory ($00-$FF)",
-  "version": "1.0",
-  "source": "Inside the Apple IIe by Gary B. Little",
+  "description": "Apple IIe Zero Page Memory ($00-$FF)",
+  "version": "1.1",
+  "source": "Inside the Apple IIe by Gary B. Little (1985), Ch.2 Table 2-5; Apple IIe Reference Manual",
+  "notes": "Table 2-5 lists AVAILABLE locations (not used by Monitor/Applesoft/DOS/ProDOS): $06-09, $19-1E, $CE-CF, $D7, $E3, $EB-FF. All others are reserved.",
   "symbols": [
     {
-      "address": "0x0000",
+      "address": "0x0020",
       "name": "WNDLFT",
       "type": "zero_page",
-      "description": "Text window left edge"
+      "description": "Text window left margin"
     },
     {
-      "address": "0x0001",
+      "address": "0x0021",
       "name": "WNDWDTH",
       "type": "zero_page",
       "description": "Text window width"
     },
     {
-      "address": "0x0002",
+      "address": "0x0022",
       "name": "WNDTOP",
       "type": "zero_page",
       "description": "Text window top edge"
     },
     {
-      "address": "0x0003",
+      "address": "0x0023",
       "name": "WNDBTM",
       "type": "zero_page",
       "description": "Text window bottom edge"
     },
     {
-      "address": "0x0004",
+      "address": "0x0024",
       "name": "CH",
       "type": "zero_page",
       "description": "Cursor horizontal position"
     },
     {
-      "address": "0x0005",
+      "address": "0x0025",
       "name": "CV",
       "type": "zero_page",
       "description": "Cursor vertical position"
     },
     {
-      "address": "0x0006",
+      "address": "0x0026",
       "name": "GBASL",
       "type": "zero_page",
-      "description": "Graphics base address low"
+      "description": "Graphics/text base address low byte"
     },
     {
-      "address": "0x0007",
+      "address": "0x0027",
       "name": "GBASH",
       "type": "zero_page",
-      "description": "Graphics base address high"
-    },
-    {
-      "address": "0x0020",
-      "name": "HIMEM",
-      "type": "zero_page",
-      "description": "High memory pointer (2 bytes)"
+      "description": "Graphics/text base address high byte"
     },
     {
       "address": "0x0028",
       "name": "BASL",
       "type": "zero_page",
-      "description": "Text base address low"
+      "description": "Text line base address low byte"
     },
     {
       "address": "0x0029",
       "name": "BASH",
       "type": "zero_page",
-      "description": "Text base address high"
+      "description": "Text line base address high byte"
     },
     {
       "address": "0x0032",
       "name": "INVFLG",
       "type": "zero_page",
-      "description": "Video attribute mask for inverse/flash"
+      "description": "Video attribute mask: $FF=normal, $3F=flash, $7F=inverse"
     },
     {
       "address": "0x0033",
@@ -86,25 +81,31 @@
       "address": "0x0036",
       "name": "CSWL",
       "type": "zero_page",
-      "description": "Character output vector low"
+      "description": "Character output vector (CSW) low byte"
     },
     {
       "address": "0x0037",
       "name": "CSWH",
       "type": "zero_page",
-      "description": "Character output vector high"
+      "description": "Character output vector (CSW) high byte"
     },
     {
       "address": "0x0038",
       "name": "KSWL",
       "type": "zero_page",
-      "description": "Character input vector low"
+      "description": "Character input vector (KSW) low byte"
     },
     {
       "address": "0x0039",
       "name": "KSWH",
       "type": "zero_page",
-      "description": "Character input vector high"
+      "description": "Character input vector (KSW) high byte"
+    },
+    {
+      "address": "0x003D",
+      "name": "SPNT",
+      "type": "zero_page",
+      "description": "Monitor: saved stack pointer. Boot code reuses as page-number scratch."
     },
     {
       "address": "0x003E",
@@ -113,40 +114,82 @@
       "description": "Hi-res graphics mask (2 bytes)"
     },
     {
+      "address": "0x0044",
+      "name": "MLIPL",
+      "type": "zero_page",
+      "description": "ProDOS MLI call: parameter block pointer low byte (set by boot code from $60)"
+    },
+    {
+      "address": "0x0045",
+      "name": "MLIPH",
+      "type": "zero_page",
+      "description": "ProDOS MLI call: parameter block pointer high byte (set by boot code from $61)"
+    },
+    {
+      "address": "0x0048",
+      "name": "INDL",
+      "type": "zero_page",
+      "description": "ProDOS boot: indirect page pointer low byte (target of JMP ($0048) MLI dispatch)"
+    },
+    {
+      "address": "0x0049",
+      "name": "INDH",
+      "type": "zero_page",
+      "description": "ProDOS boot: indirect page pointer high byte"
+    },
+    {
+      "address": "0x0060",
+      "name": "SRCL",
+      "type": "zero_page",
+      "description": "Boot/caller: MLI parameter block source pointer low byte"
+    },
+    {
+      "address": "0x0061",
+      "name": "SRCH",
+      "type": "zero_page",
+      "description": "Boot/caller: MLI parameter block source pointer high byte"
+    },
+    {
       "address": "0x0067",
       "name": "TXTTAB",
       "type": "zero_page",
-      "description": "Applesoft program start (2 bytes)"
+      "description": "Applesoft program start address (2 bytes)"
     },
     {
       "address": "0x0069",
       "name": "VARTAB",
       "type": "zero_page",
-      "description": "Applesoft variable start (2 bytes)"
+      "description": "Applesoft variable table start (2 bytes)"
     },
     {
       "address": "0x006B",
       "name": "ARYTAB",
       "type": "zero_page",
-      "description": "Applesoft array start (2 bytes)"
+      "description": "Applesoft array table start (2 bytes)"
     },
     {
       "address": "0x006D",
       "name": "STREND",
       "type": "zero_page",
-      "description": "Applesoft string end (2 bytes)"
+      "description": "Applesoft string storage end (2 bytes)"
     },
     {
       "address": "0x006F",
       "name": "FRETOP",
       "type": "zero_page",
-      "description": "Applesoft string free space (2 bytes)"
+      "description": "Applesoft string free space top (2 bytes)"
+    },
+    {
+      "address": "0x0073",
+      "name": "HIMEM",
+      "type": "zero_page",
+      "description": "Applesoft HIMEM pointer (2 bytes) - highest usable RAM address. ProDOS sets to $9600."
     },
     {
       "address": "0x00AF",
       "name": "PRGEND",
       "type": "zero_page",
-      "description": "Applesoft program end (2 bytes)"
+      "description": "Applesoft program end address (2 bytes)"
     }
   ]
 }
