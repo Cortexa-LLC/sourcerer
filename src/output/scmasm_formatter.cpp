@@ -431,6 +431,32 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
     return '\0';  // Both present — caller should fall back to .HS
   };
 
+  // .HS — raw hex bytes, 8 per line, with mid-chunk label injection.
+  // Used as a helper below, so declare the constant early.
+  const size_t kBytesPerLine = 8;
+
+  // Helper lambda: emit bytes[from..end) as .HS lines.
+  auto emit_hs = [&](size_t from) {
+    for (size_t start = from; start < bytes.size(); start += kBytesPerLine) {
+      if (start > from) {
+        out << std::endl;
+      }
+      if (address_map) {
+        uint32_t mid_addr = address + static_cast<uint32_t>(start);
+        if (auto lbl = address_map->GetLabel(mid_addr)) {
+          out << *lbl << std::endl;
+        }
+      }
+      out << std::string(OPCODE_COL, ' ') << ".HS   ";
+      size_t end = std::min(start + kBytesPerLine, bytes.size());
+      for (size_t i = start; i < end; ++i) {
+        out << std::hex << std::uppercase
+            << std::setw(2) << std::setfill('0')
+            << static_cast<int>(bytes[i]);
+      }
+    }
+  };
+
   // --- Emit ---
 
   if (all_plain) {
@@ -457,6 +483,28 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
     // Fall through to .HS.
   }
 
+  // Plain-ASCII prefix split: if the buffer starts with >= 4 printable bytes
+  // followed by non-plain data, emit the prefix as .AS and the tail as .HS.
+  if (!all_plain) {
+    size_t prefix_len = 0;
+    for (uint8_t b : bytes) {
+      if (b < 0x20 || b > 0x7E) break;
+      prefix_len++;
+    }
+    if (prefix_len >= 4) {
+      std::string prefix_text(bytes.begin(), bytes.begin() + static_cast<ptrdiff_t>(prefix_len));
+      char d = pick_delim(prefix_text);
+      if (d != '\0') {
+        out << std::string(OPCODE_COL, ' ') << ".AS   " << d << prefix_text << d;
+        if (prefix_len < bytes.size()) {
+          out << std::endl;
+          emit_hs(prefix_len);
+        }
+        return out.str();
+      }
+    }
+  }
+
   // Apple II high-bit ASCII: no clean directive exists — emit .HS with a
   // human-readable decoded comment above the hex line(s).
   if (all_highbit && bytes.size() >= 3) {
@@ -465,26 +513,7 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
     out << std::string(OPCODE_COL, ' ') << "; \"" << decoded << "\"" << std::endl;
   }
 
-  // .HS — raw hex bytes, 8 per line, with mid-chunk label injection.
-  const size_t kBytesPerLine = 8;
-  for (size_t start = 0; start < bytes.size(); start += kBytesPerLine) {
-    if (start > 0) {
-      out << std::endl;
-      if (address_map) {
-        uint32_t mid_addr = address + static_cast<uint32_t>(start);
-        if (auto lbl = address_map->GetLabel(mid_addr)) {
-          out << *lbl << std::endl;
-        }
-      }
-    }
-    out << std::string(OPCODE_COL, ' ') << ".HS   ";
-    size_t end = std::min(start + kBytesPerLine, bytes.size());
-    for (size_t i = start; i < end; ++i) {
-      out << std::hex << std::uppercase
-          << std::setw(2) << std::setfill('0')
-          << static_cast<int>(bytes[i]);
-    }
-  }
+  emit_hs(0);
 
   return out.str();
 }

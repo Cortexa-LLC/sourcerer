@@ -511,6 +511,28 @@ TEST_F(SCMASMFormatterTest, StringWithBothDelimitersFallsBackToHS) {
   EXPECT_EQ(out.find(".AS"), std::string::npos);
 }
 
+// Mixed: plain-ASCII prefix followed by binary data.
+// The plain prefix should emit .AS; the binary tail should emit .HS.
+// Mirrors the real ProDOS FX boot0 region: "&PRODOS        " (16 bytes) + binary.
+TEST_F(SCMASMFormatterTest, PlainPrefixFollowedByBinaryEmitsASPluHS) {
+  // "&PRODOS        " (16 bytes plain) + A5 60 85 44 (4 bytes binary)
+  std::vector<uint8_t> bytes = {
+    '&','P','R','O','D','O','S',' ',' ',' ',' ',' ',' ',' ',' ',' ',
+    0xA5, 0x60, 0x85, 0x44
+  };
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".AS") != std::string::npos)
+      << "Plain prefix should use .AS, got:\n" << out;
+  EXPECT_TRUE(out.find(".HS") != std::string::npos)
+      << "Binary tail should use .HS, got:\n" << out;
+  // The decoded text should appear in the .AS line
+  EXPECT_TRUE(out.find("&PRODOS") != std::string::npos)
+      << "Decoded prefix text should be present, got:\n" << out;
+  // .AS should come BEFORE .HS in the output
+  EXPECT_LT(out.find(".AS"), out.find(".HS"))
+      << ".AS should precede .HS, got:\n" << out;
+}
+
 }  // namespace
 }  // namespace output
 }  // namespace sourcerer
