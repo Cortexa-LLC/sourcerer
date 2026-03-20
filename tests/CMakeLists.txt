@@ -3,6 +3,38 @@
 
 # Unit tests for sourcerer
 
+# Test executable for LLM analysis plugin
+add_executable(test_llm_analyzer
+    test_llm_analyzer.cpp
+)
+target_include_directories(test_llm_analyzer PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_compile_definitions(test_llm_analyzer PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
+target_link_libraries(test_llm_analyzer PRIVATE
+    llm_analysis
+    sourcerer_core
+    GTest::gtest_main
+)
+gtest_discover_tests(test_llm_analyzer)
+
+# Test executable for extended LLM passes (Pass 1/2/3)
+add_executable(test_extended_passes
+    test_extended_passes.cpp
+)
+target_include_directories(test_extended_passes PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_compile_definitions(test_extended_passes PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
+target_compile_options(test_extended_passes PRIVATE -Wno-sign-compare)
+target_link_libraries(test_extended_passes PRIVATE
+    llm_analysis
+    cpu_plugins
+    sourcerer_core
+    GTest::gtest_main
+)
+gtest_discover_tests(test_extended_passes)
+
 # Test executable for core modules
 add_executable(test_core
     test_binary.cpp

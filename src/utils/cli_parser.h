@@ -42,6 +42,11 @@ struct CliOptions {
   std::string output_format = "merlin";
   bool generate_labels = true;
   bool verbose = false;
+
+  // LLM analysis options
+  std::string llm_provider;  // e.g. "claude"; empty = disabled
+  std::string llm_model;     // override model (e.g. "claude-opus-4-6"); empty = provider default
+  std::string llm_url;       // override API URL (e.g. "http://localhost:11434/v1/messages"); empty = provider default
 };
 
 // CLI parser

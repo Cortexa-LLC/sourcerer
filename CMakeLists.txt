@@ -46,7 +46,14 @@ if(BUILD_TESTING)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 endif()
 
-FetchContent_MakeAvailable(cli11 json)
+# cpp-httplib for HTTPS requests (LLM API calls)
+FetchContent_Declare(
+    httplib
+    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+    GIT_TAG v0.18.5
+)
+
+FetchContent_MakeAvailable(cli11 json httplib)
 if(BUILD_TESTING)
     FetchContent_MakeAvailable(googletest)
     enable_testing()
@@ -121,6 +128,32 @@ target_link_libraries(analysis PUBLIC
     nlohmann_json::nlohmann_json
 )
 
+# LLM analysis plugin library
+find_package(OpenSSL REQUIRED)
+
+add_library(llm_analysis
+    src/analysis/llm/llm_analyzer.cpp
+    src/analysis/llm/llm_analyzer_registry.cpp
+    src/analysis/llm/claude_analyzer.cpp
+    src/analysis/llm/chunk_builder.cpp
+    src/analysis/llm/data_code_scanner.cpp
+    src/analysis/llm/string_scanner.cpp
+    src/analysis/llm/code_pattern_detector.cpp
+)
+target_include_directories(llm_analysis PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_compile_definitions(llm_analysis PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
+target_link_libraries(llm_analysis PUBLIC
+    sourcerer_core
+    cpu_plugins
+    utils
+    nlohmann_json::nlohmann_json
+    httplib::httplib
+    OpenSSL::SSL
+    OpenSSL::Crypto
+)
+
 # Utilities
 add_library(utils
     src/utils/cli_parser.cpp
@@ -140,6 +173,7 @@ target_link_libraries(sourcerer PRIVATE
     disk_extractors
     formatters
     analysis
+    llm_analysis
     utils
 )
 

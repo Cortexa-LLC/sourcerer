@@ -11,6 +11,9 @@
 #include "analysis/equate_generator.h"
 #include "analysis/hints_parser.h"
 #include "analysis/label_generator.h"
+#include "analysis/llm/chunk_builder.h"
+#include "analysis/llm/llm_analyzer.h"
+#include "analysis/llm/llm_analyzer_registry.h"
 #include "analysis/pattern_detector.h"
 #include "analysis/xref_builder.h"
 #include "core/address_map.h"
@@ -529,6 +532,66 @@ int main(int argc, char** argv) {
     } else {
       LOG_INFO("Linear disassembly mode (analysis disabled)");
       instructions = DisassembleLinear(cpu.get(), binary);
+    }
+
+    // LLM post-disassembly analysis (if requested)
+    if (!options.llm_provider.empty()) {
+      LOG_INFO("Running LLM analysis with provider: " + options.llm_provider);
+      auto& reg = analysis::llm::LlmAnalyzerRegistry::Instance();
+      if (!reg.Has(options.llm_provider)) {
+        LOG_ERROR("Unknown LLM provider '" + options.llm_provider +
+                  "'. Available providers: claude");
+        return 1;
+      }
+
+      auto analyzer = reg.Create(options.llm_provider);
+      if (!analyzer) {
+        LOG_ERROR("Failed to create LLM analyzer for provider: " + options.llm_provider);
+        return 1;
+      }
+
+      // Apply optional overrides before any API call
+      analyzer->Configure(options.llm_model, options.llm_url);
+
+      if (!analyzer->HasApiKey()) {
+        LOG_ERROR("LLM provider '" + options.llm_provider +
+                  "' requires an API key. "
+                  "Set the ANTHROPIC_API_KEY environment variable.");
+        return 1;
+      }
+
+      // Pass 0 — per-chunk instruction annotation
+      analysis::llm::ChunkBuilder chunker(200);
+      auto chunks = chunker.Split(instructions);
+      LOG_INFO("Sending " + std::to_string(chunks.size()) +
+               " chunk(s) to LLM for annotation...");
+      std::vector<analysis::llm::LlmAnnotation> all_annotations;
+      for (const auto& chunk : chunks) {
+        std::string ctx = analysis::llm::ChunkBuilder::FormatChunk(chunk, address_map);
+        auto anns = analyzer->Analyze(ctx, chunk);
+        if (analyzer->HasFailed()) {
+          LOG_ERROR("LLM analysis failed — aborting.");
+          return 1;
+        }
+        all_annotations.insert(all_annotations.end(), anns.begin(), anns.end());
+      }
+      LOG_INFO("Pass 0 complete: " + std::to_string(all_annotations.size()) +
+               " annotation(s)");
+
+      // Passes 1-3 — data-as-code, strings, code patterns
+      LOG_INFO("Running extended LLM analysis passes (data/strings/patterns)...");
+      auto ext_anns = analyzer->AnalyzeExtended(binary, address_map, cpu.get());
+      if (analyzer->HasFailed()) {
+        LOG_ERROR("LLM extended analysis failed — aborting.");
+        return 1;
+      }
+      LOG_INFO("Extended passes complete: " + std::to_string(ext_anns.size()) +
+               " additional annotation(s)");
+      all_annotations.insert(all_annotations.end(), ext_anns.begin(), ext_anns.end());
+
+      analysis::llm::LlmAnalyzer::ApplyAnnotations(all_annotations, &address_map);
+      LOG_INFO("LLM analysis applied: " +
+               std::to_string(all_annotations.size()) + " total annotation(s)");
     }
 
     // Generate equates for commonly used immediate values

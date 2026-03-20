@@ -65,6 +65,19 @@ bool CliParser::Parse(int argc, char** argv, CliOptions* options,
                "Don't generate labels");
   app.add_flag("-v,--verbose", options->verbose, "Verbose output");
 
+  // LLM analysis options
+  app.add_option("--llm-analyze", options->llm_provider,
+                 "LLM provider for post-disassembly analysis (e.g., claude). "
+                 "Requires ANTHROPIC_API_KEY env var. Fails if connection cannot be made.");
+  app.add_option("--llm-model", options->llm_model,
+                 "Override the model used for LLM analysis (e.g., claude-opus-4-6). "
+                 "Defaults to the provider's built-in default.");
+  app.add_option("--llm-url", options->llm_url,
+                 "Override the LLM API endpoint URL. "
+                 "Accepts a full URL (e.g., http://localhost:11434/v1/messages) "
+                 "or a base URL (e.g., https://api.anthropic.com). "
+                 "Useful for local models or API proxies.");
+
   // Parse
   try {
     app.parse(argc, argv);
