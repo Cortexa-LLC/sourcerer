@@ -560,6 +560,63 @@ TEST_F(SCMASMFormatterTest, PlainPrefixFollowedByBinaryEmitsASPluHS) {
       << ".AS should precede .HS, got:\n" << out;
 }
 
+// Pascal string (.PS): length byte N + N plain ASCII bytes.
+// .PS uses the INVERTED delimiter rule: '"' (< 0x27) CLEARS bit 7.
+// So plain ASCII content → .PS "text".
+TEST_F(SCMASMFormatterTest, PascalStringEmitsPS) {
+  // .PS "Apple II HGR" → 0C 41 70 70 6C 65 20 49 49 20 48 47 52
+  std::vector<uint8_t> bytes = {
+    0x0C,  // length = 12
+    'A','p','p','l','e',' ','I','I',' ','H','G','R'
+  };
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".PS") != std::string::npos)
+      << "Pascal string should use .PS, got:\n" << out;
+  EXPECT_TRUE(out.find("Apple II HGR") != std::string::npos)
+      << "Pascal string text should be present, got:\n" << out;
+  EXPECT_EQ(out.find(".HS"), std::string::npos)
+      << "Pascal string should NOT use .HS, got:\n" << out;
+  EXPECT_EQ(out.find(".AS"), std::string::npos)
+      << "Pascal string should NOT use .AS, got:\n" << out;
+  // Delimiter must be < 0x27 (inverted rule CLEARS bit 7) — prefer '"'
+  EXPECT_TRUE(out.find(".PS   \"Apple II HGR\"") != std::string::npos)
+      << "Pascal string should use '\"' delimiter, got:\n" << out;
+}
+
+// Pascal string containing '"' falls back to next < 0x27 delimiter.
+TEST_F(SCMASMFormatterTest, PascalStringWithDoubleQuoteUsesAltDelimiter) {
+  // .PS 'Say "Hi"' → length=8, content contains '"'
+  std::vector<uint8_t> bytes = {
+    0x08,  // length = 8
+    'S','a','y',' ','"','H','i','"'
+  };
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".PS") != std::string::npos)
+      << "Pascal string should use .PS, got:\n" << out;
+  // Must NOT use '"' since it appears in the text; fall back to '!' or '#'
+  EXPECT_EQ(out.find(".PS   \""), std::string::npos)
+      << "Must NOT use '\"' delimiter when it appears in text, got:\n" << out;
+}
+
+// A byte sequence that looks like a Pascal string prefix but is too short (<4 chars)
+// should NOT be treated as a Pascal string.
+TEST_F(SCMASMFormatterTest, ShortPascalLengthDoesNotTriggerPS) {
+  // Length byte 3 + 3 ASCII chars — too short to be a Pascal string (min 4)
+  std::vector<uint8_t> bytes = {0x03, 'A', 'B', 'C'};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_EQ(out.find(".PS"), std::string::npos)
+      << "Length < 4 should not trigger .PS, got:\n" << out;
+}
+
+// A5 60 85 44 — these look like code bytes, not a Pascal string.
+// bytes[0]=0xA5 is > 64, so no false Pascal detection.
+TEST_F(SCMASMFormatterTest, NoPascalFalsePositiveOnCodeBytes) {
+  std::vector<uint8_t> bytes = {0xA5, 0x60, 0x85, 0x44, 0xA5, 0x61};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_EQ(out.find(".PS"), std::string::npos)
+      << "Code-like bytes should not trigger .PS, got:\n" << out;
+}
+
 }  // namespace
 }  // namespace output
 }  // namespace sourcerer

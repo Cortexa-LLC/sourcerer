@@ -16,6 +16,8 @@ StringDetectionResult DataCollector::DetectString(
   result.has_high_bit = false;
   result.has_control_char = false;
   result.is_high_bit_ascii = false;
+  result.is_pascal_string = false;
+  result.pascal_length = 0;
   result.printable_count = 0;
 
   if (!binary_) {
@@ -25,6 +27,29 @@ StringDetectionResult DataCollector::DetectString(
   size_t available = end_address - address;
   if (available < 3) {
     return result;
+  }
+
+  // Pascal string (.PS): first byte is N (4-64), followed by exactly N plain ASCII bytes.
+  // Uses the inverted delimiter rule in xasm++ SCMASM: '"' (< 0x27) clears bit 7.
+  // Check this independently of the lookahead window since we need to scan N bytes.
+  {
+    const uint8_t* len_ptr = binary_->GetPointer(address);
+    if (len_ptr) {
+      uint8_t ps_n = *len_ptr;
+      if (ps_n >= 4 && ps_n <= 64 && address + 1u + ps_n <= end_address) {
+        bool all_ascii = true;
+        for (uint32_t i = address + 1; i < address + 1u + ps_n && all_ascii; ++i) {
+          const uint8_t* b = binary_->GetPointer(i);
+          if (!b || *b < 0x20 || *b > 0x7E) all_ascii = false;
+        }
+        if (all_ascii) {
+          result.is_pascal_string = true;
+          result.pascal_length = ps_n;
+          result.looks_like_string = true;
+          return result;
+        }
+      }
+    }
   }
 
   size_t check_len = std::min(lookahead, available);

@@ -18,7 +18,9 @@ struct StringDetectionResult {
   bool looks_like_string;
   bool has_high_bit;
   bool has_control_char;
-  bool is_high_bit_ascii;  // All bytes have bit 7 set, printable as Apple II ASCII
+  bool is_high_bit_ascii;    // All bytes have bit 7 set, printable as Apple II ASCII
+  bool is_pascal_string;     // Length-prefixed plain ASCII: byte[0]=N, bytes[1..N] plain
+  uint8_t pascal_length;     // Value of the length byte (valid when is_pascal_string)
   int printable_count;
 };
 

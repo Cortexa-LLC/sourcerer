@@ -142,11 +142,17 @@ std::string ScmasmFormatter::Format(
       std::vector<uint8_t> data_bytes;
       uint32_t data_start = addr;
 
-      // Check if next few bytes look like a string
+      // Check if next few bytes look like a string (or Pascal string)
       auto string_detection = data_collector.DetectString(addr, end_addr, 4);
-      bool looks_like_string = string_detection.looks_like_string;
 
-      if (looks_like_string && address_map) {
+      if (string_detection.is_pascal_string && address_map) {
+        // Collect exactly len+1 bytes for the Pascal string
+        auto pascal_result = data_collector.CollectBinaryData(
+            addr, end_addr, address_map,
+            static_cast<size_t>(string_detection.pascal_length) + 1u);
+        data_bytes = pascal_result.bytes;
+        addr = pascal_result.next_address;
+      } else if (string_detection.looks_like_string && address_map) {
         // Collect string data
         auto string_result = data_collector.CollectStringData(
             addr, end_addr, address_map, 128);
@@ -397,6 +403,31 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
   std::ostringstream out;
 
   // --- Classify ---
+
+  // Pascal string (.PS): bytes[0] is length N, bytes[1..N] are plain ASCII.
+  // .PS uses the INVERTED delimiter rule: delimiter < 0x27 CLEARS bit 7.
+  // So for plain ASCII content, use '"' (0x22 < 0x27).
+  if (bytes.size() >= 5 &&
+      bytes.size() == static_cast<size_t>(bytes[0]) + 1u &&
+      bytes[0] >= 4 && bytes[0] <= 64) {
+    bool all_ascii = true;
+    for (size_t i = 1; i < bytes.size() && all_ascii; ++i) {
+      if (bytes[i] < 0x20 || bytes[i] > 0x7E) all_ascii = false;
+    }
+    if (all_ascii) {
+      std::string text;
+      for (size_t i = 1; i < bytes.size(); ++i) text += static_cast<char>(bytes[i]);
+      // Pick delimiter with ASCII < 0x27 (inverted rule: CLEAR high bit for .PS)
+      const char ps_candidates[] = {'"', '!', '#', '$', '%', '&'};
+      for (char d : ps_candidates) {
+        if (text.find(d) == std::string::npos) {
+          out << std::string(OPCODE_COL, ' ') << ".PS   " << d << text << d;
+          return out.str();
+        }
+      }
+      // Fall through to .HS if no usable delimiter
+    }
+  }
 
   // Plain ASCII: all bytes in 0x20-0x7E
   bool all_plain = true;
