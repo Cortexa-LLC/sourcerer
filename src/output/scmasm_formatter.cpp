@@ -436,12 +436,15 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
   const size_t kBytesPerLine = 8;
 
   // Helper lambda: emit bytes[from..end) as .HS lines.
+  // Labels are only injected for mid-chunk positions (start > 0 in the full
+  // byte array) — the label at the region start is already emitted by the
+  // caller (FormatDataRegion).
   auto emit_hs = [&](size_t from) {
     for (size_t start = from; start < bytes.size(); start += kBytesPerLine) {
       if (start > from) {
         out << std::endl;
       }
-      if (address_map) {
+      if (start > 0 && address_map) {
         uint32_t mid_addr = address + static_cast<uint32_t>(start);
         if (auto lbl = address_map->GetLabel(mid_addr)) {
           out << *lbl << std::endl;
