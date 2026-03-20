@@ -514,6 +514,19 @@ TEST_F(SCMASMFormatterTest, PlainStringWithDoubleQuoteUsesClearAltDelimiter) {
       << "Must NOT use '\"' delimiter for plain ASCII, got:\n" << out;
 }
 
+// Short plain-ASCII prefix (< 8 bytes) followed by binary should NOT split.
+// Mirrors the false-positive "$?EGv" (5 bytes) from the ProDOS FX boot0 sector.
+TEST_F(SCMASMFormatterTest, ShortPlainPrefixDoesNotSplit) {
+  // 5 printable bytes + 8 non-printable bytes — prefix too short to be a string
+  std::vector<uint8_t> bytes = {'$','?','E','G','v', 0xF4,0xD7,0xD1,0xB6,0x4B,0xB4,0xAC,0xA6};
+  std::string out = FormatDataBytes(bytes);
+  // All bytes should appear as .HS — no false .AS split
+  EXPECT_TRUE(out.find(".HS") != std::string::npos)
+      << "Short prefix should use .HS (not split), got:\n" << out;
+  EXPECT_EQ(out.find(".AS"), std::string::npos)
+      << "5-byte prefix should NOT trigger .AS split, got:\n" << out;
+}
+
 // String containing all clear-bit delimiter candidates falls back to .HS.
 TEST_F(SCMASMFormatterTest, StringWithAllClearDelimitersFallsBackToHS) {
   // Construct a string that contains all candidates: ' / ( ) * + - . @ ~ | `
@@ -524,9 +537,10 @@ TEST_F(SCMASMFormatterTest, StringWithAllClearDelimitersFallsBackToHS) {
   EXPECT_EQ(out.find(".AS"), std::string::npos);
 }
 
-// Mixed: plain-ASCII prefix followed by binary data.
+// Mixed: plain-ASCII prefix >= 8 bytes followed by binary data.
 // The plain prefix should emit .AS; the binary tail should emit .HS.
 // Mirrors the real ProDOS FX boot0 region: "&PRODOS        " (16 bytes) + binary.
+// Minimum is 8 bytes to avoid false positives from short coincidental ASCII runs.
 TEST_F(SCMASMFormatterTest, PlainPrefixFollowedByBinaryEmitsASPluHS) {
   // "&PRODOS        " (16 bytes plain) + A5 60 85 44 (4 bytes binary)
   std::vector<uint8_t> bytes = {

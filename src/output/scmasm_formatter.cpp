@@ -522,15 +522,18 @@ std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
     return out.str();
   }
 
-  // Plain-ASCII prefix split: if the buffer starts with >= 4 printable bytes
+  // Plain-ASCII prefix split: if the buffer starts with >= 8 printable bytes
   // followed by non-plain data, emit the prefix as .AS and the tail as .HS.
+  // Use 8 as the minimum to avoid false positives — short runs of printable
+  // bytes in data structures (e.g. 5-byte sequences like "$?EGv") are very
+  // likely coincidental and should stay as .HS.
   if (!all_plain) {
     size_t prefix_len = 0;
     for (uint8_t b : bytes) {
       if (b < 0x20 || b > 0x7E) break;
       prefix_len++;
     }
-    if (prefix_len >= 4) {
+    if (prefix_len >= 8) {
       std::string prefix_text(bytes.begin(), bytes.begin() + static_cast<ptrdiff_t>(prefix_len));
       char d = pick_delim_clear(prefix_text);
       if (d != '\0') {
