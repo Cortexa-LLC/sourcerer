@@ -50,6 +50,12 @@ class ScmasmFormatter : public Formatter {
                               const core::SymbolTable* symbol_table = nullptr,
                               const core::Binary* binary = nullptr);
 
+  // Helper: Classify bytes and emit .AS / .AT / .HS as appropriate.
+  // Does NOT emit the label — FormatDataRegion handles that.
+  static std::string FormatStringOrHex(uint32_t address,
+                                       const std::vector<uint8_t>& bytes,
+                                       const core::AddressMap* address_map);
+
   // Column positions for SCMASM format
   static constexpr int LABEL_COL = 0;
   static constexpr int OPCODE_COL = 9;

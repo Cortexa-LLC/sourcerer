@@ -422,6 +422,95 @@ TEST_F(SCMASMFormatterTest, InlineCommentAlignment) {
   EXPECT_EQ(semicolon_pos4, 40) << "'; ' prefix with local label should be at column 40\nLine: " << output4;
 }
 
+// ---------------------------------------------------------------------------
+// String directive selection tests
+// ---------------------------------------------------------------------------
+
+// Helper: run Format() on a binary where the given bytes are all DATA-typed,
+// and return the relevant portion of the output.
+static std::string FormatDataBytes(const std::vector<uint8_t>& bytes,
+                                   uint32_t load_addr = 0x1000) {
+  core::Binary binary(bytes, load_addr);
+  core::AddressMap am;
+  for (size_t i = 0; i < bytes.size(); ++i) {
+    am.SetType(load_addr + static_cast<uint32_t>(i), core::AddressType::DATA);
+  }
+  auto fmt = CreateScmasmFormatter();
+  return fmt->Format(binary, {}, &am);
+}
+
+// Plain ASCII → .AS "text"
+TEST_F(SCMASMFormatterTest, PlainAsciiEmitsAS) {
+  // "HELLO" = 48 45 4C 4C 4F
+  std::vector<uint8_t> bytes = {'H', 'E', 'L', 'L', 'O'};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".AS") != std::string::npos)
+      << "Plain ASCII should use .AS, got:\n" << out;
+  EXPECT_TRUE(out.find("HELLO") != std::string::npos);
+  EXPECT_EQ(out.find(".HS"), std::string::npos)
+      << "Plain ASCII should NOT use .HS, got:\n" << out;
+  EXPECT_EQ(out.find(".AT"), std::string::npos);
+}
+
+// High-bit terminated → .AT "text"
+TEST_F(SCMASMFormatterTest, HighBitTerminatedEmitsAT) {
+  // "HELL" + 'O' with high bit = 48 45 4C 4C CF
+  std::vector<uint8_t> bytes = {'H', 'E', 'L', 'L', 'O' | 0x80};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".AT") != std::string::npos)
+      << "High-bit terminated should use .AT, got:\n" << out;
+  EXPECT_TRUE(out.find("HELLO") != std::string::npos);
+  EXPECT_EQ(out.find(".HS"), std::string::npos)
+      << "High-bit terminated should NOT use .HS, got:\n" << out;
+}
+
+// Apple II high-bit ASCII (all bytes >= 0x80, printable when masked) → .HS + comment
+TEST_F(SCMASMFormatterTest, AppleHighBitAsciiEmitsHSWithComment) {
+  // "HELLO" with all bytes having bit 7 set: C8 C5 CC CC CF
+  std::vector<uint8_t> bytes = {'H'|0x80, 'E'|0x80, 'L'|0x80, 'L'|0x80, 'O'|0x80};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".HS") != std::string::npos)
+      << "All-high-bit ASCII should use .HS, got:\n" << out;
+  // Should have a decoded comment
+  EXPECT_TRUE(out.find("HELLO") != std::string::npos)
+      << "Should have decoded comment, got:\n" << out;
+  EXPECT_EQ(out.find(".AS"), std::string::npos);
+  EXPECT_EQ(out.find(".AT"), std::string::npos);
+}
+
+// Raw binary (non-printable bytes) → .HS
+TEST_F(SCMASMFormatterTest, BinaryDataEmitsHS) {
+  std::vector<uint8_t> bytes = {0x01, 0x02, 0x03, 0x7F, 0x80};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".HS") != std::string::npos)
+      << "Binary data should use .HS, got:\n" << out;
+  EXPECT_EQ(out.find(".AS"), std::string::npos);
+  EXPECT_EQ(out.find(".AT"), std::string::npos);
+}
+
+// String containing double-quote uses single-quote delimiter
+TEST_F(SCMASMFormatterTest, StringWithDoubleQuoteUsesAltDelimiter) {
+  // SAY "HI" -> 53 41 59 20 22 48 49 22
+  std::vector<uint8_t> bytes = {'S','A','Y',' ','"','H','I','"'};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".AS") != std::string::npos)
+      << "String with \" should still use .AS (with ' delimiter), got:\n" << out;
+  // Should use single-quote delimiter
+  EXPECT_TRUE(out.find(".AS   '") != std::string::npos
+           || out.find(".AS '") != std::string::npos)
+      << "Should use single-quote delimiter, got:\n" << out;
+}
+
+// String containing both delimiters falls back to .HS
+TEST_F(SCMASMFormatterTest, StringWithBothDelimitersFallsBackToHS) {
+  // it's "fine" -> 69 74 27 73 20 22 66 69 6E 65 22
+  std::vector<uint8_t> bytes = {'i','t','\'','s',' ','"','f','i','n','e','"'};
+  std::string out = FormatDataBytes(bytes);
+  EXPECT_TRUE(out.find(".HS") != std::string::npos)
+      << "String with both delimiters should fall back to .HS, got:\n" << out;
+  EXPECT_EQ(out.find(".AS"), std::string::npos);
+}
+
 }  // namespace
 }  // namespace output
 }  // namespace sourcerer

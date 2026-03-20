@@ -942,6 +942,82 @@ TEST_F(MerlinFormatterTest, PlatformSymbolsInFormat) {
   EXPECT_TRUE(output.find("EQU   $C000") != std::string::npos);
 }
 
+// ---------------------------------------------------------------------------
+// String directive selection tests (Merlin)
+// ---------------------------------------------------------------------------
+
+// Helper: run Format() on a binary where all bytes are DATA-typed.
+static std::string FormatMerlinDataBytes(const std::vector<uint8_t>& bytes,
+                                         uint32_t load_addr = 0x1000) {
+  core::Binary binary(bytes, load_addr);
+  core::AddressMap am;
+  for (size_t i = 0; i < bytes.size(); ++i) {
+    am.SetType(load_addr + static_cast<uint32_t>(i), core::AddressType::DATA);
+  }
+  auto fmt = CreateMerlinFormatter();
+  return fmt->Format(binary, {}, &am);
+}
+
+// Plain ASCII (0x20-0x7E) → HEX  (Merlin ASC sets bit 7 on ALL bytes, so plain
+// ASCII cannot use ASC; HEX is correct for faithful round-tripping)
+TEST_F(MerlinFormatterTest, PlainAsciiEmitsHEX) {
+  std::vector<uint8_t> bytes = {'H', 'E', 'L', 'L', 'O'};
+  std::string out = FormatMerlinDataBytes(bytes);
+  EXPECT_TRUE(out.find("HEX") != std::string::npos)
+      << "Plain ASCII should use HEX in Merlin (ASC sets high bit), got:\n" << out;
+  EXPECT_EQ(out.find("ASC"), std::string::npos)
+      << "Plain ASCII should NOT use ASC in Merlin, got:\n" << out;
+  EXPECT_EQ(out.find("DCI"), std::string::npos);
+}
+
+// Apple II high-bit ASCII (all bytes 0xA0-0xFE) → ASC "decoded"
+// The assembler re-adds bit 7 so decoded text (bit 7 stripped) round-trips correctly.
+TEST_F(MerlinFormatterTest, AppleHighBitAsciiEmitsASC) {
+  // "HELLO" with all bytes having bit 7 set: C8 C5 CC CC CF
+  std::vector<uint8_t> bytes = {'H'|0x80, 'E'|0x80, 'L'|0x80, 'L'|0x80, 'O'|0x80};
+  std::string out = FormatMerlinDataBytes(bytes);
+  EXPECT_TRUE(out.find("ASC") != std::string::npos)
+      << "All-high-bit Apple II string should use ASC, got:\n" << out;
+  EXPECT_TRUE(out.find("HELLO") != std::string::npos)
+      << "Decoded text should appear in output, got:\n" << out;
+  EXPECT_EQ(out.find("DCI"), std::string::npos);
+}
+
+// DCI string (plain prefix, last byte has bit 7 set) → DCI "decoded"
+TEST_F(MerlinFormatterTest, DciStringEmitsDCI) {
+  // "HELL" + 'O'|0x80 = 48 45 4C 4C CF
+  std::vector<uint8_t> bytes = {'H', 'E', 'L', 'L', 'O' | 0x80};
+  std::string out = FormatMerlinDataBytes(bytes);
+  EXPECT_TRUE(out.find("DCI") != std::string::npos)
+      << "DCI-style string should use DCI directive, got:\n" << out;
+  EXPECT_TRUE(out.find("HELLO") != std::string::npos)
+      << "Decoded text should appear in output, got:\n" << out;
+  EXPECT_EQ(out.find("ASC"), std::string::npos);
+}
+
+// Raw binary (non-printable bytes) → HEX
+TEST_F(MerlinFormatterTest, BinaryDataEmitsHEX) {
+  std::vector<uint8_t> bytes = {0x01, 0x02, 0x03, 0x7F, 0x80};
+  std::string out = FormatMerlinDataBytes(bytes);
+  EXPECT_TRUE(out.find("HEX") != std::string::npos)
+      << "Binary data should use HEX, got:\n" << out;
+  EXPECT_EQ(out.find("ASC"), std::string::npos);
+  EXPECT_EQ(out.find("DCI"), std::string::npos);
+}
+
+// String containing both ' and " delimiters falls back to HEX
+TEST_F(MerlinFormatterTest, StringWithBothDelimitersFallsBackToHEX) {
+  // Apple II high-bit bytes for: "He said 'hi'" — but embed both delimiters
+  // Build: all bytes >= 0x80 but decoded text contains both " and '
+  std::string src = "say \"hi\" it's";
+  std::vector<uint8_t> bytes;
+  for (char c : src) bytes.push_back(static_cast<uint8_t>(c) | 0x80);
+  std::string out = FormatMerlinDataBytes(bytes);
+  // When both delimiters appear in decoded text, must fall back to HEX
+  EXPECT_TRUE(out.find("HEX") != std::string::npos)
+      << "String with both delimiters should fall back to HEX, got:\n" << out;
+}
+
 }  // namespace
 }  // namespace output
 }  // namespace sourcerer

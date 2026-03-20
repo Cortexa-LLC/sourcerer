@@ -369,34 +369,107 @@ std::string ScmasmFormatter::FormatDataRegion(uint32_t address,
     }
   }
 
-  // Apple II high-bit ASCII: all bytes have bit 7 set and printable low 7 bits.
-  // Emit a decoded comment so the string is human-readable.
-  if (bytes.size() >= 3) {
-    bool is_apple2_ascii = true;
-    for (uint8_t b : bytes) {
-      if (b < 0x80 || !DataCollector::IsPrintable(b)) {
-        is_apple2_ascii = false;
-        break;
-      }
+  if (!bytes.empty()) {
+    out << FormatStringOrHex(address, bytes, address_map);
+  }
+
+  return out.str();
+}
+
+// Classify bytes and emit the most readable SCMASM string directive, or
+// fall back to .HS for binary data.
+//
+// Directive selection:
+//   .AS "text"  — all bytes 0x20-0x7E (plain printable ASCII)
+//   .AT "text"  — all bytes 0x20-0x7E except last which has bit 7 set (high-bit terminator)
+//   .HS hex     — Apple II high-bit ASCII (all bytes 0xA0-0xFE) with a decoded comment,
+//                 or any other binary data that doesn't fit a string directive
+//
+// Delimiter choice: prefer '"'; fall back to '\'' if the string contains '"';
+// fall through to .HS if both '"' and '\'' appear in the text.
+//
+// Multi-line: .AS/.AT always fit on one line (CollectStringData already stops
+// at labelled addresses). .HS is chunked 8 bytes per line with mid-chunk
+// label injection.
+std::string ScmasmFormatter::FormatStringOrHex(uint32_t address,
+                                               const std::vector<uint8_t>& bytes,
+                                               const core::AddressMap* address_map) {
+  std::ostringstream out;
+
+  // --- Classify ---
+
+  // Plain ASCII: all bytes in 0x20-0x7E
+  bool all_plain = true;
+  for (uint8_t b : bytes) {
+    if (b < 0x20 || b > 0x7E) { all_plain = false; break; }
+  }
+
+  // High-bit terminated (.AT): all bytes except last are 0x20-0x7E;
+  // last byte has bit 7 set and is printable when masked (0xA0-0xFE).
+  bool at_terminated = (bytes.size() >= 2) && !all_plain;
+  if (at_terminated) {
+    for (size_t i = 0; i + 1 < bytes.size(); ++i) {
+      if (bytes[i] < 0x20 || bytes[i] > 0x7E) { at_terminated = false; break; }
     }
-    if (is_apple2_ascii) {
-      std::string decoded;
-      for (uint8_t b : bytes) {
-        decoded += static_cast<char>(b & 0x7F);
-      }
-      out << std::string(OPCODE_COL, ' ') << "; \"" << decoded << "\"" << std::endl;
+    uint8_t last = bytes.back();
+    if (at_terminated) {
+      uint8_t lo = last & 0x7F;
+      at_terminated = (last >= 0x80) && (lo >= 0x20) && (lo <= 0x7E);
     }
   }
 
-  // Emit as .HS (hex string) lines, 8 bytes per line.
-  // xasm++ SCMASM .DA without a '#' prefix emits 16-bit words, not bytes.
-  // .HS takes pairs of hex digits and emits one byte per pair — the correct
-  // directive for raw byte data.
+  // Apple II high-bit ASCII: ALL bytes have bit 7 set and are printable when masked.
+  bool all_highbit = true;
+  for (uint8_t b : bytes) {
+    if (b < 0x80 || !DataCollector::IsPrintable(b)) { all_highbit = false; break; }
+  }
+
+  // --- Helper: pick a delimiter that doesn't appear in the text ---
+  auto pick_delim = [](const std::string& text) -> char {
+    if (text.find('"') == std::string::npos)  return '"';
+    if (text.find('\'') == std::string::npos) return '\'';
+    return '\0';  // Both present — caller should fall back to .HS
+  };
+
+  // --- Emit ---
+
+  if (all_plain) {
+    std::string text;
+    for (uint8_t b : bytes) text += static_cast<char>(b);
+    char d = pick_delim(text);
+    if (d != '\0') {
+      out << std::string(OPCODE_COL, ' ') << ".AS   " << d << text << d;
+      return out.str();
+    }
+    // Fall through to .HS if both delimiters appear in the text.
+  }
+
+  if (at_terminated) {
+    // Strip high bit from last char for the quoted text.
+    std::string text;
+    for (size_t i = 0; i + 1 < bytes.size(); ++i) text += static_cast<char>(bytes[i]);
+    text += static_cast<char>(bytes.back() & 0x7F);
+    char d = pick_delim(text);
+    if (d != '\0') {
+      out << std::string(OPCODE_COL, ' ') << ".AT   " << d << text << d;
+      return out.str();
+    }
+    // Fall through to .HS.
+  }
+
+  // Apple II high-bit ASCII: no clean directive exists — emit .HS with a
+  // human-readable decoded comment above the hex line(s).
+  if (all_highbit && bytes.size() >= 3) {
+    std::string decoded;
+    for (uint8_t b : bytes) decoded += static_cast<char>(b & 0x7F);
+    out << std::string(OPCODE_COL, ' ') << "; \"" << decoded << "\"" << std::endl;
+  }
+
+  // .HS — raw hex bytes, 8 per line, with mid-chunk label injection.
   const size_t kBytesPerLine = 8;
   for (size_t start = 0; start < bytes.size(); start += kBytesPerLine) {
     if (start > 0) {
       out << std::endl;
-      // If there's a label at an intermediate address, emit it first.
       if (address_map) {
         uint32_t mid_addr = address + static_cast<uint32_t>(start);
         if (auto lbl = address_map->GetLabel(mid_addr)) {

@@ -477,25 +477,59 @@ std::string MerlinFormatter::FormatDataRegion(
   // Check for address table first (but not for inline data)
   bool is_address_table = !is_inline_data && address_analyzer && LooksLikeAddressTable(bytes, address_analyzer);
 
-  // Check for string: either all bytes are printable, OR there's an embedded string
+  // Classify bytes for string directive selection.
+  //
+  // Merlin (xasm++) ASC sets bit 7 on EVERY byte, so:
+  //   Plain ASCII (0x20-0x7E) → HEX  (ASC would set wrong high bits)
+  //   High-bit Apple II (all 0xA0-0xFE) → ASC "decoded"  (assembler re-adds bit 7)
+  //   DCI-style (plain + last byte has bit 7) → DCI "decoded"
+  //   String with embedded CR ($8D) → ASC with HEX 8D splits
+
+  // --- Pass 1: plain ASCII with optional embedded CR ---
   bool is_pure_string = !is_inline_data && !is_address_table && bytes.size() >= 3;
   bool has_high_bit = false;
   for (size_t i = 0; i < bytes.size() && is_pure_string; ++i) {
-    // CRITICAL: Reject high-bit bytes (graphics data, not ASCII), except CR ($8D)
+    // Reject high-bit bytes (graphics data), except CR ($8D)
     if (bytes[i] >= 0x80 && bytes[i] != 0x8D) {
       is_pure_string = false;
       break;
     }
-    // CRITICAL: Reject control characters (except CR/LF)
+    // Reject control characters (except CR/LF)
     if (bytes[i] < 0x20 && bytes[i] != 0x0D && bytes[i] != 0x0A) {
       is_pure_string = false;
       break;
     }
-    if (!DataCollector::IsPrintable(bytes[i]) && bytes[i] != 0x8D) {  // Allow CR ($8D)
+    if (!DataCollector::IsPrintable(bytes[i]) && bytes[i] != 0x8D) {
       is_pure_string = false;
     }
     if ((bytes[i] & 0x80) != 0) {
       has_high_bit = true;
+    }
+  }
+
+  // --- Pass 2: Apple II high-bit ASCII (all bytes 0xA0-0xFE) → ASC "decoded" ---
+  bool is_highbit_string = !is_inline_data && !is_address_table && !is_pure_string
+                           && bytes.size() >= 3;
+  if (is_highbit_string) {
+    for (uint8_t b : bytes) {
+      if (b < 0x80 || !DataCollector::IsPrintable(b)) {
+        is_highbit_string = false;
+        break;
+      }
+    }
+  }
+
+  // --- Pass 3: DCI-style (all plain except last byte has bit 7 set) → DCI "decoded" ---
+  bool is_dci_string = !is_inline_data && !is_address_table && !is_pure_string
+                       && !is_highbit_string && bytes.size() >= 2;
+  if (is_dci_string) {
+    for (size_t i = 0; i + 1 < bytes.size(); ++i) {
+      if (bytes[i] < 0x20 || bytes[i] > 0x7E) { is_dci_string = false; break; }
+    }
+    uint8_t last = bytes.back();
+    if (is_dci_string) {
+      uint8_t lo = last & 0x7F;
+      is_dci_string = (last >= 0x80) && (lo >= 0x20) && (lo <= 0x7E);
     }
   }
 
@@ -681,6 +715,45 @@ std::string MerlinFormatter::FormatDataRegion(
             out << ",";
           }
         }
+        out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(bytes[i]);
+      }
+    }
+  } else if (is_highbit_string) {
+    // All bytes have bit 7 set and are printable when masked (Apple II screen codes).
+    // xasm++ Merlin ASC re-adds bit 7, so we strip it for the quoted text.
+    std::string text;
+    for (uint8_t b : bytes) text += static_cast<char>(b & 0x7F);
+    // Pick delimiter that doesn't appear in the decoded text.
+    char d = (text.find('"') == std::string::npos) ? '"'
+           : (text.find('\'') == std::string::npos) ? '\'' : '\0';
+    if (d != '\0') {
+      out << "ASC   " << d << text << d;
+    } else {
+      // Both delimiters present — fall back to HEX.
+      out << "HEX   ";
+      for (size_t i = 0; i < bytes.size(); ++i) {
+        if (i > 0) out << ((i % 8 == 0) ? (out << std::endl
+                            << std::string(OPCODE_COL, ' ') << "HEX   ", "") : ",");
+        out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(bytes[i]);
+      }
+    }
+  } else if (is_dci_string) {
+    // All bytes plain ASCII except last which has bit 7 set.
+    // xasm++ Merlin DCI sets bit 7 on the last byte only.
+    std::string text;
+    for (size_t i = 0; i + 1 < bytes.size(); ++i) text += static_cast<char>(bytes[i]);
+    text += static_cast<char>(bytes.back() & 0x7F);
+    char d = (text.find('"') == std::string::npos) ? '"'
+           : (text.find('\'') == std::string::npos) ? '\'' : '\0';
+    if (d != '\0') {
+      out << "DCI   " << d << text << d;
+    } else {
+      out << "HEX   ";
+      for (size_t i = 0; i < bytes.size(); ++i) {
+        if (i > 0) out << ((i % 8 == 0) ? (out << std::endl
+                            << std::string(OPCODE_COL, ' ') << "HEX   ", "") : ",");
         out << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
             << static_cast<int>(bytes[i]);
       }
