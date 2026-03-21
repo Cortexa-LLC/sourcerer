@@ -15,6 +15,11 @@ namespace llm {
 
 namespace {
 
+// Returns true for address types that may contain hidden code.
+bool IsScannable(core::AddressType t) {
+  return t == core::AddressType::DATA || t == core::AddressType::UNKNOWN;
+}
+
 // Returns a vector of BinarySegment views covering all binary data,
 // handling both flat (data_) and multi-segment (segments_) binaries.
 std::vector<core::BinarySegment> AllSegments(const core::Binary& binary) {
@@ -66,7 +71,7 @@ std::vector<DataCodeCandidate> DataCodeScanner::Scan(
 
     uint32_t addr = seg_start;
     while (addr < seg_end) {
-      if (address_map.GetType(addr) != core::AddressType::DATA) {
+      if (!IsScannable(address_map.GetType(addr))) {
         ++addr;
         continue;
       }
@@ -78,7 +83,7 @@ std::vector<DataCodeCandidate> DataCodeScanner::Scan(
       uint32_t scan_addr = addr;
       int illegal_count = 0;
       while (scan_addr < seg_end) {
-        if (address_map.GetType(scan_addr) != core::AddressType::DATA) break;
+        if (!IsScannable(address_map.GetType(scan_addr))) break;
 
         size_t offset = scan_addr - seg_start;
         if (offset >= seg_size) break;
