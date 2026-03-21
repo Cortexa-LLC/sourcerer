@@ -76,6 +76,7 @@ std::vector<DataCodeCandidate> DataCodeScanner::Scan(
       std::ostringstream listing;
 
       uint32_t scan_addr = addr;
+      int illegal_count = 0;
       while (scan_addr < seg_end) {
         if (address_map.GetType(scan_addr) != core::AddressType::DATA) break;
 
@@ -85,14 +86,36 @@ std::vector<DataCodeCandidate> DataCodeScanner::Scan(
         core::Instruction inst =
             cpu->Disassemble(base + offset, seg_size - offset, scan_addr);
 
-        if (inst.bytes.empty() || inst.is_illegal) break;
+        if (inst.bytes.empty()) break;
+
+        if (inst.is_illegal) {
+          // Skip illegal bytes rather than aborting the run.  NMOS 6502 code
+          // can contain undocumented opcodes; a single illegal byte should not
+          // prevent detection of an RTS or JMP that follows.
+          ++illegal_count;
+          ++scan_addr;
+          continue;
+        }
 
         run_instructions.push_back(inst);
         listing << "; " << FormatLine(inst) << "\n";
         scan_addr += static_cast<uint32_t>(inst.bytes.size());
+
+        // Stop at flow-control terminators (RTS/RTI/JMP abs/JMP ind) so we
+        // don't over-extend into unrelated data after the subroutine.
+        const uint8_t op = inst.bytes[0];
+        if (op == 0x60 || op == 0x40 || op == 0x4C || op == 0x6C) break;
       }
 
-      if (static_cast<int>(run_instructions.size()) >= kMinValidInstructions) {
+      // Require enough valid instructions AND that illegal bytes don't
+      // dominate (≤ 50% of total bytes scanned).
+      const int total_insts =
+          static_cast<int>(run_instructions.size()) + illegal_count;
+      const bool density_ok =
+          (total_insts == 0) || (illegal_count * 2 <= total_insts);
+
+      if (static_cast<int>(run_instructions.size()) >= kMinValidInstructions &&
+          density_ok) {
         DataCodeCandidate cand;
         cand.start_address = run_start;
         cand.length = scan_addr - run_start;
@@ -101,7 +124,8 @@ std::vector<DataCodeCandidate> DataCodeScanner::Scan(
         LOG_DEBUG([&] {
           std::ostringstream dbg;
           dbg << "DataCodeScanner: candidate at $" << std::hex << run_start
-              << " len=" << (scan_addr - run_start);
+              << " len=" << (scan_addr - run_start)
+              << " illegal=" << illegal_count;
           return dbg.str();
         }());
         addr = scan_addr;
