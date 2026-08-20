@@ -273,3 +273,7 @@ Contributions welcome! Please ensure:
 - All tests pass
 - New features include tests
 - Documentation is updated
+
+## Related Projects
+
+- [xasm++](https://github.com/Cortexa-LLC/xasm-plus-plus) — companion cross-assembler supporting the same CPU families
